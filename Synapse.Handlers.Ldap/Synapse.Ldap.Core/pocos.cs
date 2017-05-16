@@ -17,18 +17,12 @@ namespace Synapse.Ldap.Core
         Xml
     }
 
-    public class LdapHandlerParameters
-    {
-        public ActionType Action { get; set; } = ActionType.Query;
-        public ObjectType Type { get; set; }
-        public SerializationFormat ReturnFormat { get; set; } = SerializationFormat.Json;
-        public object Request { get; set; }
-    }
 
-    public enum ObjectType
+    public enum ObjectClass
     {
         User,
         Group,
+        Computer,
         OrganizationalUnit,
         GroupPolicy
     }

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Data.Odbc;
-using System.IO;
-using System.Text.RegularExpressions;
 
 using Newtonsoft.Json;
 
@@ -12,12 +7,12 @@ using Synapse.Ldap.Core;
 
 public class LdapHandler : HandlerRuntimeBase
 {
-    ConnectionInfo _dsn = null;
+    ConnectionInfo _ldap = null;
 
     public override IHandlerRuntime Initialize(string config)
     {
         //deserialize the Config from the Handler declaration
-        _dsn = DeserializeOrNew<ConnectionInfo>( config );
+        _ldap = DeserializeOrNew<ConnectionInfo>( config );
         return this;
     }
 
@@ -35,57 +30,50 @@ public class LdapHandler : HandlerRuntimeBase
         Exception exc = null;
 
         //deserialize the Parameters from the Action declaration
-        LdapHandlerParameters parms = DeserializeOrNew<LdapHandlerParameters>( startInfo.Parameters );
+        SecurityPrincipalQueryParameters parms = DeserializeOrNew<SecurityPrincipalQueryParameters>( startInfo.Parameters );
 
-        using( OdbcConnection connection = new OdbcConnection( _dsn.LdapRoot ) )
+        try
         {
-            try
+            //if IsDryRun == true, test if ConnectionString is valid and works.
+            if( startInfo.IsDryRun )
             {
-                //if IsDryRun == true, test if ConnectionString is valid and works.
-                if( startInfo.IsDryRun )
-                {
-                    OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
+                OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
 
 
-                    result.ExitData = connection.State;
-                    result.Message = msg =
-                        $"Connection test successful! Connection string: {_dsn.LdapRoot}";
-                }
-                //else, select data as declared in Parameters.QueryString
-                else
-                {
-
-                    //populate the Handler result
-                    result.ExitData = "data";
-                }
+                result.ExitData = _ldap.LdapRoot;
+                result.Message = msg =
+                    $"Connection test successful! Connection string: {_ldap.LdapRoot}";
             }
-            //something wnet wrong: hand-back the Exception and mark the execution as Failed
-            catch( Exception ex )
+            //else, select data as declared in Parameters.QueryString
+            else
             {
-                exc = ex;
-                result.Status = StatusType.Failed;
-                result.ExitData = msg =
-                    ex.Message;
-            }
-            finally
-            {
-                connection.Close();
-            }
 
-            //final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
-            OnProgress( __context, msg, result.Status, sequence: Int32.MaxValue, ex: exc );
-
-            return result;
+                //populate the Handler result
+                result.ExitData = ldap.GetObjectDistinguishedName( ObjectClass.User, parms.Name, _ldap.LdapRoot ); ;
+            }
         }
+        //something wnet wrong: hand-back the Exception and mark the execution as Failed
+        catch( Exception ex )
+        {
+            exc = ex;
+            result.Status = StatusType.Failed;
+            result.ExitData = msg =
+                ex.Message;
+        }
+
+        //final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
+        OnProgress( __context, msg, result.Status, sequence: Int32.MaxValue, ex: exc );
+
+        return result;
     }
 
     public override object GetConfigInstance()
     {
-        throw new NotImplementedException();
+        return new ConnectionInfo() { LdapRoot = "LDAP://" };
     }
 
     public override object GetParametersInstance()
     {
-        throw new NotImplementedException();
+        return new SecurityPrincipalQueryParameters() { Type = ObjectClass.Group, Action = ActionType.Create, ReturnFormat = Synapse.Ldap.Core.SerializationFormat.Xml };
     }
 }
