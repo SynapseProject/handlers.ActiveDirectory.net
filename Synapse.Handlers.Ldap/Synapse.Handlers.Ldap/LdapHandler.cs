@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 
 using Synapse.Core;
-
+using Synapse.Ldap.Core;
 
 public class LdapHandler : HandlerRuntimeBase
 {
@@ -37,7 +37,7 @@ public class LdapHandler : HandlerRuntimeBase
         //deserialize the Parameters from the Action declaration
         LdapHandlerParameters parms = DeserializeOrNew<LdapHandlerParameters>( startInfo.Parameters );
 
-        using( OdbcConnection connection = new OdbcConnection( _dsn.ConnectionString ) )
+        using( OdbcConnection connection = new OdbcConnection( _dsn.LdapRoot ) )
         {
             try
             {
@@ -49,7 +49,7 @@ public class LdapHandler : HandlerRuntimeBase
 
                     result.ExitData = connection.State;
                     result.Message = msg =
-                        $"Connection test successful! Connection string: {_dsn.ConnectionString}";
+                        $"Connection test successful! Connection string: {_dsn.LdapRoot}";
                 }
                 //else, select data as declared in Parameters.QueryString
                 else
@@ -88,21 +88,4 @@ public class LdapHandler : HandlerRuntimeBase
     {
         throw new NotImplementedException();
     }
-}
-
-public class ConnectionInfo
-{
-    public string ConnectionString { get; set; }
-}
-
-public enum SerializationFormat
-{
-    Json,
-    Xml
-}
-
-public class LdapHandlerParameters
-{
-    public string QueryString { get; set; }
-    public SerializationFormat ReturnFormat { get; set; }
 }
