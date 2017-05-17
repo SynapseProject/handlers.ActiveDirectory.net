@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
 using Synapse.Core;
@@ -12,36 +10,43 @@ public class LdapApiController : ApiController
 {
     [HttpGet]
     [Route( "hello" )]
-    public string Hello()
-    {
-        return "Hello from LyraApi, World!";
-    }
+    public string Hello() { return "Hello from LyraApi, World!"; }
 
     [HttpGet]
     [Route( "synapse" )]
-    public string SynapseHello()
-    {
-        IExecuteController ec = ExtensibilityUtility.GetExecuteControllerInstance();
-        return ec.Hello();
-    }
+    public string SynapseHello() { return ExtensibilityUtility.GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
     [Route( "{username}" )]
-    public string GetUser(string username)
+    public async Task<string> GetUser(string username)
     {
-        StartPlanEnvelope pe = new StartPlanEnvelope();
-        pe.DynamicParameters = new Dictionary<string, string>();
+        IExecuteController ec = ExtensibilityUtility.GetExecuteControllerInstance();
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( username ), username );
 
-        IExecuteController ec = ExtensibilityUtility.GetExecuteControllerInstance();
         long id = ec.StartPlan( pe, "getUser" );
+        StatusType status = await StatusHelper.GetStatusAsync( ec, id );
+
+        return status == StatusType.Success ? (string)ec.GetPlanElements( "getUser", id, "Actions[0]:Result:ExitData" ) : null;
+    }
+}
+class StatusHelper
+{
+    public static StatusType GetStatus(IExecuteController ec, long id)
+    {
         bool poll = true;
+        int result = 0;
         while( poll )
         {
             System.Threading.Thread.Sleep( 1000 );
-            int result = ec.
-            poll = false;
+            result = (int)ec.GetPlanElements( "getUser", id, "Status" );
+            poll = result < (int)StatusType.Success;
         }
-        return "foo";
+        return (StatusType)result;
+    }
+    public static Task<StatusType> GetStatusAsync(IExecuteController ec, long id)
+    {
+        return Task.Run( () => GetStatus( ec, id ) );
     }
 }

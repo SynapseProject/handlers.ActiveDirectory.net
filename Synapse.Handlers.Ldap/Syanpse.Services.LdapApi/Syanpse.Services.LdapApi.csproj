@@ -30,16 +30,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Synapse.Common, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Server.HttpClient.0.1.17130.0-beta\lib\net45\Synapse.Common.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Core.Signed.0.1.17130.0-beta\lib\net45\Synapse.Core.dll</HintPath>
+      <HintPath>..\packages\Synapse.Core.Signed.0.1.17135.0-beta\lib\net45\Synapse.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Synapse.Server.Extensibility, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Server.Extensibility.0.1.17130.0-beta\lib\net45\Synapse.Server.Extensibility.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\synapse.server.net\Synapse.Server\bin\Debug\Synapse.Server.Extensibility.dll</HintPath>
+    </Reference>
+    <Reference Include="Synapse.Server.HttpClient, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Server.HttpClient.0.1.17130.0-beta\lib\net45\Synapse.Server.HttpClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -68,7 +80,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Synapse.Ldap.Core\Synapse.Ldap.Core.csproj">
