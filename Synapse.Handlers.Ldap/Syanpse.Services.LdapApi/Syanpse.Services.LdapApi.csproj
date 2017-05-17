@@ -50,10 +50,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\synapse.server.net\Synapse.Server\bin\Debug\Synapse.Server.Extensibility.dll</HintPath>
     </Reference>
-    <Reference Include="Synapse.Server.HttpClient, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Server.HttpClient.0.1.17130.0-beta\lib\net45\Synapse.Server.HttpClient.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -78,6 +74,7 @@
   <ItemGroup>
     <Compile Include="LdapApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">
