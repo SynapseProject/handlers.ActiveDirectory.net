@@ -17,13 +17,13 @@ public class LdapApiController : ApiController
 
     [HttpGet]
     [Route( "synapse" )]
-    public string SynapseHello() { return ExtensibilityUtility.GetExecuteControllerInstance().Hello(); }
+    public string SynapseHello() { return GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
     [Route( "{username}" )]
     public async Task<string> GetUser(string username)
     {
-        IExecuteController ec = ExtensibilityUtility.GetExecuteControllerInstance();
+        IExecuteController ec = GetExecuteControllerInstance();
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( username ), username );
@@ -38,7 +38,7 @@ public class LdapApiController : ApiController
     [Route( "object/{type}/{name}" )]
     public async Task<string> GetObject(ObjectClass type, string name)
     {
-        IExecuteController ec = ExtensibilityUtility.GetExecuteControllerInstance();
+        IExecuteController ec = GetExecuteControllerInstance();
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -48,5 +48,10 @@ public class LdapApiController : ApiController
         StatusType status = await StatusHelper.GetStatusAsync( ec, "getObject", id );
 
         return status == StatusType.Success ? (string)ec.GetPlanElements( "getObject", id, "Actions[0]:Result:ExitData" ) : null;
+    }
+
+    IExecuteController GetExecuteControllerInstance()
+    {
+        return ExtensibilityUtility.GetExecuteControllerInstance( Url, User );
     }
 }
