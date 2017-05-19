@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.DirectoryServices.AccountManagement;
+
 
 namespace Synapse.Ldap.Core
 {
-    public class ldap
+    public class DirectoryServices
     {
         public static string GetObjectDistinguishedName(ObjectClass objectClass, string objectName, string ldapRoot)
         {
@@ -42,6 +41,17 @@ namespace Synapse.Ldap.Core
             }
 
             return distinguishedName;
+        }
+
+        public static UserPrincipalObject GetUser(string sAMAccountName)
+        {
+            UserPrincipalObject u = null;
+            using( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+            {
+                UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                u = new UserPrincipalObject( user );
+            }
+            return u;
         }
     }
 }

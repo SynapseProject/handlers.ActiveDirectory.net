@@ -49,7 +49,8 @@ public class LdapHandler : HandlerRuntimeBase
             {
 
                 //populate the Handler result
-                result.ExitData = ldap.GetObjectDistinguishedName( ObjectClass.User, parms.Name, _ldap.LdapRoot ); ;
+                //result.ExitData = DirectoryServices.GetObjectDistinguishedName( ObjectClass.User, parms.Name, _ldap.LdapRoot );
+                result.ExitData = DirectoryServices.GetUser( parms.Name );
             }
         }
         //something wnet wrong: hand-back the Exception and mark the execution as Failed
@@ -58,7 +59,7 @@ public class LdapHandler : HandlerRuntimeBase
             exc = ex;
             result.Status = StatusType.Failed;
             result.ExitData = msg =
-                ex.Message;
+                ex.Message + " | " + ex.InnerException?.Message;
         }
 
         //final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
