@@ -21,7 +21,7 @@ public class LdapApiController : ApiController
 
     [HttpGet]
     [Route( "{username}" )]
-    public async Task<string> GetUser(string username)
+    public async Task<object> GetUser(string username)
     {
         IExecuteController ec = GetExecuteControllerInstance();
 
@@ -31,7 +31,7 @@ public class LdapApiController : ApiController
         long id = ec.StartPlan( pe, "getUser" );
         StatusType status = await StatusHelper.GetStatusAsync( ec, "getUser", id );
 
-        return status == StatusType.Success ? (string)ec.GetPlanElements( "getUser", id, "Actions[0]:Result:ExitData" ) : null;
+        return status == StatusType.Success ? ec.GetPlanElements( "getUser", id, "Actions[0]:Result:ExitData" ) : null;
     }
 
     [HttpGet]
