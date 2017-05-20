@@ -6,6 +6,11 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
+    public class ConnectionInfo
+    {
+        public string LdapRoot { get; set; }
+    }
+
     public class LdapHandlerParameters
     {
         public ActionType Action { get; set; } = ActionType.Query;

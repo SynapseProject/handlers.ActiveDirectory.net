@@ -20,19 +20,20 @@ public class LdapApiController : ApiController
     public string SynapseHello() { return GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
-    [Route( "{username}" )]
-    public async Task<object> GetUser(string username, bool includeGroups = false)
+    [Route( "{type}/{name}" )]
+    public async Task<object> GetPrincipal(PrincipalType type, string name, bool groups = false)
     {
         IExecuteController ec = GetExecuteControllerInstance();
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( username ), username );
-        pe.DynamicParameters.Add( nameof( includeGroups ), includeGroups.ToString() );
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( groups ), groups.ToString() );
+        pe.DynamicParameters.Add( nameof( type ), type.ToString() );
 
-        long id = ec.StartPlan( pe, "getUser" );
-        StatusType status = await StatusHelper.GetStatusAsync( ec, "getUser", id );
+        long id = ec.StartPlan( pe, "GetPrincipal" );
+        StatusType status = await StatusHelper.GetStatusAsync( ec, "GetPrincipal", id );
 
-        return status == StatusType.Success ? ec.GetPlanElements( "getUser", id, "Actions[0]:Result:ExitData" ) : null;
+        return status == StatusType.Success ? ec.GetPlanElements( "GetPrincipal", id, "Actions[0]:Result:ExitData" ) : null;
     }
 
     [HttpGet]

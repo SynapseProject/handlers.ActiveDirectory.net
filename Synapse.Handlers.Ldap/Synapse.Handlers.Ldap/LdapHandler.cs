@@ -47,10 +47,19 @@ public class LdapHandler : HandlerRuntimeBase
             //else, select data as declared in Parameters.QueryString
             else
             {
-
-                //populate the Handler result
-                //result.ExitData = DirectoryServices.GetObjectDistinguishedName( ObjectClass.User, parms.Name, _ldap.LdapRoot );
-                result.ExitData = DirectoryServices.GetUser( parms.Name, parms.IncludeGroups );
+                switch( parms.Type )
+                {
+                    case ObjectClass.User:
+                    {
+                        result.ExitData = DirectoryServices.GetUser( parms.Name, parms.IncludeGroups );
+                        break;
+                    }
+                    case ObjectClass.Group:
+                    {
+                        result.ExitData = DirectoryServices.GetGroup( parms.Name, parms.IncludeGroups );
+                        break;
+                    }
+                }
             }
         }
         //something wnet wrong: hand-back the Exception and mark the execution as Failed

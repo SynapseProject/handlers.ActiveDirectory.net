@@ -6,17 +6,17 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public class ConnectionInfo
-    {
-        public string LdapRoot { get; set; }
-    }
-
     public enum SerializationFormat
     {
         Json,
         Xml
     }
 
+    public enum PrincipalType
+    {
+        User,
+        Group,
+    }
 
     public enum ObjectClass
     {
