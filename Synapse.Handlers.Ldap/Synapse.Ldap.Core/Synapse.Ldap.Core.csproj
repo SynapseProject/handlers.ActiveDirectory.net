@@ -45,10 +45,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\DirectoryEntry.cs" />
+    <Compile Include="Classes\OrgUnit.cs" />
     <Compile Include="Classes\GroupPrincipal.cs" />
     <Compile Include="Classes\Principal.cs" />
     <Compile Include="Classes\UserPrincipal.cs" />
     <Compile Include="Runtime\Group.cs" />
+    <Compile Include="Runtime\OrgUnit.cs" />
     <Compile Include="Runtime\User.cs" />
     <Compile Include="Runtime\DirectoryServices.cs" />
     <Compile Include="HandlerParameters.cs" />

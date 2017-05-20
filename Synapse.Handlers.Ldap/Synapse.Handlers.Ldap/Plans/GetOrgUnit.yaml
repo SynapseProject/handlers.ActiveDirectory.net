@@ -1,0 +1,8 @@
+Name: GetPrincipal
+Actions:
+- Handler:
+    Type: Synapse.Handlers.Ldap:LdapHandler
+  Parameters:
+    Dynamic:
+    - Name: name
+      Path: Name

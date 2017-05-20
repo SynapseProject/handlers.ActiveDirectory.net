@@ -58,6 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Plans\GetOrgUnit.yaml" />
     <None Include="Plans\GetPrincipal.yaml" />
   </ItemGroup>
   <ItemGroup>

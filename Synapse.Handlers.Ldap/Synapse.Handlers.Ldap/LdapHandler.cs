@@ -59,6 +59,11 @@ public class LdapHandler : HandlerRuntimeBase
                         result.ExitData = DirectoryServices.GetGroup( parms.Name, parms.IncludeGroups );
                         break;
                     }
+                    case ObjectClass.OrganizationalUnit:
+                    {
+                        result.ExitData = DirectoryServices.GetOrganizationalUnit( parms.Name, _ldap.LdapRoot );
+                        break;
+                    }
                 }
             }
         }
