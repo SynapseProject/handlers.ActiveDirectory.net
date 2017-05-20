@@ -8,109 +8,13 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public class SecurityPrincipalObject
+    public class SecurityPrincipalObject : PrincipalObject
     {
         public SecurityPrincipalObject() { }
         public SecurityPrincipalObject(AuthenticablePrincipal ap)
         {
             SetPropertiesFromAuthenticablePrincipal( ap );
         }
-
-        #region Principal
-        //
-        // Summary:
-        //     Gets the context type enumeraton value that specifies the type of principal context
-        //     associated with this principal.
-        //
-        // Returns:
-        //     A System.DirectoryServices.AccountManagement.ContextType enumeration value that
-        //     specifies the context type.
-        public ContextType ContextType { get; internal set; }
-        //
-        // Summary:
-        //     Gets or sets the description of the principal.
-        //
-        // Returns:
-        //     The description text for this principal or null if there is no description.
-        public string Description { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the display name for this principal.
-        //
-        // Returns:
-        //     The display name for this principal or null if there is no display name.
-        public string DisplayName { get; set; }
-        //
-        // Summary:
-        //     Gets the distinguished name (DN) for this principal.
-        //
-        // Returns:
-        //     The DN for this principal or null if there is no DN.
-        public string DistinguishedName { get; internal set; }
-        //
-        // Summary:
-        //     Gets the GUID associated with this principal.
-        //
-        // Returns:
-        //     The Nullable System.Guid associated with this principal or null if there is no
-        //     GUID.
-        public Guid? Guid { get; internal set; }
-        //
-        // Summary:
-        //     Gets or sets the name of this principal.
-        //
-        // Returns:
-        //     The name of the principal or null if the name attribute is not set.
-        //
-        // Exceptions:
-        //   T:System.ArgumentNullException:
-        //     The application tried to set the name to null.
-        //
-        //   T:System.InvalidOperationException:
-        //     The underlying store does not support this property.
-        public string Name { get; set; }
-        //
-        // Summary:
-        //     Gets or sets the SAM account name for this principal.
-        //
-        // Returns:
-        //     The SAM account name for this principal or null if no name has been set.
-        //
-        // Exceptions:
-        //   T:System.ArgumentNullException:
-        //     The application tried to set the SAM account name to null.
-        //
-        //   T:System.InvalidOperationException:
-        //     The application tried to set the SAM account name on a persisted principal.
-        public string SamAccountName { get; set; }
-        //
-        // Summary:
-        //     Gets the Security ID (SID) of the principal.
-        //
-        // Returns:
-        //     The System.Security.Principal.SecurityIdentifier for this principal or null if
-        //     there is no SID.
-        public SecurityIdentifier Sid { get; internal set; }
-        //
-        // Summary:
-        //     Gets the structural object class directory attribute.
-        //
-        // Returns:
-        //     The structural object class directory attribute.
-        public string StructuralObjectClass { get; internal set; }
-        //
-        // Summary:
-        //     Gets or sets the user principal name (UPN) associated with this principal.
-        //
-        // Returns:
-        //     The UPN associated with this principal or null if no if the UPN has not been
-        //     set.
-        //
-        // Exceptions:
-        //   T:System.Inval>DidOperationException:
-        //     The underlying store does not support this property.
-        public string UserPrincipalName { get; set; }
-        #endregion
 
         #region AuthenticablePrincipal
         //
@@ -368,16 +272,7 @@ namespace Synapse.Ldap.Core
         {
             if( ap == null ) return;
 
-            ContextType = ap.ContextType;
-            Description = ap.Description;
-            DisplayName = ap.DisplayName;
-            DistinguishedName = ap.DistinguishedName;
-            Guid = ap.Guid;
-            Name = ap.Name;
-            SamAccountName = ap.SamAccountName;
-            Sid = ap.Sid;
-            StructuralObjectClass = ap.StructuralObjectClass;
-            UserPrincipalName = ap.UserPrincipalName;
+            SetPropertiesFromPrincipal( ap );
 
             AccountExpirationDate = ap.AccountExpirationDate;
             AllowReversiblePasswordEncryption = ap.AllowReversiblePasswordEncryption;

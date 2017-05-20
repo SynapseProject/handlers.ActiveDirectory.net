@@ -21,12 +21,13 @@ public class LdapApiController : ApiController
 
     [HttpGet]
     [Route( "{username}" )]
-    public async Task<object> GetUser(string username)
+    public async Task<object> GetUser(string username, bool includeGroups = false)
     {
         IExecuteController ec = GetExecuteControllerInstance();
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( username ), username );
+        pe.DynamicParameters.Add( nameof( includeGroups ), includeGroups.ToString() );
 
         long id = ec.StartPlan( pe, "getUser" );
         StatusType status = await StatusHelper.GetStatusAsync( ec, "getUser", id );

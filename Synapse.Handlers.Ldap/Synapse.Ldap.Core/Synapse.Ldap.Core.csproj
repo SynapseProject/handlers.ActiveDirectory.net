@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\GroupPrincipal.cs" />
+    <Compile Include="Classes\Principal.cs" />
     <Compile Include="Classes\UserPrincipal.cs" />
     <Compile Include="DirectoryServices.cs" />
     <Compile Include="HandlerParameters.cs" />

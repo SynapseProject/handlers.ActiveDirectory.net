@@ -50,7 +50,7 @@ public class LdapHandler : HandlerRuntimeBase
 
                 //populate the Handler result
                 //result.ExitData = DirectoryServices.GetObjectDistinguishedName( ObjectClass.User, parms.Name, _ldap.LdapRoot );
-                result.ExitData = DirectoryServices.GetUser( parms.Name );
+                result.ExitData = DirectoryServices.GetUser( parms.Name, parms.IncludeGroups );
             }
         }
         //something wnet wrong: hand-back the Exception and mark the execution as Failed

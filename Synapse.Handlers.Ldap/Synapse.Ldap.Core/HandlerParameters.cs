@@ -16,6 +16,6 @@ namespace Synapse.Ldap.Core
     public class SecurityPrincipalQueryParameters : LdapHandlerParameters
     {
         public string Name { get; set; } = "kitten";
-        public string Config { get; set; }
+        public bool IncludeGroups { get; set; }
     }
 }
