@@ -5,7 +5,7 @@ using System.Web.Http;
 
 using Synapse.Core;
 using Synapse.Services;
-using Syanpse.Services.LdapApi;
+using Synapse.Services.LdapApi;
 using Synapse.Ldap.Core;
 
 [RoutePrefix( "lyra" )]

@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Handlers.Ldap", "Synapse.Handlers.Ldap\Synapse.Handlers.Ldap.csproj", "{B1468ED1-CDB3-473B-B8E9-50808CF1E948}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Syanpse.Services.LdapApi", "Syanpse.Services.LdapApi\Syanpse.Services.LdapApi.csproj", "{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Services.LdapApi", "Syanpse.Services.LdapApi\Synapse.Services.LdapApi.csproj", "{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Ldap.Core", "Synapse.Ldap.Core\Synapse.Ldap.Core.csproj", "{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}"
 EndProject

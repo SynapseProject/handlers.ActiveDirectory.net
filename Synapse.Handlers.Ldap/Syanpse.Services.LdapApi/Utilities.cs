@@ -2,10 +2,9 @@
 using System.Threading.Tasks;
 
 using Synapse.Core;
-using Synapse.Services;
 
 
-namespace Syanpse.Services.LdapApi
+namespace Synapse.Services.LdapApi
 {
     class StatusHelper
     {

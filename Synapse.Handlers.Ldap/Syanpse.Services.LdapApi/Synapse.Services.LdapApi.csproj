@@ -7,8 +7,8 @@
     <ProjectGuid>{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Syanpse.Services.LdapApi</RootNamespace>
-    <AssemblyName>Syanpse.Services.LdapApi</AssemblyName>
+    <RootNamespace>Synapse.Services.LdapApi</RootNamespace>
+    <AssemblyName>Synapse.Services.LdapApi</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
