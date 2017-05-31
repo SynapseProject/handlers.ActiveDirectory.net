@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Handlers.Ldap", "Synapse.Handlers.Ldap\Synapse.Handlers.Ldap.csproj", "{B1468ED1-CDB3-473B-B8E9-50808CF1E948}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Services.LdapApi", "Syanpse.Services.LdapApi\Synapse.Services.LdapApi.csproj", "{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Ldap.Core", "Synapse.Ldap.Core\Synapse.Ldap.Core.csproj", "{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Ldap.Tests", "Synapse.Ldap.Tests\Synapse.Ldap.Tests.csproj", "{DCC30523-9F8D-4843-B5EF-B18FBC958B6C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCC30523-9F8D-4843-B5EF-B18FBC958B6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCC30523-9F8D-4843-B5EF-B18FBC958B6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCC30523-9F8D-4843-B5EF-B18FBC958B6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCC30523-9F8D-4843-B5EF-B18FBC958B6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
