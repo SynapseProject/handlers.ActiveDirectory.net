@@ -43,7 +43,7 @@ namespace Synapse.Ldap.Core
             }
 
             parentOrgUnitDistName = String.IsNullOrEmpty(parentOrgUnitDistName) || String.IsNullOrWhiteSpace(parentOrgUnitDistName) ?
-                GetDomainName() : parentOrgUnitDistName.Replace("LDAP://", "");
+                GetDomainDistinguishedName() : parentOrgUnitDistName.Replace("LDAP://", "");
 
             DirectoryEntry parentOrgUnit = new DirectoryEntry(
                 $"LDAP://{parentOrgUnitDistName}",
@@ -109,7 +109,6 @@ namespace Synapse.Ldap.Core
             {
                 if (DirectoryEntry.Exists(orgUnitForDeletion.Path))
                 {
-
                     orgUnitForDeletion.DeleteTree();
                 }
             }
@@ -122,7 +121,7 @@ namespace Synapse.Ldap.Core
             return true;
         }
 
-        public static string GetDomainName()
+        public static string GetDomainDistinguishedName()
         {
             // connect to "RootDSE" to find default naming context.
             // "RootDSE" is not a container.

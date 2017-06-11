@@ -44,7 +44,7 @@ namespace Synapse.Ldap.Tests
             Console.WriteLine($"Creating OU - {ouName}...");
             DirectoryServices.CreateOrganizationUnit("", ouName);
 
-            var domainRoot = DirectoryServices.GetDomainName();
+            var domainRoot = DirectoryServices.GetDomainDistinguishedName();
             Console.WriteLine($"Deleting OU - {ouName}...");
 
             Assert.IsTrue(DirectoryServices.DeleteOrganizationUnit($"OU={ouName},{domainRoot}"));

@@ -20,5 +20,47 @@ namespace Synapse.Ldap.Core
             }
             return g;
         }
+
+        public static void CreateGroup(string ouPath, string name)
+        {
+            if (!DirectoryEntry.Exists("LDAP://CN=" + name + "," + ouPath))
+            {
+                try
+                {
+                    DirectoryEntry entry = new DirectoryEntry("LDAP://" + ouPath);
+                    DirectoryEntry group = entry.Children.Add("CN=" + name, "group");
+                    // By default if no GroupType property is set, the group is created as a domain security group.
+                    group.Properties["sAmAccountName"].Value = name;
+                    group.CommitChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message.ToString());
+                }
+            }
+            else { Console.WriteLine(ouPath + " already exists"); }
+        }
+
+        public static void DeleteGroup(string ouPath, string groupPath)
+        {
+            if (DirectoryEntry.Exists("LDAP://" + groupPath))
+            {
+                try
+                {
+                    DirectoryEntry entry = new DirectoryEntry("LDAP://" + ouPath);
+                    DirectoryEntry group = new DirectoryEntry("LDAP://" + groupPath);
+                    entry.Children.Remove(group);
+                    group.CommitChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message.ToString());
+                }
+            }
+            else
+            {
+                Console.WriteLine(ouPath + " doesn't exist");
+            }
+        }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Reflection;
+using System.Runtime.InteropServices;
 
 
 namespace Synapse.Ldap.Core
@@ -61,7 +62,7 @@ namespace Synapse.Ldap.Core
             if (String.IsNullOrWhiteSpace(ldapPath))
             {
                 // Default location where user will be created.
-                ldapPath = $"cn=Users,{GetDomainName()}";
+                ldapPath = $"cn=Users,{GetDomainDistinguishedName()}";
             }
 
             if (String.IsNullOrWhiteSpace(username))
@@ -98,8 +99,8 @@ namespace Synapse.Ldap.Core
                         newUser.Properties["description"].Value = description;
                         newUser.CommitChanges();
 
-                        newUser.Invoke("SetPassword", new object[] {password});
-//                        newUser.Properties["LockOutTime"].Value = 0; //unlock account
+                        newUser.Invoke("SetPassword", new object[] { password });
+                        //                        newUser.Properties["LockOutTime"].Value = 0; //unlock account
                         newUser.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
                         newUser.CommitChanges();
                     }
@@ -150,8 +151,8 @@ namespace Synapse.Ldap.Core
             {
                 using (DirectoryEntry user = new DirectoryEntry($"LDAP://{userDn.DistinguishedName}"))
                 {
-                    user.Invoke("SetPassword", new object[] {newPassword});
-//                    user.Properties["LockOutTime"].Value = 0; //unlock account
+                    user.Invoke("SetPassword", new object[] { newPassword });
+                    //                    user.Properties["LockOutTime"].Value = 0; //unlock account
                     user.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
                     user.CommitChanges();
                 }
@@ -235,73 +236,162 @@ namespace Synapse.Ldap.Core
             return Convert.ToBase64String(bytes).Replace("=", "").Replace("+", "").Replace("/", "");
         }
 
-        public static bool AddUserToGroup(string userDn, string groupDn)
+        public static void AddUserToGroup(string username, string groupName, string ldapPath = "")
         {
-            bool status = false;
-
-            if (String.IsNullOrEmpty(userDn) || String.IsNullOrWhiteSpace(userDn))
+            if (String.IsNullOrWhiteSpace(username))
             {
-                Console.WriteLine("No user distinguished name is provided.");
-                return status;
+                throw new Exception("Username is not provided.");
             }
 
-            if (String.IsNullOrEmpty(groupDn) || String.IsNullOrWhiteSpace(groupDn))
+            if (String.IsNullOrWhiteSpace(groupName))
             {
-                Console.WriteLine("No group distinguished name is specified.");
-                return status;
+                throw new Exception("Group name is not provided.");
             }
 
-            groupDn = groupDn.Replace("LDAP://", "");
-
-            try
+            if (String.IsNullOrWhiteSpace(ldapPath))
             {
-                using (DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + groupDn))
+                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
+            }
+            else
+            {
+                ldapPath = $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            }
+
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            {
+                try
                 {
-                    dirEntry.Properties["member"].Add(userDn);
-                    dirEntry.CommitChanges();
-                    status = true;
+                    string userDn = "";
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
+                    {
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            userDn = result.Path;
+                        }
+                        else
+                        {
+                            throw new Exception("Specified user cannot be found.");
+                        }
+                    }
+
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                    {
+
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
+                            if (!groupEntry.Properties["member"].Contains(userDn))
+                            {
+                                groupEntry.Properties["member"].Add(userDn);
+                                groupEntry.CommitChanges();
+                            }
+                            else
+                            {
+                                throw new Exception("User is already a member of the group.");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Specified group cannot be found.");
+                        }
+                    }
+                }
+                catch (DirectoryServicesCOMException ex)
+                {
+                    if (ex.Message.Contains("The server is unwilling to process the request."))
+                    {
+                        throw new Exception("User's distinguished name is invalid.");
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The server is not operational."))
+                    {
+                        throw new Exception("LDAP path specifieid is not valid.");
+                    }
                 }
             }
-            catch (DirectoryServicesCOMException ex)
-            {
-                Console.WriteLine($"Encountered error while trying to add user to group: {ex.Message}");
-            }
-
-            return status;
         }
 
-        public static bool RemoveUserFromGroup(string userDn, string groupDn)
+        public static void RemoveUserFromGroup(string username, string groupName, string ldapPath = "")
         {
-            bool status = false;
-
-            if (String.IsNullOrEmpty(userDn) || String.IsNullOrWhiteSpace(userDn))
+            if (String.IsNullOrWhiteSpace(username))
             {
-                Console.WriteLine("No user distinguished name is provided.");
-                return status;
+                throw new Exception("Username is not provided.");
             }
 
-            if (String.IsNullOrEmpty(groupDn) || String.IsNullOrWhiteSpace(groupDn))
+            if (String.IsNullOrWhiteSpace(groupName))
             {
-                Console.WriteLine("No group distinguished name is specified.");
-                return status;
+                throw new Exception("Group name is not provided.");
             }
 
-            groupDn = groupDn.Replace("LDAP://", "");
-            try
+            if (String.IsNullOrWhiteSpace(ldapPath))
             {
-                using (DirectoryEntry dirEntry = new DirectoryEntry("LDAP://" + groupDn))
+                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
+            }
+            else
+            {
+                ldapPath = $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            }
+
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            {
+                try
                 {
-                    dirEntry.Properties["member"].Remove(userDn);
-                    dirEntry.CommitChanges();
-                    status = true;
+                    string userDn = "";
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
+                    {
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            userDn = result.Path;
+                        }
+                        else
+                        {
+                            throw new Exception("Specified user cannot be found.");
+                        }
+                    }
+
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                    {
+
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
+                            if (groupEntry.Properties["member"].Contains(userDn))
+                            {
+                                groupEntry.Properties["member"].Remove(userDn);
+                                groupEntry.CommitChanges();
+                            }
+                            else
+                            {
+                                throw new Exception("User is not a member of the group.");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Specified group cannot be found.");
+                        }
+                    }
+                }
+                catch (DirectoryServicesCOMException ex)
+                {
+                    if (ex.Message.Contains("The server is unwilling to process the request."))
+                    {
+                        throw new Exception("User's distinguished name is invalid.");
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The server is not operational."))
+                    {
+                        throw new Exception("LDAP path specifieid is not valid.");
+                    }
                 }
             }
-            catch (DirectoryServicesCOMException ex)
-            {
-                Console.WriteLine($"Encountered error while trying to remove user from group: {ex.Message}");
-            }
-
-            return status;
         }
 
         public static bool DeleteUser(string userName)
@@ -331,14 +421,8 @@ namespace Synapse.Ldap.Core
             return status;
         }
 
-        public enum Property
-        {
-            title, displayName, sn, l, postalCode, physicalDeliveryOfficeName, telephoneNumber,
-            mail, givenName, initials, co, department, company,
-            streetAddress, employeeID, mobile, userPrincipalName, description
-        }
 
-        public static void UpdateUserAttribute(string username, string attribute, string value, string ldapDomain = "")
+        public static void UpdateUserAttribute(string username, string attribute, string value, string ldapPath = "")
         {
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -347,30 +431,32 @@ namespace Synapse.Ldap.Core
 
             if (!IsValidUserAttribute(attribute))
             {
-                Console.WriteLine("Invalid attribute is specified.");
+                throw new Exception("The attribute specified is not valid.");
             }
 
-            if (String.IsNullOrWhiteSpace(value))
-            {
-                Console.WriteLine("No attribute value is specified.");
-            }
+            ldapPath = String.IsNullOrWhiteSpace(ldapPath) ? $"LDAP://{GetDomainDistinguishedName()}" : $"LDAP://{ldapPath.Replace("LDAP://", "")}";
 
-            ldapDomain = ldapDomain.Replace("LDAP://", "");
-            string connectionPrefix = "LDAP://" + ldapDomain;
-            using (DirectoryEntry entry = new DirectoryEntry(connectionPrefix))
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
             {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(cn=" + username + ")" })
+                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
                 {
-                    mySearcher.PropertiesToLoad.Add("" + attribute + "");
-                    SearchResult result = mySearcher.FindOne();
-                    if (result != null)
+                    try
                     {
-                        DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
-                        if (!(String.IsNullOrEmpty(value)))
+                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
                         {
+                            DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
                             if (result.Properties.Contains("" + attribute + ""))
                             {
-                                entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                if (!String.IsNullOrWhiteSpace(value))
+                                {
+                                    entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                }
+                                else
+                                {
+                                    entryToUpdate.Properties["" + attribute + ""].Clear();
+                                }
                             }
                             else
                             {
@@ -378,6 +464,102 @@ namespace Synapse.Ldap.Core
                             }
                             entryToUpdate.CommitChanges();
                         }
+                        else
+                        {
+                            throw new Exception("User cannot be found.");
+                        }
+                    }
+                    catch (DirectoryServicesCOMException ex)
+                    {
+                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        if (ex.Message.Contains("A constraint violation occurred."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        throw;
+                    }
+                    catch (COMException ex)
+                    {
+                        if (ex.Message.Contains("The server is not operational."))
+                        {
+                            throw new Exception("LDAP path specifieid is not valid.");
+                        }
+                        throw;
+                    }
+                }
+            };
+        }
+
+        public static void UpdateGroupAttribute(string groupName, string attribute, string value, string ldapPath = "")
+        {
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("No group name is specified.");
+            }
+
+            if (!IsValidGroupAttribute(attribute))
+            {
+                throw new Exception("The attribute specified is not valid.");
+            }
+
+            ldapPath = String.IsNullOrWhiteSpace(ldapPath) ? $"LDAP://{GetDomainDistinguishedName()}" : $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            {
+                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                {
+                    try
+                    {
+                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
+
+                            if (result.Properties.Contains("" + attribute + ""))
+                            {
+                                if (!(String.IsNullOrEmpty(value)))
+                                {
+                                    entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                }
+                                else
+                                {
+                                    entryToUpdate.Properties["" + attribute + ""].Clear();
+                                }
+                            }
+                            else
+                            {
+                                entryToUpdate.Properties["" + attribute + ""].Add(value);
+                            }
+                            entryToUpdate.CommitChanges();
+                        }
+                        else
+                        {
+                            throw new Exception("User cannot be found.");
+                        }
+                    }
+                    catch (DirectoryServicesCOMException ex)
+                    {
+                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        if (ex.Message.Contains("A constraint violation occurred."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        throw;
+                    }
+                    catch (COMException ex)
+                    {
+                        if (ex.Message.Contains("The server is not operational."))
+                        {
+                            throw new Exception("LDAP path specifieid is not valid.");
+                        }
+                        throw;
                     }
                 }
             };
@@ -387,19 +569,31 @@ namespace Synapse.Ldap.Core
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>()
             {
-                {"title", "Title" },
-                {"displayName", "Display Name" },
-                {"sn", "Surname" },
-                {"postalCode", "Postal Code" },
-                {"givenName", "Given Name" },
-                {"initials", "Initials" },
-                {"company", "Company" },
-                {"department", "Department" },
-                {"streetAddress", "Street Address" },
-                {"mobile", "Mobile" },
-                {"userPrincipalName",  "User Principal Name" },
-                {"description", "Description" },
-                {"employeeID", "Employee ID" }
+                { "company", "Company" },
+                { "department", "Department" },
+                { "displayName", "Display Name" },
+                { "description", "Description" },
+                { "employeeID", "Employee ID" },
+                { "givenName", "Given Name" },
+                { "initials", "Initials" },
+                { "mail", "E-mail" },
+                { "mobile", "Mobile" },
+                { "postalCode", "Postal Code" },
+                { "sn", "Surname" },
+                { "streetAddress", "Street Address" },
+                { "title", "Title" },
+            };
+
+            return attributes.ContainsKey(attribute);
+        }
+
+        public static bool IsValidGroupAttribute(string attribute)
+        {
+            Dictionary<string, string> attributes = new Dictionary<string, string>()
+            {
+                { "description", "Description" },
+                { "mail", "E-mail" },
+                { "managedBy", "Managed By" }
             };
 
             return attributes.ContainsKey(attribute);
