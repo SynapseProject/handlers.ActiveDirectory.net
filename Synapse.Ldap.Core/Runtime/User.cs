@@ -422,7 +422,7 @@ namespace Synapse.Ldap.Core
         }
 
 
-        public static void UpdateUserAttribute(string username, string attribute, string value, string ldapPath = "")
+        public static void UpdateUserAttribute(string username, string attribute, string value, string ldapPath = "", bool dryRun = false)
         {
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -446,95 +446,26 @@ namespace Synapse.Ldap.Core
                         SearchResult result = mySearcher.FindOne();
                         if (result != null)
                         {
-                            DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
-                            if (result.Properties.Contains("" + attribute + ""))
+                            if (!dryRun)
                             {
-                                if (!String.IsNullOrWhiteSpace(value))
+                                DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
+                                if (result.Properties.Contains("" + attribute + ""))
                                 {
-                                    entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                    if (!String.IsNullOrWhiteSpace(value))
+                                    {
+                                        entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                    }
+                                    else
+                                    {
+                                        entryToUpdate.Properties["" + attribute + ""].Clear();
+                                    }
                                 }
                                 else
                                 {
-                                    entryToUpdate.Properties["" + attribute + ""].Clear();
+                                    entryToUpdate.Properties["" + attribute + ""].Add(value);
                                 }
+                                entryToUpdate.CommitChanges();
                             }
-                            else
-                            {
-                                entryToUpdate.Properties["" + attribute + ""].Add(value);
-                            }
-                            entryToUpdate.CommitChanges();
-                        }
-                        else
-                        {
-                            throw new Exception("User cannot be found.");
-                        }
-                    }
-                    catch (DirectoryServicesCOMException ex)
-                    {
-                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
-                        {
-                            throw new Exception("The attribute value is invalid.");
-                        }
-                        if (ex.Message.Contains("A constraint violation occurred."))
-                        {
-                            throw new Exception("The attribute value is invalid.");
-                        }
-                        throw;
-                    }
-                    catch (COMException ex)
-                    {
-                        if (ex.Message.Contains("The server is not operational."))
-                        {
-                            throw new Exception("LDAP path specifieid is not valid.");
-                        }
-                        throw;
-                    }
-                }
-            };
-        }
-
-        public static void UpdateGroupAttribute(string groupName, string attribute, string value, string ldapPath = "")
-        {
-            if (String.IsNullOrWhiteSpace(groupName))
-            {
-                throw new Exception("No group name is specified.");
-            }
-
-            if (!IsValidGroupAttribute(attribute))
-            {
-                throw new Exception("The attribute specified is not valid.");
-            }
-
-            ldapPath = String.IsNullOrWhiteSpace(ldapPath) ? $"LDAP://{GetDomainDistinguishedName()}" : $"LDAP://{ldapPath.Replace("LDAP://", "")}";
-
-            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
-            {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
-                {
-                    try
-                    {
-                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
-                        SearchResult result = mySearcher.FindOne();
-                        if (result != null)
-                        {
-                            DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
-
-                            if (result.Properties.Contains("" + attribute + ""))
-                            {
-                                if (!(String.IsNullOrEmpty(value)))
-                                {
-                                    entryToUpdate.Properties["" + attribute + ""].Value = value;
-                                }
-                                else
-                                {
-                                    entryToUpdate.Properties["" + attribute + ""].Clear();
-                                }
-                            }
-                            else
-                            {
-                                entryToUpdate.Properties["" + attribute + ""].Add(value);
-                            }
-                            entryToUpdate.CommitChanges();
                         }
                         else
                         {
@@ -582,18 +513,6 @@ namespace Synapse.Ldap.Core
                 { "sn", "Surname" },
                 { "streetAddress", "Street Address" },
                 { "title", "Title" },
-            };
-
-            return attributes.ContainsKey(attribute);
-        }
-
-        public static bool IsValidGroupAttribute(string attribute)
-        {
-            Dictionary<string, string> attributes = new Dictionary<string, string>()
-            {
-                { "description", "Description" },
-                { "mail", "E-mail" },
-                { "managedBy", "Managed By" }
             };
 
             return attributes.ContainsKey(attribute);
