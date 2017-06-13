@@ -9,17 +9,394 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static GroupPrincipalObject GetGroup(string sAMAccountName, bool getGroups)
+        public static GroupPrincipal CreateGroupEx(string ouPath, string groupName, string description = null, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
         {
-            GroupPrincipalObject g = null;
-            using( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+            if (String.IsNullOrWhiteSpace(ouPath))
             {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
-                g = new GroupPrincipalObject( group );
-                if( getGroups )
-                    g.GetGroups();
+                throw new Exception("OU path is not specified.");
             }
-            return g;
+
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group name is not specified.");
+            }
+
+            // OU path here cannot have the LDAP prefix.
+            ouPath = ouPath.Replace("LDAP://", "");
+
+            GroupPrincipal groupPrincipal = null;
+            try
+            {
+                PrincipalContext principalContext = GetPrincipalContext(ouPath);
+
+                groupPrincipal = new GroupPrincipal(principalContext, groupName)
+                {
+                    Description = !String.IsNullOrWhiteSpace(description) ? description : null, // Description cannot be empty string.
+                    GroupScope = groupScope,
+                    IsSecurityGroup = isSecurityGroup
+                };
+                if (!dryRun)
+                {
+                    groupPrincipal.Save();
+                }
+            }
+            catch (PrincipalServerDownException ex)
+            {
+                if (ex.Message.Contains("The server is not operational."))
+                {
+                    throw new Exception("Unable to connect to the domain controller. Check the OU path.");
+                }
+                throw;
+            }
+            catch (PrincipalExistsException ex)
+            {
+                if (ex.Message.Contains("The object already exists."))
+                {
+                    throw new Exception("The group already exists.");
+                }
+            }
+            catch (PrincipalOperationException ex)
+            {
+                if (ex.Message.Contains("Unknown error (0x80005000)") || ex.Message.Contains("An operations error occurred."))
+                {
+                    throw new Exception("The OU path is not valid.");
+                }
+                throw;
+            }
+
+            return groupPrincipal;
+        }
+
+        public static void DeleteGroupEx(string groupName, bool dryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group name is not specified.");
+            }
+
+            try
+            {
+                PrincipalContext ctx = GetPrincipalContext();
+                GroupPrincipal groupPrincipal = new GroupPrincipal(ctx) { Name = groupName };
+                PrincipalSearcher searcher = new PrincipalSearcher(groupPrincipal);
+
+                Principal foundGroup = searcher.FindOne();
+                if (foundGroup != null)
+                {
+                    if (!dryRun)
+                    {
+                        foundGroup.Delete();
+                    }
+                }
+                else
+                {
+                    throw new Exception("Group does not exist.");
+                }
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public static void UpdateGroupAttribute(string groupName, string attribute, string value, bool dryRun = false)
+        {
+            GroupPrincipal gp = GetGroup(groupName);
+            if (gp == null)
+            {
+                throw new Exception("Group does not exist.");
+            }
+
+            if (!IsValidGroupAttribute(attribute))
+            {
+                throw new Exception("The attribute is not supported.");
+            }
+
+            string ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
+
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            {
+                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                {
+                    try
+                    {
+                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            if (!dryRun)
+                            {
+                                DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
+
+                                if (result.Properties.Contains("" + attribute + ""))
+                                {
+                                    if (!(String.IsNullOrEmpty(value)))
+                                    {
+                                        entryToUpdate.Properties["" + attribute + ""].Value = value;
+                                    }
+                                    else
+                                    {
+                                        entryToUpdate.Properties["" + attribute + ""].Clear();
+                                    }
+                                }
+                                else
+                                {
+                                    entryToUpdate.Properties["" + attribute + ""].Add(value);
+                                }
+                                entryToUpdate.CommitChanges();
+                                entryToUpdate.Close();
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Group cannot be found.");
+                        }
+                    }
+                    catch (DirectoryServicesCOMException ex)
+                    {
+                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        if (ex.Message.Contains("A constraint violation occurred."))
+                        {
+                            throw new Exception("The attribute value is invalid.");
+                        }
+                        throw;
+                    }
+                    catch (COMException ex)
+                    {
+                        if (ex.Message.Contains("The server is not operational."))
+                        {
+                            throw new Exception("LDAP path specifieid is not valid.");
+                        }
+                        throw;
+                    }
+                }
+            };
+        }
+
+        public static void AddUserToGroupEx(string username, string groupName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Username is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group name is not provided.");
+            }
+
+            UserPrincipal userPrincipal = GetUser(username);
+            if (userPrincipal == null)
+            {
+                throw new Exception("User cannot be found.");
+            }
+            GroupPrincipal groupPrincipal = GetGroup(groupName);
+            if (groupPrincipal == null)
+            {
+                throw new Exception("Group cannot be found.");
+            }
+
+            if (!IsUserGroupMember(username, groupName))
+            {
+                if (!isDryRun)
+                {
+                    groupPrincipal.Members.Add(userPrincipal);
+                    groupPrincipal.Save();
+                }
+            }
+            else
+            {
+                throw new Exception("User already exists in the group.");
+            }
+        }
+
+
+        public static void RemoveUserFromGroupEx(string username, string groupName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Username is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group name is not provided.");
+            }
+
+            UserPrincipal userPrincipal = GetUser(username);
+            if (userPrincipal == null)
+            {
+                throw new Exception("User cannot be found.");
+            }
+            GroupPrincipal groupPrincipal = GetGroup(groupName);
+            if (groupPrincipal == null)
+            {
+                throw new Exception("Group cannot be found.");
+            }
+
+            if (IsUserGroupMember(username, groupName))
+            {
+                if (!isDryRun)
+                {
+                    groupPrincipal.Members.Remove(userPrincipal);
+                    groupPrincipal.Save();
+                }
+            }
+            else
+            {
+                throw new Exception("User does not exist in the group.");
+            }
+        }
+
+        public static bool IsUserGroupMember(string username, string groupName)
+        {
+            UserPrincipal userPrincipal = GetUser(username);
+            GroupPrincipal groupPrincipal = GetGroup(groupName);
+
+            if (userPrincipal != null && groupPrincipal != null)
+            {
+                return groupPrincipal.Members.Contains(userPrincipal);
+            }
+            return false;
+        }
+
+        #region Helper Methods
+        public static PrincipalContext GetPrincipalContext(string ouPath = "")
+        {
+            PrincipalContext principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, null, ouPath) : new PrincipalContext(ContextType.Domain);
+            return principalContext;
+        }
+
+        public static List<String> GetUserGroups(string username)
+        {
+            List<String> myItems = new List<string>();
+            UserPrincipal userPrincipal = GetUser(username);
+
+            PrincipalSearchResult<Principal> searchResult = userPrincipal.GetGroups();
+
+            foreach (Principal result in searchResult)
+            {
+                myItems.Add(result.Name);
+            }
+            return myItems;
+        }
+
+        public static UserPrincipal GetUser(string username)
+        {
+            if (String.IsNullOrWhiteSpace(username)) return null;
+
+            PrincipalContext principalContext = GetPrincipalContext();
+
+            UserPrincipal userPrincipal = UserPrincipal.FindByIdentity(principalContext, username);
+            return userPrincipal;
+        }
+
+        public static GroupPrincipal GetGroup(string groupName)
+        {
+            if (String.IsNullOrWhiteSpace(groupName)) return null;
+
+            PrincipalContext principalContext = GetPrincipalContext();
+
+            GroupPrincipal groupPrincipal = GroupPrincipal.FindByIdentity(principalContext, groupName);
+            return groupPrincipal;
+        }
+
+        public static bool IsValidGroupAttribute(string attribute)
+        {
+            Dictionary<string, string> attributes = new Dictionary<string, string>()
+            {
+                { "description", "Description" },
+                { "displayName", "Display Name" },
+                { "mail", "E-mail" },
+                { "managedBy", "Managed By" }
+            };
+
+            return attributes.ContainsKey(attribute);
+        }
+
+        #endregion
+
+        #region To Be Removed
+        public static void AddUserToGroup(string username, string groupName, string ldapPath = "")
+        {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Username is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group name is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(ldapPath))
+            {
+                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
+            }
+            else
+            {
+                ldapPath = $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            }
+
+            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            {
+                try
+                {
+                    string userDn = "";
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
+                    {
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            userDn = result.Path;
+                        }
+                        else
+                        {
+                            throw new Exception("Specified user cannot be found.");
+                        }
+                    }
+
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                    {
+
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
+                            if (!groupEntry.Properties["member"].Contains(userDn))
+                            {
+                                groupEntry.Properties["member"].Add(userDn);
+                                groupEntry.CommitChanges();
+                            }
+                            else
+                            {
+                                throw new Exception("User is already a member of the group.");
+                            }
+                        }
+                        else
+                        {
+                            throw new Exception("Specified group cannot be found.");
+                        }
+                    }
+                }
+                catch (DirectoryServicesCOMException ex)
+                {
+                    if (ex.Message.Contains("The server is unwilling to process the request."))
+                    {
+                        throw new Exception("User's distinguished name is invalid.");
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The server is not operational."))
+                    {
+                        throw new Exception("LDAP path specifieid is not valid.");
+                    }
+                }
+            }
         }
 
         public static void CreateGroup(string ouPath, string groupName, bool dryRun = false)
@@ -28,7 +405,6 @@ namespace Synapse.Ldap.Core
             {
                 throw new Exception("OU path is not specified.");
             }
-            ouPath = ouPath.Contains("LDAP://") ? ouPath : $"LDAP://{ouPath}";
 
 
             if (String.IsNullOrWhiteSpace(groupName))
@@ -36,6 +412,7 @@ namespace Synapse.Ldap.Core
                 throw new Exception("Group name is not specified.");
             }
 
+            ouPath = ouPath.Contains("LDAP://") ? ouPath : $"LDAP://{ouPath}";
             string groupPath = $"LDAP://CN={groupName},{ouPath.Replace("LDAP://", "")}";
 
             try
@@ -65,43 +442,7 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void DeleteGroup(string groupName, bool dryRun = false)
-        {
-            if (String.IsNullOrWhiteSpace(groupName))
-            {
-                throw new Exception("Group name is not specified.");
-            }
-
-            try
-            {
-                using (PrincipalContext ctx = new PrincipalContext(ContextType.Domain))
-                {
-                    GroupPrincipal groupPrincipal = new GroupPrincipal(ctx) {Name = groupName};
-
-                    // create your principal searcher passing in the QBE principal    
-                    PrincipalSearcher searcher = new PrincipalSearcher(groupPrincipal);
-
-                    Principal foundGroup = searcher.FindOne();
-                    if (foundGroup != null)
-                    {
-                        if (!dryRun)
-                        {
-                            foundGroup.Delete();
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Group does not exist.");
-                    }
-                }
-            }
-            catch (InvalidOperationException e)
-            {
-                throw new Exception(e.Message);
-            }
-        }
-
-        public static void DeleteGroupEx(string ouPath, string groupPath, bool dryRun)
+        public static void DeleteGroup(string ouPath, string groupPath, bool dryRun)
         {
             if (String.IsNullOrWhiteSpace(ouPath))
             {
@@ -152,91 +493,97 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void UpdateGroupAttribute(string groupName, string attribute, string value, string ldapPath = "", bool dryRun = false)
+        public static void RemoveUserFromGroup(string username, string groupName, string ldapPath = "")
         {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Username is not provided.");
+            }
+
             if (String.IsNullOrWhiteSpace(groupName))
             {
-                throw new Exception("No group name is specified.");
+                throw new Exception("Group name is not provided.");
             }
 
-            if (!IsValidGroupAttribute(attribute))
+            if (String.IsNullOrWhiteSpace(ldapPath))
             {
-                throw new Exception("The attribute specified is not valid.");
+                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
             }
-
-            ldapPath = String.IsNullOrWhiteSpace(ldapPath) ? $"LDAP://{GetDomainDistinguishedName()}" : $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            else
+            {
+                ldapPath = $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            }
 
             using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
             {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                try
                 {
-                    try
+                    string userDn = "";
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
                     {
-                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
                         SearchResult result = mySearcher.FindOne();
                         if (result != null)
                         {
-                            if (!dryRun)
-                            {
-                                DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
+                            userDn = result.Path;
+                        }
+                        else
+                        {
+                            throw new Exception("Specified user cannot be found.");
+                        }
+                    }
 
-                                if (result.Properties.Contains("" + attribute + ""))
-                                {
-                                    if (!(String.IsNullOrEmpty(value)))
-                                    {
-                                        entryToUpdate.Properties["" + attribute + ""].Value = value;
-                                    }
-                                    else
-                                    {
-                                        entryToUpdate.Properties["" + attribute + ""].Clear();
-                                    }
-                                }
-                                else
-                                {
-                                    entryToUpdate.Properties["" + attribute + ""].Add(value);
-                                }
-                                entryToUpdate.CommitChanges();
+                    using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                    {
+
+                        SearchResult result = mySearcher.FindOne();
+                        if (result != null)
+                        {
+                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
+                            if (groupEntry.Properties["member"].Contains(userDn))
+                            {
+                                groupEntry.Properties["member"].Remove(userDn);
+                                groupEntry.CommitChanges();
+                            }
+                            else
+                            {
+                                throw new Exception("User is not a member of the group.");
                             }
                         }
                         else
                         {
-                            throw new Exception("Group cannot be found.");
+                            throw new Exception("Specified group cannot be found.");
                         }
-                    }
-                    catch (DirectoryServicesCOMException ex)
-                    {
-                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
-                        {
-                            throw new Exception("The attribute value is invalid.");
-                        }
-                        if (ex.Message.Contains("A constraint violation occurred."))
-                        {
-                            throw new Exception("The attribute value is invalid.");
-                        }
-                        throw;
-                    }
-                    catch (COMException ex)
-                    {
-                        if (ex.Message.Contains("The server is not operational."))
-                        {
-                            throw new Exception("LDAP path specifieid is not valid.");
-                        }
-                        throw;
                     }
                 }
-            };
+                catch (DirectoryServicesCOMException ex)
+                {
+                    if (ex.Message.Contains("The server is unwilling to process the request."))
+                    {
+                        throw new Exception("User's distinguished name is invalid.");
+                    }
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("The server is not operational."))
+                    {
+                        throw new Exception("LDAP path specifieid is not valid.");
+                    }
+                }
+            }
         }
 
-        public static bool IsValidGroupAttribute(string attribute)
+        public static GroupPrincipalObject GetGroup(string sAMAccountName, bool getGroups)
         {
-            Dictionary<string, string> attributes = new Dictionary<string, string>()
+            GroupPrincipalObject g = null;
+            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
             {
-                { "description", "Description" },
-                { "mail", "E-mail" },
-                { "managedBy", "Managed By" }
-            };
-
-            return attributes.ContainsKey(attribute);
+                GroupPrincipal group = GroupPrincipal.FindByIdentity(context, IdentityType.SamAccountName, sAMAccountName);
+                g = new GroupPrincipalObject(group);
+                if (getGroups)
+                    g.GetGroups();
+            }
+            return g;
         }
+        #endregion
     }
 }

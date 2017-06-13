@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,16 @@ public class LdapGroupHandler : HandlerRuntimeBase
 
     public override object GetParametersInstance()
     {
-        return new GroupOperation() {Operation = "CreateGroup", OuPath = "LDAP://OU=XXX,DC=YYY", GroupName = "ZZZ"};
+        return new GroupOperation()
+        {
+            Operation = "CreateGroup",
+            OuPath = "LDAP://OU=XXX,DC=XXX",
+            Name = "XXX",
+            Description = "XXX",
+            Scope = GroupScope.Universal,
+            IsSecurityGroup = true,
+            Username = "XXX"
+        };
     }
 
     public override IHandlerRuntime Initialize(string config)
@@ -46,18 +56,40 @@ public class LdapGroupHandler : HandlerRuntimeBase
 
         try
         {
-            if (parms.Operation != null && parms.Operation.Equals("CreateGroup"))
+            if (parms.Operation != null && parms.Operation.Equals("CreateGroupEx"))
             {
-                DirectoryServices.CreateGroup(parms.OuPath, parms.GroupName);
+                GroupPrincipal gp = DirectoryServices.CreateGroupEx(parms.OuPath, parms.Name, parms.Description, parms.Scope, parms.IsSecurityGroup, startInfo.IsDryRun);
                 msg = "Complete";
                 result.Status = StatusType.Success;
-                result.ExitData = $"{parms.GroupName} has been successfully created under {parms.OuPath}.";
-            } else if (parms.Operation != null && parms.Operation.Equals("DeleteGroup"))
+                result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{gp.DistinguishedName} has been successfully created.";
+            }
+            else if (parms.Operation != null && parms.Operation.Equals("CreateGroup"))
             {
-                DirectoryServices.DeleteGroup(parms.GroupName);
+                DirectoryServices.CreateGroup(parms.OuPath, parms.Name);
                 msg = "Complete";
                 result.Status = StatusType.Success;
-                result.ExitData = $"{parms.GroupName} has been deleted.";
+                result.ExitData = $"{parms.Name} has been successfully created under {parms.OuPath}.";
+            }
+            else if (parms.Operation != null && parms.Operation.Equals("DeleteGroupEx"))
+            {
+                DirectoryServices.DeleteGroupEx(parms.Name, startInfo.IsDryRun);
+                msg = "Complete";
+                result.Status = StatusType.Success;
+                result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Name} has been deleted.";
+            }
+            else if (parms.Operation != null && parms.Operation.Equals("AddUserToGroupEx"))
+            {
+                DirectoryServices.AddUserToGroupEx(parms.Username, parms.Name, startInfo.IsDryRun);
+                msg = "Complete";
+                result.Status = StatusType.Success;
+                result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Username} has been added to {parms.Name}.";
+            }
+            else if (parms.Operation != null && parms.Operation.Equals("RemoveUserFromGroupEx"))
+            {
+                DirectoryServices.RemoveUserFromGroupEx(parms.Username, parms.Name, startInfo.IsDryRun);
+                msg = "Complete";
+                result.Status = StatusType.Success;
+                result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Username} has been removed from {parms.Name}.";
             }
             else
             {
@@ -85,5 +117,9 @@ public class GroupOperation
 {
     public string Operation { get; set; }
     public string OuPath { get; set; }
-    public string GroupName { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+    public GroupScope Scope { get; set; }
+    public bool IsSecurityGroup { get; set; }
+    public string Username { get; set; }
 }
