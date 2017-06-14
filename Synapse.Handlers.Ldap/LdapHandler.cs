@@ -4,22 +4,22 @@ using Newtonsoft.Json;
 
 using Synapse.Core;
 using Synapse.Ldap.Core;
+using Synapse.Handlers.Ldap;
 
 public class LdapHandler : HandlerRuntimeBase
 {
-    ConnectionInfo _ldap = null;
+    LdapHanderConfig config = null;
 
     public override IHandlerRuntime Initialize(string config)
     {
         //deserialize the Config from the Handler declaration
-        _ldap = DeserializeOrNew<ConnectionInfo>( config );
+        this.config = DeserializeOrNew<LdapHanderConfig>( config );
         return this;
     }
 
     public override ExecuteResult Execute(HandlerStartInfo startInfo)
     {
-        //declare/initialize method-scope variables
-        int cheapSequence = 0; //used to order message flowing out from the Handler
+        int cheapSequence = 0;
         const string __context = "Execute";
         ExecuteResult result = new ExecuteResult()
         {
@@ -30,7 +30,7 @@ public class LdapHandler : HandlerRuntimeBase
         Exception exc = null;
 
         //deserialize the Parameters from the Action declaration
-        SecurityPrincipalQueryParameters parms = DeserializeOrNew<SecurityPrincipalQueryParameters>( startInfo.Parameters );
+        LdapHanderParameters parms = DeserializeOrNew<LdapHanderParameters>( startInfo.Parameters );
 
         try
         {
@@ -40,30 +40,33 @@ public class LdapHandler : HandlerRuntimeBase
                 OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
 
 
-                result.ExitData = _ldap.LdapRoot;
+                result.ExitData = config.LdapRoot;
                 result.Message = msg =
-                    $"Connection test successful! Connection string: {_ldap.LdapRoot}";
+                    $"Connection test successful! Connection string: {config.LdapRoot}";
             }
             //else, select data as declared in Parameters.QueryString
             else
             {
-                switch( parms.Type )
+                switch( config.Action )
                 {
-                    case ObjectClass.User:
-                    {
-                        result.ExitData = DirectoryServices.GetUser( parms.Name, parms.IncludeGroups );
+                    case ActionType.Query:
+                        // TODO : Implement Me
                         break;
-                    }
-                    case ObjectClass.Group:
-                    {
-                        result.ExitData = DirectoryServices.GetGroup( parms.Name, parms.IncludeGroups );
+                    case ActionType.Create:
+                        // TODO : Implement Me
                         break;
-                    }
-                    case ObjectClass.OrganizationalUnit:
-                    {
-                        result.ExitData = DirectoryServices.GetOrganizationalUnit( parms.Name, _ldap.LdapRoot );
+                    case ActionType.Modify:
+                        // TODO : Implement Me
                         break;
-                    }
+                    case ActionType.Delete:
+                        // TODO : Implement Me
+                        break;
+                    case ActionType.AddToGroup:
+                        // TODO : Implement Me
+                        break;
+                    case ActionType.RemoveFromGroup:
+                        // TODO : Implement Me
+                        break;
                 }
             }
         }

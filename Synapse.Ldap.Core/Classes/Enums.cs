@@ -9,7 +9,8 @@ namespace Synapse.Ldap.Core
     public enum SerializationFormat
     {
         Json,
-        Xml
+        Xml,
+        Yaml
     }
 
     public enum PrincipalType
@@ -32,6 +33,8 @@ namespace Synapse.Ldap.Core
         Query,
         Create,
         Modify,
-        Delete
+        Delete,
+        AddToGroup,
+        RemoveFromGroup
     }
 }

@@ -53,10 +53,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\LdapObjects\LdapGroup.cs" />
+    <Compile Include="Classes\LdapHanderParameters.cs" />
+    <Compile Include="Classes\LdapHanderConfig.cs" />
+    <Compile Include="Classes\LdapObjects\LdapOrganizationalUnit.cs" />
+    <Compile Include="Classes\LdapObjects\LdapUser.cs" />
     <Compile Include="CSLGroupMembershipHandler.cs" />
-    <Compile Include="LdapGroupHandler.cs" />
     <Compile Include="LdapHandler.cs" />
-    <Compile Include="LdapUserHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
