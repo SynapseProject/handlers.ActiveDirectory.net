@@ -21,7 +21,7 @@ public class CslGroupMembershipHandler : HandlerRuntimeBase
                 {
                     Groups = new List<string>()
                     {
-                        "CSL_ZU3-P3-0332_OPS-SUPPORT"
+                        "xxxxxx"
                     },
                     Users = new List<string>()
                     {
@@ -32,7 +32,7 @@ public class CslGroupMembershipHandler : HandlerRuntimeBase
                 {
                     Groups = new List<string>()
                     {
-                        "CSL_ZE1-P3-0043_PROVISION"
+                        "xxxxxx"
                     },
                     Users = new List<string>()
                     {
@@ -43,7 +43,7 @@ public class CslGroupMembershipHandler : HandlerRuntimeBase
                 {
                     Groups = new List<string>()
                     {
-                        "CSL_ZE1-P3-0042_RESOURCE-ACTIONS"
+                        "xxxxxx"
                     },
                     Users = new List<string>()
                     {
@@ -57,10 +57,10 @@ public class CslGroupMembershipHandler : HandlerRuntimeBase
                 {
                     Groups = new List<string>()
                     {
-                        "CSL_WE1-P2-0356_ENGINEERING",
-                        "CSL_WE1-P3-0380_ENGINEERING",
-                        "CSL_WE1-T1-0209_ENGINEERING",
-                        "CSL_WU2-P2-0303_ENGINEERING"
+                        "xxxxxx",
+                        "xxxxxx",
+                        "xxxxxx",
+                        "xxxxxx"
                     },
                     Users = new List<string>()
                     {
