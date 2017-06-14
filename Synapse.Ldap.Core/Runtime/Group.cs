@@ -9,7 +9,7 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static GroupPrincipal CreateGroupEx(string ouPath, string groupName, string description = null, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        public static GroupPrincipal CreateGroup(string ouPath, string groupName, string description = null, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
         {
             if (String.IsNullOrWhiteSpace(ouPath))
             {
@@ -67,7 +67,7 @@ namespace Synapse.Ldap.Core
             return groupPrincipal;
         }
 
-        public static void DeleteGroupEx(string groupName, bool dryRun = false)
+        public static void DeleteGroup(string groupName, bool dryRun = false)
         {
             if (String.IsNullOrWhiteSpace(groupName))
             {
@@ -176,7 +176,7 @@ namespace Synapse.Ldap.Core
             };
         }
 
-        public static void AddUserToGroupEx(string username, string groupName, bool isDryRun = false)
+        public static void AddUserToGroup(string username, string groupName, bool isDryRun = false)
         {
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -214,7 +214,7 @@ namespace Synapse.Ldap.Core
         }
 
 
-        public static void RemoveUserFromGroupEx(string username, string groupName, bool isDryRun = false)
+        public static void RemoveUserFromGroup(string username, string groupName, bool isDryRun = false)
         {
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -320,7 +320,7 @@ namespace Synapse.Ldap.Core
         #endregion
 
         #region To Be Removed
-        public static void AddUserToGroup(string username, string groupName, string ldapPath = "")
+        public static void AddUserToGroupEx(string username, string groupName, string ldapPath = "")
         {
             if (String.IsNullOrWhiteSpace(username))
             {
@@ -399,7 +399,7 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void CreateGroup(string ouPath, string groupName, bool dryRun = false)
+        public static void CreateGroupEx(string ouPath, string groupName, bool dryRun = false)
         {
             if (String.IsNullOrWhiteSpace(ouPath))
             {
@@ -442,7 +442,7 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void DeleteGroup(string ouPath, string groupPath, bool dryRun)
+        public static void DeleteGroupEx(string ouPath, string groupPath, bool dryRun)
         {
             if (String.IsNullOrWhiteSpace(ouPath))
             {
@@ -493,7 +493,7 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void RemoveUserFromGroup(string username, string groupName, string ldapPath = "")
+        public static void RemoveUserFromGroupEx(string username, string groupName, string ldapPath = "")
         {
             if (String.IsNullOrWhiteSpace(username))
             {

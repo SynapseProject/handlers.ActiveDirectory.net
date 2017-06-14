@@ -56,37 +56,30 @@ public class LdapGroupHandler : HandlerRuntimeBase
 
         try
         {
-            if (parms.Operation != null && parms.Operation.Equals("CreateGroupEx"))
+            if (parms.Operation != null && parms.Operation.Equals("CreateGroup"))
             {
-                GroupPrincipal gp = DirectoryServices.CreateGroupEx(parms.OuPath, parms.Name, parms.Description, parms.Scope, parms.IsSecurityGroup, startInfo.IsDryRun);
+                GroupPrincipal gp = DirectoryServices.CreateGroup(parms.OuPath, parms.Name, parms.Description, parms.Scope, parms.IsSecurityGroup, startInfo.IsDryRun);
                 msg = "Complete";
                 result.Status = StatusType.Success;
                 result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{gp.DistinguishedName} has been successfully created.";
             }
-            else if (parms.Operation != null && parms.Operation.Equals("CreateGroup"))
+            else if (parms.Operation != null && parms.Operation.Equals("DeleteGroup"))
             {
-                DirectoryServices.CreateGroup(parms.OuPath, parms.Name);
-                msg = "Complete";
-                result.Status = StatusType.Success;
-                result.ExitData = $"{parms.Name} has been successfully created under {parms.OuPath}.";
-            }
-            else if (parms.Operation != null && parms.Operation.Equals("DeleteGroupEx"))
-            {
-                DirectoryServices.DeleteGroupEx(parms.Name, startInfo.IsDryRun);
+                DirectoryServices.DeleteGroup(parms.Name, startInfo.IsDryRun);
                 msg = "Complete";
                 result.Status = StatusType.Success;
                 result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Name} has been deleted.";
             }
-            else if (parms.Operation != null && parms.Operation.Equals("AddUserToGroupEx"))
+            else if (parms.Operation != null && parms.Operation.Equals("AddUserToGroup"))
             {
-                DirectoryServices.AddUserToGroupEx(parms.Username, parms.Name, startInfo.IsDryRun);
+                DirectoryServices.AddUserToGroup(parms.Username, parms.Name, startInfo.IsDryRun);
                 msg = "Complete";
                 result.Status = StatusType.Success;
                 result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Username} has been added to {parms.Name}.";
             }
-            else if (parms.Operation != null && parms.Operation.Equals("RemoveUserFromGroupEx"))
+            else if (parms.Operation != null && parms.Operation.Equals("RemoveUserFromGroup"))
             {
-                DirectoryServices.RemoveUserFromGroupEx(parms.Username, parms.Name, startInfo.IsDryRun);
+                DirectoryServices.RemoveUserFromGroup(parms.Username, parms.Name, startInfo.IsDryRun);
                 msg = "Complete";
                 result.Status = StatusType.Success;
                 result.ExitData = startInfo.IsDryRun ? "Dry run has been completed." : $"{parms.Username} has been removed from {parms.Name}.";
