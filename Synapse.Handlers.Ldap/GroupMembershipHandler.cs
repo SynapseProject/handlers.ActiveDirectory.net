@@ -92,17 +92,17 @@ public class GroupMembershipHandler : HandlerRuntimeBase
 
         try
         {
-            if (parms?.AddSection != null)
+            if ( parms?.AddSection != null )
             {
-                foreach (AddSection addsection in parms.AddSection)
+                foreach ( AddSection addsection in parms.AddSection )
                 {
-                    foreach (string group in addsection.Groups)
+                    foreach ( string group in addsection.Groups )
                     {
-                        foreach (string user in addsection.Users)
+                        foreach ( string user in addsection.Users )
                         {
                             try
                             {
-                                DirectoryServices.AddUserToGroup(user, group, startInfo.IsDryRun);
+                                DirectoryServices.AddUserToGroup( user, group, startInfo.IsDryRun );
                                 Result r = new Result()
                                 {
                                     User = user,
@@ -111,9 +111,9 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                     ExitCode = 0,
                                     Note = startInfo.IsDryRun ? "Dry run has been completed." : "User has been successfully added to the group."
                                 };
-                                response.Results.Add(r);
+                                response.Results.Add( r );
                             }
-                            catch (Exception ex)
+                            catch ( Exception ex )
                             {
                                 Result r = new Result()
                                 {
@@ -121,26 +121,26 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                     Group = group,
                                     Action = "add",
                                     ExitCode = -1,
-                                    Note = (startInfo.IsDryRun ? "Dry run has been completed. " : "") + ex.Message
+                                    Note = ( startInfo.IsDryRun ? "Dry run has been completed. " : "" ) + ex.Message
                                 };
-                                response.Results.Add(r);
+                                response.Results.Add( r );
                                 encounteredFailure = true;
                             }
                         }
                     }
                 }
 
-                if (parms?.DeleteSection != null)
+                if ( parms?.DeleteSection != null )
                 {
-                    foreach (DeleteSection addsection in parms.DeleteSection)
+                    foreach ( DeleteSection addsection in parms.DeleteSection )
                     {
-                        foreach (string group in addsection.Groups)
+                        foreach ( string group in addsection.Groups )
                         {
-                            foreach (string user in addsection.Users)
+                            foreach ( string user in addsection.Users )
                             {
                                 try
                                 {
-                                    DirectoryServices.RemoveUserFromGroup(user, group, startInfo.IsDryRun);
+                                    DirectoryServices.RemoveUserFromGroup( user, group, startInfo.IsDryRun );
                                     Result r = new Result()
                                     {
                                         User = user,
@@ -149,9 +149,9 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                         ExitCode = 0,
                                         Note = startInfo.IsDryRun ? "Dry run has been completed." : "User has been successfully removed from the group."
                                     };
-                                    response.Results.Add(r);
+                                    response.Results.Add( r );
                                 }
-                                catch (Exception ex)
+                                catch ( Exception ex )
                                 {
                                     Result r = new Result()
                                     {
@@ -161,7 +161,7 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                         ExitCode = -1,
                                         Note = (startInfo.IsDryRun ? "Dry run has been completed. " : "") + ex.Message
                                     };
-                                    response.Results.Add(r);
+                                    response.Results.Add( r );
                                     encounteredFailure = true;
                                 }
                             }
@@ -169,11 +169,11 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                     }
                 }
 
-                msg = "Request has been processed" + (encounteredFailure ? " with error" : "") + ".";
+                msg = "Request has been processed" + ( encounteredFailure ? " with error" : "" ) + ".";
                 result.Status = encounteredFailure ? StatusType.CompletedWithErrors : StatusType.Success;
             }
         }
-        catch (Exception ex)
+        catch ( Exception ex )
         {
             exception = ex;
             msg = $"Processing has been aborted due to: {ex.Message}";
@@ -181,10 +181,10 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         }
 
         response.Status = msg;
-        result.ExitData = JsonConvert.SerializeObject(response);
+        result.ExitData = JsonConvert.SerializeObject( response );
 
         // Final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
-        OnProgress(context, msg, result.Status, sequence: Int32.MaxValue, ex: exception);
+        OnProgress( context, msg, result.Status, sequence: Int32.MaxValue, ex: exception );
 
         return result;
     }

@@ -44,11 +44,11 @@ public partial class LdapApiController : ApiController
             //pe.DynamicParameters.Add(nameof(name), name);
             //pe.DynamicParameters.Add("type", ObjectClass.OrganizationalUnit.ToString());
 
-            return SynapseHelper.ExecuteAsync<OrganizationalUnitObject>(ec, "CreateOrgUnit", pe);
+            return SynapseHelper.ExecuteAsync<OrganizationalUnitObject>( ec, "CreateOrgUnit", pe );
         }
         else
         {
-            return DirectoryServices.GetOrganizationalUnit(parentOrgUnitDistName, newOrgUnitName);
+            return DirectoryServices.GetOrganizationalUnit( parentOrgUnitDistName, newOrgUnitName );
         }
     }
 
@@ -65,11 +65,11 @@ public partial class LdapApiController : ApiController
             //pe.DynamicParameters.Add(nameof(name), name);
             //pe.DynamicParameters.Add("type", ObjectClass.OrganizationalUnit.ToString());
 
-            return SynapseHelper.ExecuteAsync<bool>(ec, "DeleteOrgUnit", pe);
+            return SynapseHelper.ExecuteAsync<bool>( ec, "DeleteOrgUnit", pe );
         }
         else
         {
-            return DirectoryServices.DeleteOrganizationUnit(orgUnitDistName);
+            return DirectoryServices.DeleteOrganizationUnit( orgUnitDistName );
         }
     }
 }
