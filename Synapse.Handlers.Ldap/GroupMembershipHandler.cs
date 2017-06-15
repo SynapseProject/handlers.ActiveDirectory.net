@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using Synapse.Core;
 using Synapse.Ldap.Core;
 
-public class CslGroupMembershipHandler : HandlerRuntimeBase
+public class GroupMembershipHandler : HandlerRuntimeBase
 {
     public override object GetConfigInstance()
     {
