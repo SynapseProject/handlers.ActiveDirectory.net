@@ -17,7 +17,7 @@ namespace Synapse.Ldap.Tests
             string ldapPath = DirectoryServices.GetDomainDistinguishedName();
             string userName = $"User-{DirectoryServices.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
             
             string destOrgUnit = $"OU=TestOU,{DirectoryServices.GetDomainDistinguishedName()}";
 
@@ -37,7 +37,7 @@ namespace Synapse.Ldap.Tests
             string ldapPath = DirectoryServices.GetDomainDistinguishedName();
             string userName = $"User-{DirectoryServices.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
             string destOrgUnit = $"OU=XXXX,{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -58,7 +58,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             // Assert
-            Assert.DoesNotThrow(() => DirectoryServices.CreateUser(ldapPath, userName, userPassword));
+            Assert.DoesNotThrow(() => DirectoryServices.CreateUserEx(ldapPath, userName, userPassword));
         }
 
 //        [Test]
@@ -68,7 +68,7 @@ namespace Synapse.Ldap.Tests
 //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
 //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
 //            string userPassword = "bi@02LL49_VWQ{b";
-//            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+//            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
 //            string groupDn = $"CN=TestGroup,{ldapPath}";
 //
 //            // Act
@@ -85,7 +85,7 @@ namespace Synapse.Ldap.Tests
 //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
 //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
 //            string userPassword = "bi@02LL49_VWQ{b";
-//            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+//            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
 //            string groupDn = $"CN=XXXXXX,{ldapPath}";
 //
 //            // Act
@@ -102,7 +102,7 @@ namespace Synapse.Ldap.Tests
 //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
 //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
 //            string userPassword = "bi@02LL49_VWQ{b";
-//            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+//            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
 //            string groupDn = $"CN=TestGroup,{ldapPath}";
 //
 //            // Act
@@ -119,7 +119,7 @@ namespace Synapse.Ldap.Tests
 //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
 //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
 //            string userPassword = "bi@02LL49_VWQ{b";
-//            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+//            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
 //            string groupDn = $"CN=XXXXXX,{ldapPath}";
 //
 //            // Act
@@ -136,7 +136,7 @@ namespace Synapse.Ldap.Tests
             string ldapPath = DirectoryServices.GetDomainDistinguishedName();
             string userName = $"User-{DirectoryServices.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+            DirectoryServices.CreateUserEx(ldapPath, userName, userPassword);
 
             // Act
             bool status = DirectoryServices.DeleteUser(userName);

@@ -57,7 +57,57 @@ namespace Synapse.Ldap.Core
             return true;
         }
 
-        public static void CreateUser(string ldapPath, string username, string password, string givenName = "", string surname = "", string description = "")
+        public static void CreateUser(string ouPath, string username, string password, string givenName = "", string surname = "", string description = "")
+        {
+            if (String.IsNullOrWhiteSpace(ouPath))
+            {
+                // Default location where user will be created.
+                ouPath = $"cn=Users,{GetDomainDistinguishedName()}";
+            }
+
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Cannot create user as username is not specified.");
+            }
+
+            if (String.IsNullOrWhiteSpace(password))
+            {
+                throw new Exception("Cannot create user as password is not specified.");
+            }
+
+            if (String.IsNullOrWhiteSpace(givenName))
+            {
+                throw new Exception("Cannot create user as given name is not specified.");
+            }
+
+            if (String.IsNullOrWhiteSpace(surname))
+            {
+                throw new Exception("Cannot create user as surname is not specified.");
+            }
+
+            if (!IsUserExisiting(username))
+            {
+                ouPath = ouPath.Replace("LDAP://", "");
+
+                PrincipalContext ouPrincipal = GetPrincipalContext(ouPath);
+
+                UserPrincipal userPrincipal = new UserPrincipal(ouPrincipal, username, password, enabled: true)
+                {
+                    UserPrincipalName = username,
+                    GivenName = givenName,
+                    Surname = surname,
+                    DisplayName = $"{surname}, {givenName}",
+                    Description = description
+                };
+                userPrincipal.Save();
+            }
+            else
+            {
+                throw new Exception("The user already exists.");
+            }
+        }
+
+        public static void CreateUserEx(string ldapPath, string username, string password, string givenName = "", string surname = "", string description = "")
         {
             if (String.IsNullOrWhiteSpace(ldapPath))
             {
@@ -358,6 +408,18 @@ namespace Synapse.Ldap.Core
             };
 
             return attributes.ContainsKey(attribute);
+        }
+
+        public static bool IsUserExisiting(string username)
+        {
+            if (GetUser(username) == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 }

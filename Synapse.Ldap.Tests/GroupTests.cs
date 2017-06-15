@@ -263,7 +263,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             DirectoryServices.AddUserToGroup(username, groupName, false);
 
             // Assert
@@ -356,7 +356,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveUserFromGroup(username, groupName));
 
             // Assert
@@ -390,7 +390,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveUserFromGroup(username, groupName));
 
             // Assert
@@ -409,7 +409,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveUserFromGroup(username, groupName, true));
 
             // Assert
@@ -428,7 +428,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             DirectoryServices.AddUserToGroup(username, groupName);
             DirectoryServices.RemoveUserFromGroup(username, groupName);
 
