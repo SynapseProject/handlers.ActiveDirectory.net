@@ -140,6 +140,76 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
+        public void AddGroupToGroup_Non_Existent_Child_Group_Throw_Exception()
+        {
+            // Arrange 
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddGroupToGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group cannot be found."));
+        }
+
+        [Test]
+        public void AddGroupToGroup_Non_Existent_Parent_Group_Throw_Exception()
+        {
+            // Arrange 
+            string childGroup = "TestGroup1"; // Assume this group always exists.
+            string parentGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddGroupToGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Parent group cannot be found."));
+        }
+
+        [Test]
+        public void AddGroupToGroup_Already_Member_Throw_Exception()
+        {
+            // Arrange 
+            string childGroup = "TestGroup2";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddGroupToGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group already exists in the parent group."));
+        }
+
+        [Test]
+        public void AddGroupToGroup_Already_Member_DryRun_Throw_Exception()
+        {
+            // Arrange 
+            string childGroup = "TestGroup2";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddGroupToGroup(childGroup, parentGroup, true));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group already exists in the parent group."));
+        }
+
+        [Test]
+        public void AddGroupToGroup_Not_Yet_A_Member_Succeed()
+        {
+            // Arrange 
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            DirectoryServices.CreateGroup($"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}", childGroup);
+            DirectoryServices.AddGroupToGroup(childGroup, parentGroup);
+
+            // Assert
+            Assert.IsTrue(DirectoryServices.IsGroupGroupMember(childGroup, parentGroup));
+        }
+        [Test]
         public void AddUserToGroup_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
@@ -198,6 +268,80 @@ namespace Synapse.Ldap.Tests
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsUserGroupMember(username, groupName));
+        }
+
+        [Test]
+        public void RemoveGroupFromGroup_Non_Existent_Child_Group_Throw_Exception()
+        {
+            // Arrange
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group cannot be found."));
+        }
+
+        [Test]
+        public void RemoveGroupFromGroup_Non_Existent_Parent_Group_Throw_Exception()
+        {
+            // Arrange
+            string childGroup = "TestGroup1";
+            string parentGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Parent group cannot be found."));
+        }
+
+        [Test]
+        public void RemoveGroupFromGroup_Not_A_Member_Throw_Exception()
+        {
+            // Arrange
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            DirectoryServices.CreateGroup($"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}", childGroup);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group does not exist in the parent group."));
+        }
+
+        [Test]
+        public void RemoveGroupFromGroup_Not_A_Member_DryRun_Throw_Exception()
+        {
+            // Arrange
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            DirectoryServices.CreateGroup($"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}", childGroup);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup, true));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Child group does not exist in the parent group."));
+        }
+
+        [Test]
+        public void RemoveGroupFromGroup_Is_A_Member_Throw_Exception()
+        {
+            // Arrange
+            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = "TestGroup1";
+
+            // Act
+            DirectoryServices.CreateGroup($"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}", childGroup);
+            DirectoryServices.AddGroupToGroup(childGroup, parentGroup);
+            DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup);
+
+            // Assert
+            Assert.IsFalse(DirectoryServices.IsGroupGroupMember(childGroup, parentGroup));
         }
 
         [Test]

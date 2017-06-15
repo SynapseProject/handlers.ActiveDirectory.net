@@ -213,6 +213,42 @@ namespace Synapse.Ldap.Core
             }
         }
 
+        public static void AddGroupToGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(childGroupName))
+            {
+                throw new Exception("Child group name is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(parentGroupName))
+            {
+                throw new Exception("Parent group name is not provided.");
+            }
+
+            GroupPrincipal childGroupPrincipal = GetGroup(childGroupName);
+            if (childGroupPrincipal == null)
+            {
+                throw new Exception("Child group cannot be found.");
+            }
+            GroupPrincipal parentGroupPrincipal = GetGroup(parentGroupName);
+            if (parentGroupPrincipal == null)
+            {
+                throw new Exception("Parent group cannot be found.");
+            }
+
+            if (!IsGroupGroupMember(childGroupName, parentGroupName))
+            {
+                if (!isDryRun)
+                {
+                    parentGroupPrincipal.Members.Add(childGroupPrincipal);
+                    parentGroupPrincipal.Save();
+                }
+            }
+            else
+            {
+                throw new Exception("Child group already exists in the parent group.");
+            }
+        }
 
         public static void RemoveUserFromGroup(string username, string groupName, bool isDryRun = false)
         {
@@ -251,6 +287,43 @@ namespace Synapse.Ldap.Core
             }
         }
 
+        public static void RemoveGroupFromGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(childGroupName))
+            {
+                throw new Exception("Child group name is not provided.");
+            }
+
+            if (String.IsNullOrWhiteSpace(parentGroupName))
+            {
+                throw new Exception("Parent group name is not provided.");
+            }
+
+            GroupPrincipal childGroupPrincipal = GetGroup(childGroupName);
+            if (childGroupPrincipal == null)
+            {
+                throw new Exception("Child group cannot be found.");
+            }
+            GroupPrincipal parentGroupPrincipal = GetGroup(parentGroupName);
+            if (parentGroupPrincipal == null)
+            {
+                throw new Exception("Parent group cannot be found.");
+            }
+
+            if (IsGroupGroupMember(childGroupName, parentGroupName))
+            {
+                if (!isDryRun)
+                {
+                    parentGroupPrincipal.Members.Remove(childGroupPrincipal);
+                    parentGroupPrincipal.Save();
+                }
+            }
+            else
+            {
+                throw new Exception("Child group does not exist in the parent group.");
+            }
+        }
+
         public static bool IsUserGroupMember(string username, string groupName)
         {
             UserPrincipal userPrincipal = GetUser(username);
@@ -259,6 +332,18 @@ namespace Synapse.Ldap.Core
             if (userPrincipal != null && groupPrincipal != null)
             {
                 return groupPrincipal.Members.Contains(userPrincipal);
+            }
+            return false;
+        }
+
+        public static bool IsGroupGroupMember(string childGroupName, string parentGroupName)
+        {
+            GroupPrincipal childGroupPrincipal = GetGroup(childGroupName);
+            GroupPrincipal parentGroupPrincipal = GetGroup(parentGroupName);
+
+            if (childGroupPrincipal != null && parentGroupPrincipal != null)
+            {
+                return parentGroupPrincipal.Members.Contains(childGroupPrincipal);
             }
             return false;
         }
