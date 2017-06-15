@@ -1,5 +1,7 @@
 ﻿using System;
-
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 using Synapse.Core;
@@ -9,6 +11,7 @@ using Synapse.Handlers.Ldap;
 public class LdapHandler : HandlerRuntimeBase
 {
     LdapHanderConfig config = null;
+    bool isDryRun = false;
 
     public override IHandlerRuntime Initialize(string config)
     {
@@ -29,8 +32,10 @@ public class LdapHandler : HandlerRuntimeBase
         string msg = "Complete";
         Exception exc = null;
 
+        isDryRun = startInfo.IsDryRun;
+
         //deserialize the Parameters from the Action declaration
-        LdapHanderParameters parms = DeserializeOrNew<LdapHanderParameters>( startInfo.Parameters );
+        LdapHanderParameters parameters = DeserializeOrNew<LdapHanderParameters>( startInfo.Parameters );
 
         try
         {
@@ -50,19 +55,26 @@ public class LdapHandler : HandlerRuntimeBase
                 switch( config.Action )
                 {
                     case ActionType.Query:
-                        // TODO : Implement Me
+                        ProcessLdapObjects( parameters.Users, ProcessQuery );
+                        ProcessLdapObjects( parameters.Groups, ProcessQuery );
+                        ProcessLdapObjects( parameters.OrganizationalUnits, ProcessQuery );
                         break;
                     case ActionType.Create:
-                        // TODO : Implement Me
+                        ProcessLdapObjects( parameters.OrganizationalUnits, ProcessCreate );
+                        ProcessLdapObjects( parameters.Groups, ProcessCreate );
+                        ProcessLdapObjects( parameters.Users, ProcessCreate );
                         break;
                     case ActionType.Modify:
                         // TODO : Implement Me
                         break;
                     case ActionType.Delete:
-                        // TODO : Implement Me
+                        ProcessLdapObjects( parameters.Users, ProcessDelete );
+                        ProcessLdapObjects( parameters.Groups, ProcessDelete );
+                        ProcessLdapObjects( parameters.OrganizationalUnits, ProcessDelete );
                         break;
                     case ActionType.AddToGroup:
-                        // TODO : Implement Me
+                        ProcessLdapObjects( parameters.Users, ProcessGroupAdd );
+                        ProcessLdapObjects( parameters.Groups, ProcessGroupAdd );
                         break;
                     case ActionType.RemoveFromGroup:
                         // TODO : Implement Me
@@ -85,13 +97,131 @@ public class LdapHandler : HandlerRuntimeBase
         return result;
     }
 
+    // TODO : Implement Me
     public override object GetConfigInstance()
     {
-        return new ConnectionInfo() { LdapRoot = "LDAP://" };
+        throw new NotImplementedException();
     }
 
+    // TODO : Implement Me
     public override object GetParametersInstance()
     {
-        return new SecurityPrincipalQueryParameters() { Type = ObjectClass.Group, Action = ActionType.Create, ReturnFormat = Synapse.Ldap.Core.SerializationFormat.Xml };
+        throw new NotImplementedException();
     }
+
+    private void ProcessLdapObjects(IEnumerable<LdapObject> objs, Action<LdapObject> processFunction)
+    {
+        if ( config.RunSequential )
+        {
+            foreach ( LdapObject obj in objs )
+                processFunction( obj );
+        }
+        else
+            Parallel.ForEach( objs, obj =>
+            {
+                processFunction( obj );
+            } );
+    }
+
+    private void ProcessQuery(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                DirectoryServices.GetUser( user.Name );
+                break;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                DirectoryServices.GetGroup( group.Name );
+                break;
+            case ObjectClass.OrganizationalUnit:
+                LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
+                DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
+                break;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+        }
+    }
+
+    private void ProcessCreate(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                DirectoryServices.CreateUser( user.OUPath, user.Name, user.Password, user.GivenName, user.Surname, user.Description );
+                break;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                DirectoryServices.CreateGroup( group.OUPath, group.Name, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                break;
+            case ObjectClass.OrganizationalUnit:
+                LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
+                DirectoryServices.CreateOrganizationUnit( ou.Parent, ou.Name );
+                break;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+        }
+    }
+
+    private void ProcessDelete(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                DirectoryServices.DeleteUser( user.Name );
+                break;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                DirectoryServices.DeleteGroup( group.Name, isDryRun );
+                break;
+            case ObjectClass.OrganizationalUnit:
+                LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
+                DirectoryServices.DeleteOrganizationUnit( ou.Name );
+                break;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+        }
+    }
+
+    private void ProcessGroupAdd(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                foreach ( String userGroup in user.Groups )
+                    DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
+                break;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                foreach ( String groupGroup in group.Groups )
+                    DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
+                break;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+        }
+    }
+
+    private void ProcessGroupRemove(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                foreach ( String userGroup in user.Groups )
+                    DirectoryServices.RemoveUserFromGroup( user.Name, userGroup, isDryRun );
+                break;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                foreach ( String groupGroup in group.Groups )
+                    DirectoryServices.RemoveGroupFromGroup( group.Name, groupGroup, isDryRun );
+                break;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+        }
+    }
+
 }

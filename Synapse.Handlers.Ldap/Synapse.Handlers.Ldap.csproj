@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\LdapObjects\LdapObject.cs" />
     <Compile Include="Classes\LdapObjects\LdapGroup.cs" />
     <Compile Include="Classes\LdapHanderParameters.cs" />
     <Compile Include="Classes\LdapHanderConfig.cs" />
