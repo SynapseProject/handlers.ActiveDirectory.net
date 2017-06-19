@@ -209,6 +209,7 @@ namespace Synapse.Ldap.Tests
             // Assert
             Assert.IsTrue(DirectoryServices.IsGroupGroupMember(childGroup, parentGroup));
         }
+        
         [Test]
         public void AddUserToGroup_Non_Existent_User_Throw_Exception()
         {
@@ -224,13 +225,39 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
+        public void AddUserToGroup_Non_Existent_Group_Throw_Exception()
+        {
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string givenName = "TestUser";
+            string surname = "Synapse";
+            string password = "1x034abe5A#1!";
+            string description = "Created by Synapse";
+            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+
+            // Act
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddUserToGroup(username, groupName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Group cannot be found."));
+        }
+
+
+        [Test]
         public void AddUserToGroup_Already_Member_Throw_Exception()
         {
             // Arrange 
-            string username = "johndoe";
-            string groupName = "TestGroup1";
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string givenName = "TestUser";
+            string surname = "Synapse";
+            string password = "1x034abe5A#1!";
+            string description = "Created by Synapse";
+            string groupName = "TestGroup1"; // Assuming the group exists.
 
             // Act
+            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
+            DirectoryServices.AddUserToGroup(username, groupName);
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddUserToGroup(username, groupName));
 
             // Assert
@@ -349,14 +376,9 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange
             string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
-            string givenName = "TestUser";
-            string surname = "Synapse";
             string groupName = "TestGroup1"; // This group should always exist.
-            string password = "1x034abe5A#1!";
-            string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveUserFromGroup(username, groupName));
 
             // Assert

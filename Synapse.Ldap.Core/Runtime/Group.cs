@@ -116,7 +116,10 @@ namespace Synapse.Ldap.Core
 
             using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
             {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + groupName + ")" })
+                using (DirectorySearcher mySearcher = new DirectorySearcher(entry)
+                {
+                    Filter = "(sAMAccountName=" + groupName + ")"
+                })
                 {
                     try
                     {
@@ -396,7 +399,8 @@ namespace Synapse.Ldap.Core
                 { "description", "Description" },
                 { "displayName", "Display Name" },
                 { "mail", "E-mail" },
-                { "managedBy", "Managed By" }
+                { "managedBy", "Managed By" },
+                { "sAMAccountName", "Sam Account Name"}
             };
 
             return attributes.ContainsKey(attribute);
