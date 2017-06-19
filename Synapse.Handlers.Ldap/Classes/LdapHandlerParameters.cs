@@ -8,7 +8,7 @@ using System.Xml;
 
 namespace Synapse.Handlers.Ldap
 {
-    public class LdapHanderParameters
+    public class LdapHandlerParameters
     {
         [XmlArrayItem(ElementName = "User")]
         public List<LdapUser> Users { get; set; }

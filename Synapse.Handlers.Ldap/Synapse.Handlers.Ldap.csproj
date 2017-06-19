@@ -35,8 +35,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Core.Signed.0.1.17143.0-beta\lib\net45\Synapse.Core.dll</HintPath>
-      <Private>True</Private>
+      <HintPath>..\packages\Synapse.Core.Signed.0.1.17166.0-beta\lib\net45\Synapse.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,10 +52,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\LdapHandlerResults.cs" />
     <Compile Include="Classes\LdapObjects\LdapObject.cs" />
     <Compile Include="Classes\LdapObjects\LdapGroup.cs" />
-    <Compile Include="Classes\LdapHanderParameters.cs" />
-    <Compile Include="Classes\LdapHanderConfig.cs" />
+    <Compile Include="Classes\LdapHandlerParameters.cs" />
+    <Compile Include="Classes\LdapHandlerConfig.cs" />
     <Compile Include="Classes\LdapObjects\LdapOrganizationalUnit.cs" />
     <Compile Include="Classes\LdapObjects\LdapUser.cs" />
     <Compile Include="GroupMembershipHandler.cs" />
@@ -74,7 +74,9 @@
       <Name>Synapse.Ldap.Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Classes\Utils\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File $(SolutionDir)scripts\setVersion.ps1 -path $(ProjectDir)Properties\AssemblyInfo.cs -versionFile $(SolutionDir)scripts\AssemblyInfo.xml</PreBuildEvent>

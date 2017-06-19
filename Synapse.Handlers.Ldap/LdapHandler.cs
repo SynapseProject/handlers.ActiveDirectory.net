@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.DirectoryServices.AccountManagement;
 
 using Synapse.Core;
 using Synapse.Ldap.Core;
@@ -10,13 +11,14 @@ using Synapse.Handlers.Ldap;
 
 public class LdapHandler : HandlerRuntimeBase
 {
-    LdapHanderConfig config = null;
+    LdapHandlerConfig config = null;
+    LdapHandlerResults results = new LdapHandlerResults();
     bool isDryRun = false;
 
     public override IHandlerRuntime Initialize(string config)
     {
         //deserialize the Config from the Handler declaration
-        this.config = DeserializeOrNew<LdapHanderConfig>( config );
+        this.config = DeserializeOrNew<LdapHandlerConfig>( config );
         return this;
     }
 
@@ -35,7 +37,7 @@ public class LdapHandler : HandlerRuntimeBase
         isDryRun = startInfo.IsDryRun;
 
         //deserialize the Parameters from the Action declaration
-        LdapHanderParameters parameters = DeserializeOrNew<LdapHanderParameters>( startInfo.Parameters );
+        Synapse.Handlers.Ldap.LdapHandlerParameters parameters = base.DeserializeOrNew<Synapse.Handlers.Ldap.LdapHandlerParameters>( startInfo.Parameters );
 
         try
         {
@@ -77,7 +79,8 @@ public class LdapHandler : HandlerRuntimeBase
                         ProcessLdapObjects( parameters.Groups, ProcessGroupAdd );
                         break;
                     case ActionType.RemoveFromGroup:
-                        // TODO : Implement Me
+                        ProcessLdapObjects( parameters.Users, ProcessGroupRemove );
+                        ProcessLdapObjects( parameters.Groups, ProcessGroupRemove );
                         break;
                 }
             }
@@ -90,6 +93,10 @@ public class LdapHandler : HandlerRuntimeBase
             result.ExitData = msg =
                 ex.Message + " | " + ex.InnerException?.Message;
         }
+
+        result.ExitData = results.Serialize( config.OutputType, config.PrettyPrint );
+
+        OnProgress( __context, result.ExitData?.ToString(), result.Status, sequence: cheapSequence++, ex: exc );
 
         //final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
         OnProgress( __context, msg, result.Status, sequence: Int32.MaxValue, ex: exc );
@@ -111,16 +118,19 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessLdapObjects(IEnumerable<LdapObject> objs, Action<LdapObject> processFunction)
     {
-        if ( config.RunSequential )
+        if ( objs != null )
         {
-            foreach ( LdapObject obj in objs )
-                processFunction( obj );
-        }
-        else
-            Parallel.ForEach( objs, obj =>
+            if ( config.RunSequential )
             {
-                processFunction( obj );
-            } );
+                foreach ( LdapObject obj in objs )
+                    processFunction( obj );
+            }
+            else
+                Parallel.ForEach( objs, obj =>
+                {
+                    processFunction( obj );
+                } );
+        }
     }
 
     private void ProcessQuery(LdapObject obj)
@@ -129,15 +139,19 @@ public class LdapHandler : HandlerRuntimeBase
         {
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
-                DirectoryServices.GetUser( user.Name );
+                UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
+                results.Add( upo );
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
-                DirectoryServices.GetGroup( group.Name );
+                GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
+                results.Add( gpo );
                 break;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
+                OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
+                results.Add( ouo );
+
                 break;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
