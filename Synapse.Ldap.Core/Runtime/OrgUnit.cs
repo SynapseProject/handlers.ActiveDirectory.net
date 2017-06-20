@@ -9,30 +9,6 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static OrganizationalUnitObject GetOrganizationalUnit(string name, string ldapRoot)
-        {
-            using (DirectoryEntry root = new DirectoryEntry(ldapRoot))
-            using (DirectorySearcher searcher = new DirectorySearcher(root))
-            {
-                searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
-                searcher.SearchScope = SearchScope.Subtree;
-                searcher.PropertiesToLoad.Add("name");
-                searcher.PropertiesToLoad.Add("distinguishedName");
-                searcher.ReferralChasing = ReferralChasingOption.All;
-
-                DirectoryEntry ou = null;
-                SearchResultCollection results = searcher.FindAll();
-                foreach (SearchResult result in results)
-                    if (result.Properties["name"][0].ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
-                        ou = result.GetDirectoryEntry();
-
-                if (ou == null)
-                    return null;
-                else
-                    return new OrganizationalUnitObject(ou);
-            }
-        }
-
         public static void CreateOrganizationUnit(string parentOrgUnitPath, string newOrgUnitName, string description = "", bool isDryRun = false)
         {
             if (String.IsNullOrWhiteSpace(newOrgUnitName))
@@ -76,37 +52,42 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static bool DeleteOrganizationUnit(string orgUnitDistName)
+        public static void DeleteOrganizationUnit(string orgUnitDistName, bool isDryRun = false)
         {
             // Exact distinguished name of the organization unit is expected.
-            if (String.IsNullOrEmpty(orgUnitDistName) || String.IsNullOrWhiteSpace(orgUnitDistName))
+            if (String.IsNullOrWhiteSpace(orgUnitDistName))
             {
-                Console.WriteLine("No organization unit is specified for deletion.");
-                return false;
+                throw new Exception("Organization unit is not specified.");
             }
 
             orgUnitDistName = orgUnitDistName.Replace("LDAP://", "");
 
-            DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
-                $"LDAP://{orgUnitDistName}",
-                null, // Username
-                null, // Password
-                AuthenticationTypes.Secure);
-
-            try
+            if (IsExistingOrganizationUnit(orgUnitDistName))
             {
-                if (DirectoryEntry.Exists(orgUnitForDeletion.Path))
+                using (DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
+                    $"LDAP://{orgUnitDistName}",
+                    null, // Username
+                    null, // Password
+                    AuthenticationTypes.Secure))
                 {
-                    orgUnitForDeletion.DeleteTree();
+                    if (!isDryRun)
+                    {
+                        try
+                        {
+                            orgUnitForDeletion.DeleteTree();
+                            orgUnitForDeletion.CommitChanges();
+                        }
+                        catch (InvalidOperationException)
+                        {
+                            throw new Exception("Organization unit specified is not a container.");
+                        }
+                    }
                 }
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine($"Encountered exception while deleting organization unit: {ex.Message}");
-                return false;
+                throw new Exception("Organization unit cannot be found.");
             }
-
-            return true;
         }
 
         public static string GetDomainDistinguishedName()
@@ -213,5 +194,31 @@ namespace Synapse.Ldap.Core
             ouPath = $"LDAP://{ouPath.Replace("LDAP://", "")}";
             return DirectoryEntry.Exists(ouPath);
         }
+
+        #region To Be Deleted
+        public static OrganizationalUnitObject GetOrganizationalUnit(string name, string ldapRoot)
+        {
+            using (DirectoryEntry root = new DirectoryEntry(ldapRoot))
+            using (DirectorySearcher searcher = new DirectorySearcher(root))
+            {
+                searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
+                searcher.SearchScope = SearchScope.Subtree;
+                searcher.PropertiesToLoad.Add("name");
+                searcher.PropertiesToLoad.Add("distinguishedName");
+                searcher.ReferralChasing = ReferralChasingOption.All;
+
+                DirectoryEntry ou = null;
+                SearchResultCollection results = searcher.FindAll();
+                foreach (SearchResult result in results)
+                    if (result.Properties["name"][0].ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                        ou = result.GetDirectoryEntry();
+
+                if (ou == null)
+                    return null;
+                else
+                    return new OrganizationalUnitObject(ou);
+            }
+        }
+        #endregion
     }
 }

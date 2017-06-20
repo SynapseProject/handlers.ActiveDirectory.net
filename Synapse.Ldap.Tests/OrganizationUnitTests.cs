@@ -99,23 +99,61 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
-        public void DeleteOrgUnitWithInvalidNameReturnFalse()
+        public void DeleteOrganizationUnit_Without_Organization_Unit_Specified_Throw_Exception()
         {
-            Assert.IsFalse(DirectoryServices.DeleteOrganizationUnit("testSubOU"));
+            // Arrange 
+            string orgUnitDistName = "";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
         }
 
+        [Test]
+        public void DeleteOrganizationUnit_With_Non_Existent_Organization_Unit_Throw_Exception()
+        {
+            // Arrange 
+            string orgUnitDistName = "OU=XXX";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
+        }
 
         [Test]
-        public void DeleteOrgUnitWithValidNameReturnTrue()
+        public void DeleteOrganizationUnit_Existing_Organization_Unit_Succeed()
         {
-            var ouName = $"OU-{DirectoryServices.GenerateToken(8)}";
-            Console.WriteLine($"Creating OU - {ouName}...");
-            DirectoryServices.CreateOrganizationUnit("", ouName);
+            // Arrange 
+            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
-            var domainRoot = DirectoryServices.GetDomainDistinguishedName();
-            Console.WriteLine($"Deleting OU - {ouName}...");
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath);
 
-            Assert.IsTrue(DirectoryServices.DeleteOrganizationUnit($"OU={ouName},{domainRoot}"));
+            // Assert
+            Assert.IsFalse(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
+        }
+
+        [Test]
+        public void DeleteOrganizationUnit_Existing_Organization_Unit_Dry_Run_Wont_Delete()
+        {
+            // Arrange 
+            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
+
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath, true);
+
+            // Assert
+            Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
         }
 
         [Test]
