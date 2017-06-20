@@ -648,8 +648,6 @@ namespace Synapse.Ldap.Tests
 
             // Act
             DirectoryServices.CreateUser("", username, password, givenName, surname, description);
-
-            // Act
             DirectoryServices.ExpireUserPassword(username);
 
             // Assert
@@ -718,6 +716,61 @@ namespace Synapse.Ldap.Tests
         }
 
 
+        [Test]
+        public void UpdateUserAttribute_Without_Username_Throw_Exception()
+        {
+            // Arrange
+            string username = "";
+            string attribute = "displayName";
+            string value = "";
+            
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
 
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
+        }
+
+        [Test]
+        public void UpdateUserAttribute_Non_Supported_Attribute_Throw_Exception()
+        {
+            // Arrange
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string givenName = "TestUser";
+            string surname = "Synapse";
+            string password = "1x034abe5A#1!";
+            string description = "Created by Synapse";
+            string attribute = "XXXX";
+            string value = "";
+
+            // Act
+            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Attribute is not supported."));
+        }
+
+        [Test]
+        public void UpdateUserAttribute_Update_Description_Succeed()
+        {
+            // Arrange
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string givenName = "TestUser";
+            string surname = "Synapse";
+            string password = "1x034abe5A#1!";
+            string description = "Created by Synapse";
+            string attribute = "description";
+            string value = "Updated by Synapse";
+
+
+            // Act
+            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.UpdateUserAttribute(username, attribute, value);
+            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+
+            // Assert
+            Assert.That(userPrincipal.Description, Is.EqualTo(value));
+        }
     }
 }

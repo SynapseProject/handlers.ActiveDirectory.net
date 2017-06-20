@@ -478,23 +478,26 @@ namespace Synapse.Ldap.Core
         }
 
 
-        public static void UpdateUserAttribute(string username, string attribute, string value, string ldapPath = "", bool dryRun = false)
+        public static void UpdateUserAttribute(string username, string attribute, string value, bool dryRun = false)
         {
             if (String.IsNullOrWhiteSpace(username))
             {
-                throw new Exception("No username is specified.");
+                throw new Exception("Username is not specified.");
             }
 
             if (!IsValidUserAttribute(attribute))
             {
-                throw new Exception("The attribute specified is not valid.");
+                throw new Exception("Attribute is not supported.");
             }
 
-            ldapPath = String.IsNullOrWhiteSpace(ldapPath) ? $"LDAP://{GetDomainDistinguishedName()}" : $"LDAP://{ldapPath.Replace("LDAP://", "")}";
+            string ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
 
             using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
             {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry) { Filter = "(sAMAccountName=" + username + ")" })
+                using (DirectorySearcher mySearcher = new DirectorySearcher(entry)
+                {
+                    Filter = "(sAMAccountName=" + username + ")"
+                })
                 {
                     try
                     {
@@ -538,13 +541,9 @@ namespace Synapse.Ldap.Core
                         {
                             throw new Exception("The attribute value is invalid.");
                         }
-                        throw;
-                    }
-                    catch (COMException ex)
-                    {
-                        if (ex.Message.Contains("The server is not operational."))
+                        if (ex.Message.Contains("The directory service cannot perform the requested operation on the RDN attribute of an object."))
                         {
-                            throw new Exception("LDAP path specified is not valid.");
+                            throw new Exception("Operation is not allowed.");
                         }
                         throw;
                     }
@@ -556,19 +555,21 @@ namespace Synapse.Ldap.Core
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>()
             {
-                { "company", "Company" },
                 { "department", "Department" },
                 { "displayName", "Display Name" },
                 { "description", "Description" },
                 { "employeeID", "Employee ID" },
                 { "givenName", "Given Name" },
-                { "initials", "Initials" },
-                { "mail", "E-mail" },
+                { "mail", "Email Address" },
+                { "middleName", "Middle Name" },
                 { "mobile", "Mobile" },
                 { "postalCode", "Postal Code" },
+                { "sAMAccountName", "Sam Account Name" }, // e.g. johndoe
                 { "sn", "Surname" },
                 { "streetAddress", "Street Address" },
-                { "title", "Title" },
+                { "telephoneNumber", "Voice Telephone Number"}, // e.g. johndoe@xxx.com
+                { "userPrincipalName", "User Principal Name"} // e.g. johndoe@xxx.com
+
             };
 
             return attributes.ContainsKey(attribute);
