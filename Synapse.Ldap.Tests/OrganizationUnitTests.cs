@@ -11,23 +11,91 @@ namespace Synapse.Ldap.Tests
     public class OrganizationUnitTests
     {
         [Test]
-        public void CreateOrgUnitWithInvalidParentReturnFailure()
+        public void CreateOrganizationUnit_Without_New_Organization_Unit_Throw_Exception()
         {
-            Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit("XXXX", "testSubOU"));
+            // Arrange 
+            string parentOrgUnitDistName = "";
+            string newOrgUnitName = "";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("New organization unit is not specified."));
         }
 
         [Test]
-        public void CreateOrgUnitWithEmptyParentReturnSuccess()
+        public void CreateOrganizationUnit_Without_Parent_Organization_Unit_Default_To_Child_Under_Root()
         {
-            var testOrgUnit = DirectoryServices.CreateOrganizationUnit("", $"OU-{DirectoryServices.GenerateToken(8)}");
-            Assert.IsNotNull(testOrgUnit);
+            // Arrange 
+            string parentOrgUnitDistName = "";
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitDn = $"OU={newOrgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+
+            // Assert
+            Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitDn));
         }
 
         [Test]
-        public void CreateOrgUnitWithValidParentReturnSuccess()
+        public void CreateOrganizationUnit_Non_Existing_Parent_Organization_Unit_Throw_Exception()
         {
-            var testOrgUnit = DirectoryServices.CreateOrganizationUnit("OU=TestOU,DC=bp1,DC=local", $"OU-{DirectoryServices.GenerateToken(8)}");
-            Assert.IsNotNull(testOrgUnit);
+            // Arrange 
+            string parentOrgUnitDistName = "OU=XXX";
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Parent organization unit does not exist."));
+        }
+
+        [Test]
+        public void CreateOrganizationUnit_New_Organization_Unit_Already_Exist_Throw_Exception()
+        {
+            // Arrange 
+            string parentOrgUnitDistName = "";
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("New organization unit already exists."));
+        }
+
+        [Test]
+        public void CreateOrganizationUnit_With_Valid_Details_Succeed()
+        {
+            // Arrange 
+            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
+
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+
+            // Assert
+            Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
+        }
+
+        [Test]
+        public void CreateOrganizationUnit_With_Valid_Details_Dry_Run_Wont_Save()
+        {
+            // Arrange 
+            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
+
+            // Act
+            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName, "", true);
+
+            // Assert
+            Assert.IsFalse(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
         }
 
         [Test]

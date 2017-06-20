@@ -33,59 +33,47 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static OrganizationalUnitObject CreateOrganizationUnit(string parentOrgUnitDistName, string newOrgUnitName)
+        public static void CreateOrganizationUnit(string parentOrgUnitPath, string newOrgUnitName, string description = "", bool isDryRun = false)
         {
-            OrganizationalUnitObject newOrgUnitObj = null;
-
-            if (String.IsNullOrEmpty(newOrgUnitName) || String.IsNullOrWhiteSpace(newOrgUnitName))
+            if (String.IsNullOrWhiteSpace(newOrgUnitName))
             {
-                throw new Exception("No name is specified for the new organization unit.");
+                throw new Exception("New organization unit is not specified.");
             }
 
-            parentOrgUnitDistName = String.IsNullOrEmpty(parentOrgUnitDistName) || String.IsNullOrWhiteSpace(parentOrgUnitDistName) ?
-                GetDomainDistinguishedName() : parentOrgUnitDistName.Replace("LDAP://", "");
+            parentOrgUnitPath = String.IsNullOrWhiteSpace(parentOrgUnitPath) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace("LDAP://", "");
+            string newOrgUnitPath = $"OU ={newOrgUnitName},{parentOrgUnitPath}";
 
-            DirectoryEntry parentOrgUnit = new DirectoryEntry(
-                $"LDAP://{parentOrgUnitDistName}",
-                null, // Username
-                null, // Password
-                AuthenticationTypes.Secure);
-
-            try
+            if (IsExistingOrganizationUnit(parentOrgUnitPath))
             {
-                // Bind to the native AdsObject to force authentication.
-                object obj = parentOrgUnit.NativeObject; //not IDisposable
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Encountered exception while trying to authenticate against domain controller: {ex.Message}");
-            }
-
-            if (DirectoryEntry.Exists(parentOrgUnit.Path))
-            {
-                DirectoryEntry newOrgUnit = new DirectoryEntry(
-                    $"LDAP://OU={newOrgUnitName},{parentOrgUnitDistName}",
+                using (DirectoryEntry parentOrgUnit = new DirectoryEntry(
+                    $"LDAP://{parentOrgUnitPath}",
                     null, // Username
                     null, // Password
-                    AuthenticationTypes.Secure);
-
-                if (DirectoryEntry.Exists(newOrgUnit.Path))
+                    AuthenticationTypes.Secure))
                 {
-                    throw new Exception($"New organization unit '{newOrgUnit.Path}' already exists.");
+                    if (IsExistingOrganizationUnit(newOrgUnitPath))
+                    {
+                        throw new Exception("New organization unit already exists.");
+                    }
+
+                    using (DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add($"OU={newOrgUnitName}", "OrganizationalUnit"))
+                    {
+                        if (!isDryRun)
+                        {
+                            if (!String.IsNullOrWhiteSpace(description))
+                            {
+                                newOrgUnit.Properties["Description"].Value = description;
+                            }
+
+                            newOrgUnit.CommitChanges();
+                        }
+                    }
                 }
-                newOrgUnit = parentOrgUnit.Children.Add($"OU={newOrgUnitName}", "OrganizationalUnit");
-                newOrgUnit.Properties["Description"].Value = "Created by Synapse Ldap Handler";
-                newOrgUnit.CommitChanges();
-                // TODO: Need to check with Steve on the recursive parent lookup of SetPropertiesFromDirectoryEntry()
-                // in synapse.ldap.core\classes\directoryentry.cs.
-                newOrgUnitObj = new OrganizationalUnitObject(null);
             }
             else
             {
-                throw new Exception($"Parent organization unit {parentOrgUnit.Path} doesn't exist.");
+                throw new Exception("Parent organization unit does not exist.");
             }
-
-            return newOrgUnitObj;
         }
 
         public static bool DeleteOrganizationUnit(string orgUnitDistName)
@@ -213,6 +201,17 @@ namespace Synapse.Ldap.Core
                 Console.WriteLine("An Error Occurred: " + e.Message.ToString());
             }
             return alObjects;
+        }
+
+        public static bool IsExistingOrganizationUnit(string ouPath)
+        {
+            if (String.IsNullOrWhiteSpace(ouPath)) return false;
+
+            string rootPath = GetDomainDistinguishedName();
+            if (!ouPath.Contains(rootPath)) return false;
+
+            ouPath = $"LDAP://{ouPath.Replace("LDAP://", "")}";
+            return DirectoryEntry.Exists(ouPath);
         }
     }
 }

@@ -772,5 +772,27 @@ namespace Synapse.Ldap.Tests
             // Assert
             Assert.That(userPrincipal.Description, Is.EqualTo(value));
         }
+
+        [Test]
+        public void UpdateUserAttribute_Update_Description_Dry_Run_Not_Modified()
+        {
+            // Arrange
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string givenName = "TestUser";
+            string surname = "Synapse";
+            string password = "1x034abe5A#1!";
+            string description = "Created by Synapse";
+            string attribute = "description";
+            string value = "Updated by Synapse";
+
+
+            // Act
+            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.UpdateUserAttribute(username, attribute, value, true);
+            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+
+            // Assert
+            Assert.That(userPrincipal.Description, Is.EqualTo(description));
+        }
     }
 }
