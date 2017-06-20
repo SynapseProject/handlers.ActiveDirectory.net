@@ -192,22 +192,6 @@ namespace Synapse.Ldap.Tests
         //        }
 
         [Test]
-        public void DeleteUserReturnSuccess()
-        {
-            // Arrange 
-            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
-            string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
-
-            // Act
-            bool status = DirectoryServices.DeleteUser(userName);
-
-            // Assert
-            Assert.IsTrue(status);
-        }
-
-        [Test]
         public void CreateUser_Without_Username_Throw_Exception()
         {
             // Arrange 
@@ -434,15 +418,67 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
-        public void DeleteUserWithInvalidDetailReturnFailure()
+        public void DeleteUser_Without_Username_Throw_Exception()
         {
             // Arrange 
+            string username = "";
 
             // Act
-            bool status = DirectoryServices.DeleteUser("XXXXXXX");
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteUser(username));
 
             // Assert
-            Assert.IsFalse(status);
+            Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
+        }
+
+        [Test]
+        public void DeleteUser_Non_Existent_User_Throw_Exception()
+        {
+            // Arrange 
+            string username = "";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteUser(username));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
+        }
+
+        [Test]
+        public void DeleteUser_Existing_User_Succeed()
+        {
+            // Arrange 
+            string ldapPath = $"";
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = "XXX";
+            string surname = "YYY";
+            string description = "Created by Synapse";
+
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.DeleteUser(username);
+
+            // Assert
+            Assert.IsFalse(DirectoryServices.IsExistingUser(username));
+        }
+
+        [Test]
+        public void DeleteUser_Existing_User_Dry_Run_Not_Removed()
+        {
+            // Arrange 
+            string ldapPath = $"";
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = "XXX";
+            string surname = "YYY";
+            string description = "Created by Synapse";
+
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.DeleteUser(username, true);
+
+            // Assert
+            Assert.IsTrue(DirectoryServices.IsExistingUser(username));
         }
 
         [Test]

@@ -364,7 +364,29 @@ namespace Synapse.Ldap.Core
             return Convert.ToBase64String(bytes).Replace("=", "").Replace("+", "").Replace("/", "");
         }
 
-        public static bool DeleteUser(string userName)
+
+        public static void DeleteUser(string username, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("Username is not specified.");
+            }
+
+            UserPrincipal userPrincipal = GetUser(username);
+            if (userPrincipal != null)
+            {
+                if (!isDryRun)
+                {
+                    userPrincipal.Delete();
+                }
+            }
+            else
+            {
+                throw new Exception("User cannot be found.");
+            }
+        }
+
+        public static bool DeleteUserEx(string userName)
         {
             bool status = false;
 
