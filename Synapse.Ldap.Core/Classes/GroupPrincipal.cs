@@ -48,7 +48,7 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.DirectoryServices.AccountManagement.PrincipalCollection object that
         //     contains the principal objects that represent the members of the group.
-        public List<PrincipalObject> Members { get; internal set; }
+        public List<PrincipalObject> Members { get; set; }
 
 
         public static GroupPrincipalObject FromGroupPrincipal(GroupPrincipal gp)

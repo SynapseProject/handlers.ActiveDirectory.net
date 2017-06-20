@@ -27,7 +27,7 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.DirectoryServices.AccountManagement.ContextType enumeration value that
         //     specifies the context type.
-        public ContextType ContextType { get; internal set; }
+        public ContextType ContextType { get; set; }
         //
         // Summary:
         //     Gets or sets the description of the principal.
@@ -48,7 +48,7 @@ namespace Synapse.Ldap.Core
         //
         // Returns:
         //     The DN for this principal or null if there is no DN.
-        public string DistinguishedName { get; internal set; }
+        public string DistinguishedName { get; set; }
         //
         // Summary:
         //     Gets the GUID associated with this principal.
@@ -56,7 +56,7 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     The Nullable System.Guid associated with this principal or null if there is no
         //     GUID.
-        public Guid? Guid { get; internal set; }
+        public Guid? Guid { get; set; }
         //
         // Summary:
         //     Gets or sets the name of this principal.
@@ -92,14 +92,14 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     The System.Security.Principal.SecurityIdentifier for this principal or null if
         //     there is no SID.
-        public string Sid { get; internal set; }
+        public string Sid { get; set; }
         //
         // Summary:
         //     Gets the structural object class directory attribute.
         //
         // Returns:
         //     The structural object class directory attribute.
-        public string StructuralObjectClass { get; internal set; }
+        public string StructuralObjectClass { get; set; }
         //
         // Summary:
         //     Gets or sets the user principal name (UPN) associated with this principal.

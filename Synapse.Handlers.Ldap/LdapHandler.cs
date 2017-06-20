@@ -82,6 +82,8 @@ public class LdapHandler : HandlerRuntimeBase
                         ProcessLdapObjects( parameters.Users, ProcessGroupRemove );
                         ProcessLdapObjects( parameters.Groups, ProcessGroupRemove );
                         break;
+                    default:
+                        throw new Exception( "Unknown Action Specified" );
                 }
             }
         }
@@ -165,10 +167,20 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
                 DirectoryServices.CreateUser( user.OUPath, user.Name, user.Password, user.GivenName, user.Surname, user.Description );
+                if ( user.Groups != null )
+                {
+                    foreach ( String userGroup in user.Groups )
+                        DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
+                }
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
                 DirectoryServices.CreateGroup( group.OUPath, group.Name, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                if ( group.Groups != null )
+                {
+                    foreach ( String groupGroup in group.Groups )
+                        DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
+                }
                 break;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;

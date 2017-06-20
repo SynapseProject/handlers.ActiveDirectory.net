@@ -30,6 +30,7 @@ namespace Synapse.Ldap.Core
 
     public enum ActionType
     {
+        None,
         Query,
         Create,
         Modify,

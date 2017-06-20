@@ -146,7 +146,7 @@ namespace Synapse.Ldap.Core
         // Exceptions:
         //   T:System.InvalidOperationException:
         //     The underlying store does not support this property.
-        public DateTime? LastBadPasswordAttempt { get; internal set; }
+        public DateTime? LastBadPasswordAttempt { get; set; }
         //
         // Summary:
         //     Gets the Nullable System.DateTime that specifies the date and time of the last
@@ -159,7 +159,7 @@ namespace Synapse.Ldap.Core
         // Exceptions:
         //   T:System.InvalidOperationException:
         //     The underlying store does not support this property.
-        public DateTime? LastLogon { get; internal set; }
+        public DateTime? LastLogon { get; set; }
         //
         // Summary:
         //     Gets the Nullable System.DateTime that specifies the last date and time that
@@ -172,7 +172,7 @@ namespace Synapse.Ldap.Core
         // Exceptions:
         //   T:System.InvalidOperationException:
         //     The underlying store does not support this property.
-        public DateTime? LastPasswordSet { get; internal set; }
+        public DateTime? LastPasswordSet { get; set; }
         //
         // Summary:
         //     Gets or sets a Boolean value that specifies whether the password expires for

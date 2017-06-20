@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.Xml.Serialization;
 using System.DirectoryServices.AccountManagement;
 using System.Linq;
 using System.Text;
@@ -10,10 +12,12 @@ namespace Synapse.Ldap.Core
 {
     public class DirectoryEntryObject
     {
+        private String VALID_PARENT_CLASS_NAME = @"organizationalUnit";
+
         public DirectoryEntryObject() { }
-        public DirectoryEntryObject(DirectoryEntry de)
+        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema = true)
         {
-            SetPropertiesFromDirectoryEntry( de );
+            SetPropertiesFromDirectoryEntry( de, loadSchema );
         }
 
         //
@@ -22,14 +26,14 @@ namespace Synapse.Ldap.Core
         //
         // Returns:
         //     A System.Guid structure that represents the GUID of the System.DirectoryServices.DirectoryEntry.
-        public Guid Guid { get; internal set; }
+        public Guid Guid { get; set; }
         //
         // Summary:
         //     Gets the name of the object as named with the underlying directory service.
         //
         // Returns:
         //     The name of the object as named with the underlying directory service.
-        public string Name { get; internal set; }
+        public string Name { get; set; }
         //
         // Summary:
         //     Gets the GUID of the System.DirectoryServices.DirectoryEntry, as returned from
@@ -38,14 +42,14 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.Guid structure that represents the GUID of the System.DirectoryServices.DirectoryEntry,
         //     as returned from the provider.
-        public string NativeGuid { get; internal set; }
+        public string NativeGuid { get; set; }
         ////
         //// Summary:
         ////     Gets the native Active Directory Service Interfaces (ADSI) object.
         ////
         //// Returns:
         ////     The native ADSI object.
-        //public object NativeObject { get; internal set; }
+        //public object NativeObject { get; set; }
         ////
         //// Summary:
         ////     Gets or sets the security descriptor for this entry.
@@ -61,7 +65,7 @@ namespace Synapse.Ldap.Core
         //// Returns:
         ////     A System.DirectoryServices.DirectoryEntryConfiguration object that contains the
         ////     provider-specific options for this entry.
-        //public DirectoryEntryConfiguration Options { get; internal set; }
+        //public DirectoryEntryConfiguration Options { get; set; }
         //
         // Summary:
         //     Gets this entry's parent in the Active Directory Domain Services hierarchy.
@@ -69,14 +73,14 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.DirectoryServices.DirectoryEntry object that represents the parent of
         //     this entry.
-        public DirectoryEntryObject Parent { get; internal set; }
+        public DirectoryEntryObject Parent { get; set; }
         ////
         //// Summary:
         ////     Sets the password to use when authenticating the client.
         ////
         //// Returns:
         ////     The password to use when authenticating the client.
-        //public string Password { internal get; set; }
+        //public string Password { get; set; }
         //
         // Summary:
         //     Gets or sets the path for this System.DirectoryServices.DirectoryEntry.
@@ -93,7 +97,10 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.DirectoryServices.PropertyCollection object that contains the properties
         //     that are set on this entry.
-        public PropertyCollection Properties { get; internal set; }
+
+        //TODO : Create A Serializable Version Of This
+        [XmlArrayItem(ElementName = "Property")]
+        public List<KeyValuePair<string, string>> Properties { get; set; }
         //
         // Summary:
         //     Gets the name of the schema class for this System.DirectoryServices.DirectoryEntry
@@ -102,7 +109,7 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     The name of the schema class for this System.DirectoryServices.DirectoryEntry
         //     object.
-        public string SchemaClassName { get; internal set; }
+        public string SchemaClassName { get; set; }
         //
         // Summary:
         //     Gets the schema object for this entry.
@@ -110,7 +117,7 @@ namespace Synapse.Ldap.Core
         // Returns:
         //     A System.DirectoryServices.DirectoryEntry object that represents the schema class
         //     for this entry.
-        public DirectoryEntryObject SchemaEntry { get; internal set; }
+        public DirectoryEntryObject SchemaEntry { get; set; }
         //
         // Summary:
         //     Gets or sets a value indicating whether the cache should be committed after each
@@ -134,18 +141,23 @@ namespace Synapse.Ldap.Core
             return new DirectoryEntryObject( de );
         }
 
-        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de)
+        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema = true)
         {
             if( de == null ) return;
 
             Guid = de.Guid;
             Name = de.Name;
             NativeGuid = de.NativeGuid;
-            Parent = new DirectoryEntryObject( de.Parent );
+            if ( de.Parent.SchemaClassName == VALID_PARENT_CLASS_NAME )
+                Parent = new DirectoryEntryObject( de.Parent, false );
             Path = de.Path;
-            Properties = de.Properties;
+//            if (de.Properties != null)
+//            {
+                // TODO : Load Properties
+//            }
             SchemaClassName = de.SchemaClassName;
-            SchemaEntry = new DirectoryEntryObject( de.SchemaEntry );
+            if (loadSchema)
+                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
         }

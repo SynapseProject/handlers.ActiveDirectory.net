@@ -51,7 +51,6 @@
     <Compile Include="Runtime\OrgUnit.cs" />
     <Compile Include="Runtime\User.cs" />
     <Compile Include="Runtime\DirectoryServices.cs" />
-    <Compile Include="HandlerParameters.cs" />
     <Compile Include="Classes\Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\SecurityPrincipal.cs" />
