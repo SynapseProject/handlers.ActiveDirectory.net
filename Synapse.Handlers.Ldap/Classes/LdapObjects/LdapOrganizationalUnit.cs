@@ -9,9 +9,6 @@ namespace Synapse.Handlers.Ldap
 {
     public class LdapOrganizationalUnit : LdapObject
     {
-        [XmlElement]
-        public String Parent { get; set; }
-
         public override ObjectClass GetLdapType()
         {
             return ObjectClass.OrganizationalUnit;

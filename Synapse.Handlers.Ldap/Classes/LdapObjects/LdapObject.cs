@@ -13,11 +13,11 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public String Name { get; set; }
         [XmlElement]
+        public String Path { get; set; }
+        [XmlElement]
         public ObjectClass Type { get { return GetLdapType(); } }
         [XmlElement]
         public String Description { get; set; }
-        [XmlElement]
-        public String OUPath { get; set; }
 
         public abstract ObjectClass GetLdapType();
     }

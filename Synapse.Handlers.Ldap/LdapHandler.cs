@@ -166,29 +166,27 @@ public class LdapHandler : HandlerRuntimeBase
         {
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
-                DirectoryServices.CreateUser( user.OUPath, user.Name, user.Password, user.GivenName, user.Surname, user.Description );
+                DirectoryServices.CreateUser( user.Path, user.Name, user.Password, user.GivenName, user.Surname, user.Description );
+                OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                 if ( user.Groups != null )
-                {
-                    foreach ( String userGroup in user.Groups )
-                        DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
-                }
+                    ProcessGroupAdd( user );
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
-                DirectoryServices.CreateGroup( group.OUPath, group.Name, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                DirectoryServices.CreateGroup( group.Path, group.Name, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                 if ( group.Groups != null )
-                {
-                    foreach ( String groupGroup in group.Groups )
-                        DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
-                }
+                    ProcessGroupAdd( group );
                 break;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                DirectoryServices.CreateOrganizationUnit( ou.Parent, ou.Name );
+                DirectoryServices.CreateOrganizationUnit( ou.Path, ou.Name );
+                OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                 break;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
         }
+
     }
 
     private void ProcessDelete(LdapObject obj)
@@ -210,6 +208,9 @@ public class LdapHandler : HandlerRuntimeBase
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
         }
+
+        OnLogMessage( "ProcessDelete", obj.Type + " [" + obj.Name + "] Deleted." );
+
     }
 
     private void ProcessGroupAdd(LdapObject obj)
@@ -219,12 +220,18 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
                 foreach ( String userGroup in user.Groups )
+                {
                     DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
+                    OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + userGroup + "]." );
+                }
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
                 foreach ( String groupGroup in group.Groups )
+                {
                     DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
+                    OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + groupGroup + "]." );
+                }
                 break;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
