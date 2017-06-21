@@ -100,7 +100,7 @@ namespace Synapse.Ldap.Core
 
         //TODO : Create A Serializable Version Of This
         [XmlArrayItem(ElementName = "Property")]
-        public List<KeyValuePair<string, string>> Properties { get; set; }
+        public List<PropertyType> Properties { get; set; }
         //
         // Summary:
         //     Gets the name of the schema class for this System.DirectoryServices.DirectoryEntry
@@ -149,17 +149,76 @@ namespace Synapse.Ldap.Core
             Name = de.Name;
             NativeGuid = de.NativeGuid;
             if ( de.Parent.SchemaClassName == VALID_PARENT_CLASS_NAME )
+            {
                 Parent = new DirectoryEntryObject( de.Parent, false );
+            }
+
+            if (de.SchemaClassName == VALID_PARENT_CLASS_NAME)
+            {
+                if ( de.Properties != null )
+                {
+                    Properties = new List<PropertyType>();
+                    IDictionaryEnumerator ide = de.Properties.GetEnumerator();
+                    while ( ide.MoveNext() )
+                    {
+                        PropertyType prop = GetProperty( ide.Key.ToString(), ide.Value );
+                        Properties.Add( prop );
+                    }
+                }
+            }
             Path = de.Path;
-//            if (de.Properties != null)
-//            {
-                // TODO : Load Properties
-//            }
             SchemaClassName = de.SchemaClassName;
             if (loadSchema)
                 SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
         }
+
+        private PropertyType GetProperty(String name, object values)
+        {
+            PropertyType prop = new PropertyType();
+            prop.Name = name;
+
+            PropertyValueCollection pvc = (PropertyValueCollection)values;
+            IEnumerator pvcValues = pvc.GetEnumerator();
+            while (pvcValues.MoveNext())
+            {
+                Type type = pvcValues.Current.GetType();
+                if ( type.FullName == @"System.Byte[]" )
+                {
+                    Byte[] bytes = (Byte[])pvcValues.Current;
+                    if ( bytes.Length == 16 )
+                    {
+                        Guid guid = new Guid( bytes );
+                        prop.Values.Add( guid.ToString() );
+                    }
+                    else
+                    {
+                        String str = System.Text.Encoding.UTF8.GetString( bytes );
+                        prop.Values.Add( str );
+                    }
+                }
+                else if ( type.FullName == @"System.__ComObject" )
+                {
+                    // TODO : Do something with ComObjects.  For now, just ignore
+                    continue;
+                }
+                else
+                {
+                    prop.Values.Add( pvcValues.Current.ToString() );
+                }
+            }
+
+            return prop;
+        }
+
+    }
+
+    public class PropertyType
+    {
+        [XmlElement]
+        public String Name { get; set; }
+        [XmlArrayItem( ElementName = "Value" )]
+        public List<String> Values { get; set; } = new List<string>();
     }
 }

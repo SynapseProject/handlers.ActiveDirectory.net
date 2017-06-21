@@ -197,7 +197,7 @@ public class LdapHandler : HandlerRuntimeBase
         {
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
-                DirectoryServices.DeleteUserEx( user.Name );
+                DirectoryServices.DeleteUser( user.Name );
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
