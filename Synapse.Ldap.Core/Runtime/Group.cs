@@ -327,6 +327,11 @@ namespace Synapse.Ldap.Core
             }
         }
 
+        public static bool IsExistingGroup(string groupName)
+        {
+            return GetGroup(groupName) != null;
+        }
+
         public static bool IsUserGroupMember(string username, string groupName)
         {
             UserPrincipal userPrincipal = GetUser(username);

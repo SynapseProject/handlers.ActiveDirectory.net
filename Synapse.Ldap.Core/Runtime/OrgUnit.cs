@@ -241,6 +241,83 @@ namespace Synapse.Ldap.Core
             }
         }
 
+        public static void MoveGroupToOrganizationUnit(string groupName, string orgUnitDistName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(groupName))
+            {
+                throw new Exception("Group is not specified.");
+            }
+
+            if (String.IsNullOrWhiteSpace(orgUnitDistName))
+            {
+                throw new Exception("Organization unit is not specified.");
+            }
+
+            if (!IsExistingGroup(groupName))
+            {
+                throw new Exception("Group cannot be found.");
+            }
+
+            if (!IsExistingOrganizationUnit(orgUnitDistName))
+            {
+                throw new Exception("Organization unit cannot be found.");
+            }
+
+            GroupPrincipal groupPrincipal = GetGroup(groupName);
+            groupPrincipal.GetUnderlyingObject();
+            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace("LDAP://", "")}";
+
+            try
+            {
+                using (DirectoryEntry groupLocation = (DirectoryEntry)groupPrincipal.GetUnderlyingObject())
+                {
+                    using (DirectoryEntry ouLocation = new DirectoryEntry(orgUnitDistName))
+                    {
+                        if (!isDryRun)
+                        {
+                            groupLocation.MoveTo(ouLocation);
+                        }
+                    }
+                }
+            }
+            catch (DirectoryServicesCOMException ex)
+            {
+                throw new Exception($"Encountered exception while trying to move group to another organization unit: {ex.Message}");
+            }
+        }
+
+        public static string GetGroupOrganizationUnit(string groupName)
+        {
+            try
+            {
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                {
+                    using (GroupPrincipal user = GroupPrincipal.FindByIdentity(context, IdentityType.SamAccountName, groupName))
+                    {
+                        if (user != null)
+                        {
+                            using (DirectoryEntry deGroup = user.GetUnderlyingObject() as DirectoryEntry)
+                            {
+                                if (deGroup != null)
+                                {
+                                    using (DirectoryEntry deGroupContainer = deGroup.Parent)
+                                    {
+                                        return deGroupContainer.Properties["Name"].Value.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return null;
+        }
+
         public static string GetUserOrganizationUnit(string username)
         {
             try
@@ -273,7 +350,6 @@ namespace Synapse.Ldap.Core
             return null;
         }
 
-        #region To Be Deleted
         public static OrganizationalUnitObject GetOrganizationalUnit(string name, string ldapRoot)
         {
             using (DirectoryEntry root = new DirectoryEntry(ldapRoot))
@@ -297,6 +373,9 @@ namespace Synapse.Ldap.Core
                     return new OrganizationalUnitObject(ou);
             }
         }
+
+        #region To Be Deleted
+
         #endregion
     }
 }

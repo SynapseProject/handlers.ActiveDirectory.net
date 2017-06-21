@@ -352,33 +352,6 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static bool DeleteUserEx(string userName)
-        {
-            bool status = false;
-
-            if (String.IsNullOrEmpty(userName) || String.IsNullOrWhiteSpace(userName))
-            {
-                Console.WriteLine("No username is provided.");
-                return status;
-            }
-
-            // find the user you want to delete
-            try
-            {
-                // set up domain context
-                PrincipalContext ctx = new PrincipalContext(ContextType.Domain);
-                UserPrincipal user = UserPrincipal.FindByIdentity(ctx, userName);
-                user?.Delete();
-                status = true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Encountered exception while trying to delete user: {ex.Message}");
-            }
-
-            return status;
-        }
-
         public static void EnableUserAccount(string username, bool isDryRun = false)
         {
             if (String.IsNullOrWhiteSpace(username))
@@ -543,14 +516,7 @@ namespace Synapse.Ldap.Core
 
         public static bool IsExistingUser(string username)
         {
-            if (GetUser(username) == null)
-            {
-                return false;
-            }
-            else
-            {
-                return true;
-            }
+            return GetUser(username) != null;
         }
 
         public static bool? IsUserEnabled(string username)
@@ -562,5 +528,35 @@ namespace Synapse.Ldap.Core
             }
             return userPrincipal.Enabled;
         }
+
+        #region To Be Deleted
+        public static bool DeleteUserEx(string userName)
+        {
+            bool status = false;
+
+            if (String.IsNullOrEmpty(userName) || String.IsNullOrWhiteSpace(userName))
+            {
+                Console.WriteLine("No username is provided.");
+                return status;
+            }
+
+            // find the user you want to delete
+            try
+            {
+                // set up domain context
+                PrincipalContext ctx = new PrincipalContext(ContextType.Domain);
+                UserPrincipal user = UserPrincipal.FindByIdentity(ctx, userName);
+                user?.Delete();
+                status = true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Encountered exception while trying to delete user: {ex.Message}");
+            }
+
+            return status;
+        }
+
+        #endregion
     }
 }

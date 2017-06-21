@@ -157,6 +157,106 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
+        public void MoveGroupToOrganizationUnit_Without_Group_Name_Throw_Exception()
+        {
+            // Arrange 
+            string groupName = "";
+            string orgUnitDistName = "XXX";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Group is not specified."));
+        }
+
+        [Test]
+        public void MoveGroupToOrganizationUnit_Without_Organization_Unit_Throw_Exception()
+        {
+            // Arrange 
+            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = "";
+
+            // Act
+            DirectoryServices.CreateGroup(ldapPath, groupName);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
+        }
+
+        [Test]
+        public void MoveGroupToOrganizationUnit_Non_Existent_Group_Throw_Exception()
+        {
+            // Arrange 
+            string username = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(username, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Group cannot be found."));
+        }
+
+        [Test]
+        public void MoveGroupToOrganizationUnit_Non_Existent_Organization_Unit_Throw_Exception()
+        {
+            // Arrange 
+            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = "XXX";
+
+            // Act
+            DirectoryServices.CreateGroup(ldapPath, groupName);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
+        }
+
+        [Test]
+        public void MoveGroupToOrganizationUnit_With_Valid_Details_Succeed()
+        {
+            // Arrange 
+            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+
+            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            DirectoryServices.CreateGroup(ldapPath, groupName);
+            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName);
+
+            // Assert
+            Assert.That(orgUnitName, Is.EqualTo(DirectoryServices.GetGroupOrganizationUnit(groupName)));
+        }
+
+
+        [Test]
+        public void MoveGroupToOrganizationUnit_With_Valid_Details_Dry_Run_Not_A_Member()
+        {
+            // Arrange 
+            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+
+            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            DirectoryServices.CreateGroup(ldapPath, groupName);
+            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName);
+
+            // Assert
+            Assert.AreNotEqual(orgUnitName, DirectoryServices.GetUserOrganizationUnit(groupName));
+        }
+
+
+        [Test]
         public void MoveUserToOrganizationUnit_Without_Username_Throw_Exception()
         {
             // Arrange 
