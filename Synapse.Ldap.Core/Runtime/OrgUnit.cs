@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.InteropServices;
 
@@ -112,7 +113,7 @@ namespace Synapse.Ldap.Core
             }
             catch (DirectoryServicesCOMException e)
             {
-                ldapPath = e.Message.ToString();
+                ldapPath = e.Message;
             }
             return ldapPath;
         }
@@ -193,6 +194,83 @@ namespace Synapse.Ldap.Core
 
             ouPath = $"LDAP://{ouPath.Replace("LDAP://", "")}";
             return DirectoryEntry.Exists(ouPath);
+        }
+
+        public static void MoveUserToOrganizationUnit(string username, string orgUnitDistName, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(username))
+            {
+                throw new Exception("User is not specified.");
+            }
+
+            if (String.IsNullOrWhiteSpace(orgUnitDistName))
+            {
+                throw new Exception("Organization unit is not specified.");
+            }
+
+            if (!IsExistingUser(username))
+            {
+                throw new Exception("User cannot be found.");
+            }
+
+            if (!IsExistingOrganizationUnit(orgUnitDistName))
+            {
+                throw new Exception("Organization unit cannot be found.");
+            }
+
+            UserPrincipal userPrincipal = GetUser(username);
+            userPrincipal.GetUnderlyingObject();
+            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace("LDAP://", "")}";
+
+            try
+            {
+                using (DirectoryEntry userLocation = (DirectoryEntry) userPrincipal.GetUnderlyingObject())
+                {
+                    using (DirectoryEntry ouLocation = new DirectoryEntry(orgUnitDistName))
+                    {
+                        if (!isDryRun)
+                        {
+                            userLocation.MoveTo(ouLocation);
+                        }
+                    }
+                }
+            }
+            catch (DirectoryServicesCOMException ex)
+            {
+               throw new Exception($"Encountered exception while trying to move user to another organization unit: {ex.Message}");
+            }
+        }
+
+        public static string GetUserOrganizationUnit(string username)
+        {
+            try
+            {
+                using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                {
+                    using (UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username))
+                    {
+                        if (user != null)
+                        {
+                            using (DirectoryEntry deUser = user.GetUnderlyingObject() as DirectoryEntry)
+                            {
+                                if (deUser != null)
+                                {
+                                    using (DirectoryEntry deUserContainer = deUser.Parent)
+                                    {
+                                        return deUserContainer.Properties["Name"].Value.ToString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+
+            return null;
         }
 
         #region To Be Deleted

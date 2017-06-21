@@ -157,25 +157,115 @@ namespace Synapse.Ldap.Tests
         }
 
         [Test]
-        public void FriendlyDomainToLdapDomainReturnExpectedResult()
+        public void MoveUserToOrganizationUnit_Without_Username_Throw_Exception()
         {
-            var fqdn = DirectoryServices.FriendlyDomainToLdapDomain("bp1");
-            Assert.AreEqual(fqdn, "bp1.local");
+            // Arrange 
+            string username = "";
+            string orgUnitDistName = "XXX";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("User is not specified."));
         }
 
         [Test]
-        public void FriendlyDomainToLdapDomainWithInvalidNameReturnException()
+        public void MoveUserToOrganizationUnit_Without_Organization_Unit_Throw_Exception()
         {
-            Assert.Throws<ActiveDirectoryObjectNotFoundException>(() => DirectoryServices.FriendlyDomainToLdapDomain("XXX"));
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = "";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = username;
+            string surname = username;
+            string description = "Created by Synapse";
+            string orgUnitDistName = "";
+
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
         }
 
+        [Test]
+        public void MoveUserToOrganizationUnit_Non_Existent_User_Throw_Exception()
+        {
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
+        }
 
         [Test]
-        public void EnumerateOUMembersReturnAtLeastOneRecord()
+        public void MoveUserToOrganizationUnit_Non_Existent_Organization_Unit_Throw_Exception()
         {
-            List<string> members = DirectoryServices.EnumerateOUMembers("DC=bp1, DC=local");
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = "";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = username;
+            string surname = username;
+            string description = "Created by Synapse";
+            string orgUnitDistName = "XXX";
 
-            Assert.That(members.Count, Is.GreaterThan(0));
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+
+            // Assert
+            Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
+        }
+
+        [Test]
+        public void MoveUserToOrganizationUnit_With_Valid_Details_Succeed()
+        {
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = "";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = username;
+            string surname = username;
+            string description = "Created by Synapse";
+            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName);
+
+            // Assert
+            Assert.That(orgUnitName, Is.EqualTo(DirectoryServices.GetUserOrganizationUnit(username)));
+        }
+
+        [Test]
+        public void MoveUserToOrganizationUnit_With_Valid_Details_Dry_Run_Not_A_Member()
+        {
+            // Arrange 
+            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string ldapPath = "";
+            string userPassword = "bi@02LL49_VWQ{b";
+            string givenName = username;
+            string surname = username;
+            string description = "Created by Synapse";
+            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+
+            // Act
+            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName, true);
+
+            // Assert
+            Assert.AreNotEqual(orgUnitName, DirectoryServices.GetUserOrganizationUnit(username));
         }
     }
 }

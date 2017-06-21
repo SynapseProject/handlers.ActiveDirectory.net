@@ -23,40 +23,6 @@ namespace Synapse.Ldap.Core
             return u;
         }
 
-        public static bool MoveUserToOrganizationUnit(string userDistName, string orgUnitDistName)
-        {
-            if (String.IsNullOrEmpty(userDistName) || String.IsNullOrWhiteSpace(userDistName))
-            {
-                Console.WriteLine("No user is specified to be moved.");
-                return false;
-            }
-
-            if (String.IsNullOrEmpty(orgUnitDistName) || String.IsNullOrWhiteSpace(orgUnitDistName))
-            {
-                Console.WriteLine("No destination organization unit is specified.");
-                return false;
-            }
-
-            userDistName = $"LDAP://{userDistName.Replace("LDAP://", "")}";
-            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace("LDAP://", "")}";
-
-            try
-            {
-                DirectoryEntry userLocation = new DirectoryEntry(userDistName);
-                DirectoryEntry ouLocation = new DirectoryEntry(orgUnitDistName);
-                userLocation.MoveTo(ouLocation);
-                ouLocation.Close();
-                userLocation.Close();
-            }
-            catch (DirectoryServicesCOMException ex)
-            {
-                Console.WriteLine($"Encountered exception while trying to move user to another organization unit: {ex.Message}");
-                return false;
-            }
-
-            return true;
-        }
-
         public static void CreateUser(string ouPath, string username, string password, string givenName = "", string surname = "", string description = "", bool isEnabled = true, bool isDryRun = false)
         {
             if (String.IsNullOrWhiteSpace(ouPath))

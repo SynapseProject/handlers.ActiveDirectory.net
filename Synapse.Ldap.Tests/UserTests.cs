@@ -11,43 +11,43 @@ namespace Synapse.Ldap.Tests
     [TestFixture]
     public class UserTests
     {
-        [Test]
-        public void MoveUserToOrganizationUnitSucceeds()
-        {
-            // Arrange 
-            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
-            string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+        //[Test]
+        //public void MoveUserToOrganizationUnitSucceeds()
+        //{
+        //    // Arrange 
+        //    string ldapPath = DirectoryServices.GetDomainDistinguishedName();
+        //    string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //    string userPassword = "bi@02LL49_VWQ{b";
+        //    DirectoryServices.CreateUser(ldapPath, userName, userPassword);
             
-            string destOrgUnit = $"OU=TestOU,{DirectoryServices.GetDomainDistinguishedName()}";
+        //    string destOrgUnit = $"OU=TestOU,{DirectoryServices.GetDomainDistinguishedName()}";
 
-            // Act
-            Console.WriteLine("Moving user to destination OU...");
-            bool status = DirectoryServices.MoveUserToOrganizationUnit($"CN={userName},{DirectoryServices.GetDomainDistinguishedName()}", destOrgUnit);
+        //    // Act
+        //    Console.WriteLine("Moving user to destination OU...");
+        //    bool status = DirectoryServices.MoveUserToOrganizationUnit($"CN={userName},{DirectoryServices.GetDomainDistinguishedName()}", destOrgUnit);
 
-            // Assert
-            Assert.IsTrue(status);
-        }
+        //    // Assert
+        //    Assert.IsTrue(status);
+        //}
 
 
-        [Test]
-        public void MoveUserToOrganizationUnitWithInvalidOrganizationUnitFails()
-        {
-            // Arrange 
-            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
-            string userPassword = "bi@02LL49_VWQ{b";
-            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
-            string destOrgUnit = $"OU=XXXX,{DirectoryServices.GetDomainDistinguishedName()}";
+        //[Test]
+        //public void MoveUserToOrganizationUnitWithInvalidOrganizationUnitFails()
+        //{
+        //    // Arrange 
+        //    string ldapPath = DirectoryServices.GetDomainDistinguishedName();
+        //    string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //    string userPassword = "bi@02LL49_VWQ{b";
+        //    DirectoryServices.CreateUser(ldapPath, userName, userPassword);
+        //    string destOrgUnit = $"OU=XXXX,{DirectoryServices.GetDomainDistinguishedName()}";
 
-            // Act
-            Console.WriteLine("Moving user to destination OU...");
-            bool status = DirectoryServices.MoveUserToOrganizationUnit($"CN={userName},{DirectoryServices.GetDomainDistinguishedName()}", destOrgUnit);
+        //    // Act
+        //    Console.WriteLine("Moving user to destination OU...");
+        //    bool status = DirectoryServices.MoveUserToOrganizationUnit($"CN={userName},{DirectoryServices.GetDomainDistinguishedName()}", destOrgUnit);
 
-            // Assert
-            Assert.IsFalse(status);
-        }
+        //    // Assert
+        //    Assert.IsFalse(status);
+        //}
 
         [Test]
         public void SetUserPassword_Without_Username_Throw_Exception()
