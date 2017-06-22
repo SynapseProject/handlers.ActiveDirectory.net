@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\LdapException.cs" />
     <Compile Include="Classes\DirectoryEntry.cs" />
     <Compile Include="Classes\OrgUnit.cs" />
     <Compile Include="Classes\GroupPrincipal.cs" />

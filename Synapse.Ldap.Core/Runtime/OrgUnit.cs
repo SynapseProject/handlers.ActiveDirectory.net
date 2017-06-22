@@ -12,32 +12,32 @@ namespace Synapse.Ldap.Core
     {
         public static void CreateOrganizationUnit(string parentOrgUnitPath, string newOrgUnitName, string description = "", bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(newOrgUnitName))
+            if ( String.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
-                throw new Exception("New organization unit is not specified.");
+                throw new LdapException( "New organization unit is not specified.", LdapExceptionType.MissingInput );
             }
 
-            parentOrgUnitPath = String.IsNullOrWhiteSpace(parentOrgUnitPath) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace("LDAP://", "");
+            parentOrgUnitPath = String.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
             string newOrgUnitPath = $"OU ={newOrgUnitName},{parentOrgUnitPath}";
 
-            if (IsExistingOrganizationUnit(parentOrgUnitPath))
+            if ( IsExistingOrganizationUnit( parentOrgUnitPath ) )
             {
-                using (DirectoryEntry parentOrgUnit = new DirectoryEntry(
+                using ( DirectoryEntry parentOrgUnit = new DirectoryEntry(
                     $"LDAP://{parentOrgUnitPath}",
                     null, // Username
                     null, // Password
-                    AuthenticationTypes.Secure))
+                    AuthenticationTypes.Secure ) )
                 {
-                    if (IsExistingOrganizationUnit(newOrgUnitPath))
+                    if ( IsExistingOrganizationUnit( newOrgUnitPath ) )
                     {
-                        throw new Exception("New organization unit already exists.");
+                        throw new LdapException( "New organization unit already exists.", LdapExceptionType.AlreadyExists );
                     }
 
-                    using (DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add($"OU={newOrgUnitName}", "OrganizationalUnit"))
+                    using ( DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add( $"OU={newOrgUnitName}", "OrganizationalUnit" ) )
                     {
-                        if (!isDryRun)
+                        if ( !isDryRun )
                         {
-                            if (!String.IsNullOrWhiteSpace(description))
+                            if ( !String.IsNullOrWhiteSpace( description ) )
                             {
                                 newOrgUnit.Properties["Description"].Value = description;
                             }
@@ -49,45 +49,45 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new Exception("Parent organization unit does not exist.");
+                throw new LdapException( "Parent organization unit does not exist.", LdapExceptionType.DoesNotExist );
             }
         }
 
         public static void DeleteOrganizationUnit(string orgUnitDistName, bool isDryRun = false)
         {
             // Exact distinguished name of the organization unit is expected.
-            if (String.IsNullOrWhiteSpace(orgUnitDistName))
+            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new Exception("Organization unit is not specified.");
+                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
             }
 
-            orgUnitDistName = orgUnitDistName.Replace("LDAP://", "");
+            orgUnitDistName = orgUnitDistName.Replace( "LDAP://", "" );
 
-            if (IsExistingOrganizationUnit(orgUnitDistName))
+            if ( IsExistingOrganizationUnit( orgUnitDistName ) )
             {
-                using (DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
+                using ( DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
                     $"LDAP://{orgUnitDistName}",
                     null, // Username
                     null, // Password
-                    AuthenticationTypes.Secure))
+                    AuthenticationTypes.Secure ) )
                 {
-                    if (!isDryRun)
+                    if ( !isDryRun )
                     {
                         try
                         {
                             orgUnitForDeletion.DeleteTree();
                             orgUnitForDeletion.CommitChanges();
                         }
-                        catch (InvalidOperationException)
+                        catch ( InvalidOperationException )
                         {
-                            throw new Exception("Organization unit specified is not a container.");
+                            throw new LdapException( "Organization unit specified is not a container.", LdapExceptionType.InvalidContainer );
                         }
                     }
                 }
             }
             else
             {
-                throw new Exception("Organization unit cannot be found.");
+                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
@@ -95,7 +95,7 @@ namespace Synapse.Ldap.Core
         {
             // connect to "RootDSE" to find default naming context.
             // "RootDSE" is not a container.
-            DirectoryEntry rootDSE = new DirectoryEntry("LDAP://RootDSE");
+            DirectoryEntry rootDSE = new DirectoryEntry( "LDAP://RootDSE" );
 
             // Return the distinguished name for the domain of which this directory server is a member.
             return rootDSE.Properties["defaultNamingContext"][0].ToString();
@@ -107,11 +107,11 @@ namespace Synapse.Ldap.Core
             try
             {
                 DirectoryContext objContext = new DirectoryContext(
-                    DirectoryContextType.Domain, friendlyDomainName);
-                Domain objDomain = Domain.GetDomain(objContext);
+                    DirectoryContextType.Domain, friendlyDomainName );
+                Domain objDomain = Domain.GetDomain( objContext );
                 ldapPath = objDomain.Name;
             }
-            catch (DirectoryServicesCOMException e)
+            catch ( DirectoryServicesCOMException e )
             {
                 ldapPath = e.Message;
             }
@@ -129,20 +129,20 @@ namespace Synapse.Ldap.Core
             // Security Masks: Owner, Group, Dacl
             // Is Mutually Authenticated: True
             // Bind to current domain
-            DirectoryEntry entry = new DirectoryEntry(domainADsPath);
+            DirectoryEntry entry = new DirectoryEntry( domainADsPath );
             DirectoryEntryConfiguration entryConfiguration = entry.Options;
 
-            Console.WriteLine("Server: " + entryConfiguration.GetCurrentServerName());
-            Console.WriteLine("Page Size: " + entryConfiguration.PageSize.ToString());
-            Console.WriteLine("Password Encoding: " +
-                entryConfiguration.PasswordEncoding.ToString());
-            Console.WriteLine("Password Port: " +
-                entryConfiguration.PasswordPort.ToString());
-            Console.WriteLine("Referral: " + entryConfiguration.Referral.ToString());
-            Console.WriteLine("Security Masks: " +
-                entryConfiguration.SecurityMasks.ToString());
-            Console.WriteLine("Is Mutually Authenticated: " +
-                entryConfiguration.IsMutuallyAuthenticated().ToString());
+            Console.WriteLine( "Server: " + entryConfiguration.GetCurrentServerName() );
+            Console.WriteLine( "Page Size: " + entryConfiguration.PageSize.ToString() );
+            Console.WriteLine( "Password Encoding: " +
+                entryConfiguration.PasswordEncoding.ToString() );
+            Console.WriteLine( "Password Port: " +
+                entryConfiguration.PasswordPort.ToString() );
+            Console.WriteLine( "Referral: " + entryConfiguration.Referral.ToString() );
+            Console.WriteLine( "Security Masks: " +
+                entryConfiguration.SecurityMasks.ToString() );
+            Console.WriteLine( "Is Mutually Authenticated: " +
+                entryConfiguration.IsMutuallyAuthenticated().ToString() );
             Console.WriteLine();
             Console.Read();
         }
@@ -151,9 +151,9 @@ namespace Synapse.Ldap.Core
         {
             List<string> alDcs = new List<string>();
             Domain domain = Domain.GetCurrentDomain();
-            foreach (DomainController dc in domain.DomainControllers)
+            foreach ( DomainController dc in domain.DomainControllers )
             {
-                alDcs.Add(dc.Name);
+                alDcs.Add( dc.Name );
             }
             return alDcs;
         }
@@ -165,11 +165,11 @@ namespace Synapse.Ldap.Core
             List<string> alObjects = new List<string>();
             try
             {
-                DirectoryEntry directoryObject = new DirectoryEntry("LDAP://" + OrgUnitDistName);
-                foreach (DirectoryEntry child in directoryObject.Children)
+                DirectoryEntry directoryObject = new DirectoryEntry( "LDAP://" + OrgUnitDistName );
+                foreach ( DirectoryEntry child in directoryObject.Children )
                 {
                     string childPath = child.Path.ToString();
-                    alObjects.Add(childPath.Remove(0, 7));
+                    alObjects.Add( childPath.Remove( 0, 7 ) );
                     //remove the LDAP prefix from the path
 
                     child.Close();
@@ -178,111 +178,116 @@ namespace Synapse.Ldap.Core
                 directoryObject.Close();
                 directoryObject.Dispose();
             }
-            catch (DirectoryServicesCOMException e)
+            catch ( DirectoryServicesCOMException e )
             {
-                Console.WriteLine("An Error Occurred: " + e.Message.ToString());
+                //TODO : Should This Error Be Ignored?  - Guy
+                Console.WriteLine( "An Error Occurred: " + e.Message.ToString() );
             }
             return alObjects;
         }
 
         public static bool IsExistingOrganizationUnit(string ouPath)
         {
-            if (String.IsNullOrWhiteSpace(ouPath)) return false;
+            if ( String.IsNullOrWhiteSpace( ouPath ) )
+                return false;
 
             string rootPath = GetDomainDistinguishedName();
-            if (!ouPath.Contains(rootPath)) return false;
+            if ( !ouPath.Contains( rootPath ) )
+                return false;
 
-            ouPath = $"LDAP://{ouPath.Replace("LDAP://", "")}";
-            return DirectoryEntry.Exists(ouPath);
+            ouPath = $"LDAP://{ouPath.Replace( "LDAP://", "" )}";
+            return DirectoryEntry.Exists( ouPath );
         }
 
         public static void MoveUserToOrganizationUnit(string username, string orgUnitDistName, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("User is not specified.");
+                throw new LdapException( "User is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(orgUnitDistName))
+            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new Exception("Organization unit is not specified.");
+                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (!IsExistingUser(username))
+            if ( !IsExistingUser( username ) )
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
-            if (!IsExistingOrganizationUnit(orgUnitDistName))
+            if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
             {
-                throw new Exception("Organization unit cannot be found.");
+                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
-            UserPrincipal userPrincipal = GetUser(username);
+            UserPrincipal userPrincipal = GetUser( username );
             userPrincipal.GetUnderlyingObject();
-            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace("LDAP://", "")}";
+            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
 
             try
             {
-                using (DirectoryEntry userLocation = (DirectoryEntry) userPrincipal.GetUnderlyingObject())
+                using ( DirectoryEntry userLocation = (DirectoryEntry)userPrincipal.GetUnderlyingObject() )
                 {
-                    using (DirectoryEntry ouLocation = new DirectoryEntry(orgUnitDistName))
+                    using ( DirectoryEntry ouLocation = new DirectoryEntry( orgUnitDistName ) )
                     {
-                        if (!isDryRun)
+                        if ( !isDryRun )
                         {
-                            userLocation.MoveTo(ouLocation);
+                            userLocation.MoveTo( ouLocation );
                         }
                     }
                 }
             }
-            catch (DirectoryServicesCOMException ex)
+            catch ( DirectoryServicesCOMException ex )
             {
-               throw new Exception($"Encountered exception while trying to move user to another organization unit: {ex.Message}");
+                throw ex;
+                //               throw new Exception($"Encountered exception while trying to move user to another organization unit: {ex.Message}");
             }
         }
 
         public static void MoveGroupToOrganizationUnit(string groupName, string orgUnitDistName, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(groupName))
+            if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new Exception("Group is not specified.");
+                throw new LdapException( "Group is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(orgUnitDistName))
+            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new Exception("Organization unit is not specified.");
+                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (!IsExistingGroup(groupName))
+            if ( !IsExistingGroup( groupName ) )
             {
-                throw new Exception("Group cannot be found.");
+                throw new LdapException( "Group cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
-            if (!IsExistingOrganizationUnit(orgUnitDistName))
+            if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
             {
-                throw new Exception("Organization unit cannot be found.");
+                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
-            GroupPrincipal groupPrincipal = GetGroup(groupName);
+            GroupPrincipal groupPrincipal = GetGroup( groupName );
             groupPrincipal.GetUnderlyingObject();
-            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace("LDAP://", "")}";
+            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
 
             try
             {
-                using (DirectoryEntry groupLocation = (DirectoryEntry)groupPrincipal.GetUnderlyingObject())
+                using ( DirectoryEntry groupLocation = (DirectoryEntry)groupPrincipal.GetUnderlyingObject() )
                 {
-                    using (DirectoryEntry ouLocation = new DirectoryEntry(orgUnitDistName))
+                    using ( DirectoryEntry ouLocation = new DirectoryEntry( orgUnitDistName ) )
                     {
-                        if (!isDryRun)
+                        if ( !isDryRun )
                         {
-                            groupLocation.MoveTo(ouLocation);
+                            groupLocation.MoveTo( ouLocation );
                         }
                     }
                 }
             }
-            catch (DirectoryServicesCOMException ex)
+            catch ( DirectoryServicesCOMException ex )
             {
-                throw new Exception($"Encountered exception while trying to move group to another organization unit: {ex.Message}");
+                throw ex;
+                //                throw new Exception($"Encountered exception while trying to move group to another organization unit: {ex.Message}");
             }
         }
 
@@ -290,17 +295,17 @@ namespace Synapse.Ldap.Core
         {
             try
             {
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                 {
-                    using (GroupPrincipal user = GroupPrincipal.FindByIdentity(context, IdentityType.SamAccountName, groupName))
+                    using ( GroupPrincipal user = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName ) )
                     {
-                        if (user != null)
+                        if ( user != null )
                         {
-                            using (DirectoryEntry deGroup = user.GetUnderlyingObject() as DirectoryEntry)
+                            using ( DirectoryEntry deGroup = user.GetUnderlyingObject() as DirectoryEntry )
                             {
-                                if (deGroup != null)
+                                if ( deGroup != null )
                                 {
-                                    using (DirectoryEntry deGroupContainer = deGroup.Parent)
+                                    using ( DirectoryEntry deGroupContainer = deGroup.Parent )
                                     {
                                         return deGroupContainer.Properties["Name"].Value.ToString();
                                     }
@@ -322,17 +327,17 @@ namespace Synapse.Ldap.Core
         {
             try
             {
-                using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+                using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                 {
-                    using (UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username))
+                    using ( UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username ) )
                     {
-                        if (user != null)
+                        if ( user != null )
                         {
-                            using (DirectoryEntry deUser = user.GetUnderlyingObject() as DirectoryEntry)
+                            using ( DirectoryEntry deUser = user.GetUnderlyingObject() as DirectoryEntry )
                             {
-                                if (deUser != null)
+                                if ( deUser != null )
                                 {
-                                    using (DirectoryEntry deUserContainer = deUser.Parent)
+                                    using ( DirectoryEntry deUserContainer = deUser.Parent )
                                     {
                                         return deUserContainer.Properties["Name"].Value.ToString();
                                     }
@@ -352,25 +357,25 @@ namespace Synapse.Ldap.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string name, string ldapRoot)
         {
-            using (DirectoryEntry root = new DirectoryEntry(ldapRoot))
-            using (DirectorySearcher searcher = new DirectorySearcher(root))
+            using ( DirectoryEntry root = new DirectoryEntry( ldapRoot ) )
+            using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
                 searcher.SearchScope = SearchScope.Subtree;
-                searcher.PropertiesToLoad.Add("name");
-                searcher.PropertiesToLoad.Add("distinguishedName");
+                searcher.PropertiesToLoad.Add( "name" );
+                searcher.PropertiesToLoad.Add( "distinguishedName" );
                 searcher.ReferralChasing = ReferralChasingOption.All;
 
                 DirectoryEntry ou = null;
                 SearchResultCollection results = searcher.FindAll();
-                foreach (SearchResult result in results)
-                    if (result.Properties["name"][0].ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+                foreach ( SearchResult result in results )
+                    if ( result.Properties["name"][0].ToString().Equals( name, StringComparison.OrdinalIgnoreCase ) )
                         ou = result.GetDirectoryEntry();
 
-                if (ou == null)
+                if ( ou == null )
                     return null;
                 else
-                    return new OrganizationalUnitObject(ou);
+                    return new OrganizationalUnitObject( ou );
             }
         }
 

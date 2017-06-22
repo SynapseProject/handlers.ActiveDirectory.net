@@ -13,11 +13,11 @@ namespace Synapse.Ldap.Core
         public static UserPrincipalObject GetUser(string sAMAccountName, bool getGroups)
         {
             UserPrincipalObject u = null;
-            using (PrincipalContext context = new PrincipalContext(ContextType.Domain))
+            using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                UserPrincipal user = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, sAMAccountName);
-                u = new UserPrincipalObject(user);
-                if (getGroups)
+                UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                u = new UserPrincipalObject( user );
+                if ( getGroups )
                     u.GetGroups();
             }
             return u;
@@ -25,41 +25,41 @@ namespace Synapse.Ldap.Core
 
         public static void CreateUser(string ouPath, string username, string password, string givenName = "", string surname = "", string description = "", bool isEnabled = true, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(ouPath))
+            if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
                 // Default location where user will be created.
                 ouPath = $"cn=Users,{GetDomainDistinguishedName()}";
             }
 
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(password))
+            if ( String.IsNullOrWhiteSpace( password ) )
             {
-                throw new Exception("Password is not specified.");
+                throw new LdapException( "Password is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(givenName))
+            if ( String.IsNullOrWhiteSpace( givenName ) )
             {
-                throw new Exception("Given name is not specified.");
+                throw new LdapException( "Given name is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(surname))
+            if ( String.IsNullOrWhiteSpace( surname ) )
             {
-                throw new Exception("Surname is not specified.");
+                throw new LdapException( "Surname is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (!IsExistingUser(username))
+            if ( !IsExistingUser( username ) )
             {
 
-                ouPath = ouPath.Replace("LDAP://", "");
+                ouPath = ouPath.Replace( "LDAP://", "" );
 
-                PrincipalContext ouPrincipal = GetPrincipalContext(ouPath);
+                PrincipalContext ouPrincipal = GetPrincipalContext( ouPath );
                 try
                 {
-                    UserPrincipal userPrincipal = new UserPrincipal(ouPrincipal, username, password, isEnabled)
+                    UserPrincipal userPrincipal = new UserPrincipal( ouPrincipal, username, password, isEnabled )
                     {
                         UserPrincipalName = username,
                         GivenName = givenName,
@@ -67,68 +67,68 @@ namespace Synapse.Ldap.Core
                         DisplayName = $"{surname}, {givenName}",
                         Description = description
                     };
-                    if (!isDryRun)
+                    if ( !isDryRun )
                     {
                         userPrincipal.Save();
                     }
                 }
-                catch (PrincipalOperationException ex)
+                catch ( PrincipalOperationException ex )
                 {
-                    if (ex.Message.Contains("There is no such object on the server."))
+                    if ( ex.Message.Contains( "There is no such object on the server." ) )
                     {
-                        throw new Exception("OU path specified is not valid.");
+                        throw new LdapException( "OU path specified is not valid.", LdapExceptionType.InvalidPath );
                     }
                     throw;
                 }
-                catch (PasswordException ex)
+                catch ( PasswordException ex )
                 {
-                    if (ex.Message.Contains("The password does not meet the password policy requirements."))
+                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
                     {
-                        throw new Exception("The password does not meet the password policy requirements.");
+                        throw new LdapException( "The password does not meet the password policy requirements.", LdapExceptionType.PasswordPolicyNotMet );
                     }
                     throw;
                 }
             }
             else
             {
-                throw new Exception("The user already exists.");
+                throw new LdapException( "The user already exists.", LdapExceptionType.AlreadyExists );
             }
         }
 
         public static void CreateUserEx(string ldapPath, string username, string password, string givenName = "", string surname = "", string description = "")
         {
-            if (String.IsNullOrWhiteSpace(ldapPath))
+            if ( String.IsNullOrWhiteSpace( ldapPath ) )
             {
                 // Default location where user will be created.
                 ldapPath = $"CN=Users,{GetDomainDistinguishedName()}";
             }
 
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Cannot create user as username is not specified.");
+                throw new LdapException( "Cannot create user as username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(password))
+            if ( String.IsNullOrWhiteSpace( password ) )
             {
-                throw new Exception("Cannot create user as password is not specified.");
+                throw new LdapException( "Cannot create user as password is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(givenName))
+            if ( String.IsNullOrWhiteSpace( givenName ) )
             {
-                throw new Exception("Cannot create user as given name is not specified.");
+                throw new LdapException( "Cannot create user as given name is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(surname))
+            if ( String.IsNullOrWhiteSpace( surname ) )
             {
-                throw new Exception("Cannot create user as surname is not specified.");
+                throw new LdapException( "Cannot create user as surname is not specified.", LdapExceptionType.MissingInput );
             }
 
             try
             {
-                string connectionPrefix = "LDAP://" + ldapPath.Replace("LDAP://", "");
-                using (DirectoryEntry dirEntry = new DirectoryEntry(connectionPrefix))
+                string connectionPrefix = "LDAP://" + ldapPath.Replace( "LDAP://", "" );
+                using ( DirectoryEntry dirEntry = new DirectoryEntry( connectionPrefix ) )
                 {
-                    using (DirectoryEntry newUser = dirEntry.Children.Add("CN=" + username, "user"))
+                    using ( DirectoryEntry newUser = dirEntry.Children.Add( "CN=" + username, "user" ) )
                     {
                         newUser.Properties["samAccountName"].Value = username; // Max length of samAccountName is 20
                         newUser.Properties["givenName"].Value = givenName;
@@ -137,30 +137,30 @@ namespace Synapse.Ldap.Core
                         newUser.Properties["description"].Value = description;
                         newUser.CommitChanges();
 
-                        newUser.Invoke("SetPassword", new object[] { password });
+                        newUser.Invoke( "SetPassword", new object[] { password } );
                         //                        newUser.Properties["LockOutTime"].Value = 0; //unlock account
                         newUser.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
                         newUser.CommitChanges();
                     }
                 }
             }
-            catch (TargetInvocationException ex)
+            catch ( TargetInvocationException ex )
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("The password does not meet the password policy requirements."))
+                if ( ex.InnerException != null && ex.InnerException.Message.Contains( "The password does not meet the password policy requirements." ) )
                 {
-                    throw new Exception(ex.InnerException.Message);
+                    throw new LdapException( ex.InnerException.Message, LdapExceptionType.PasswordPolicyNotMet );
                 }
                 throw;
             }
-            catch (DirectoryServicesCOMException ex)
+            catch ( DirectoryServicesCOMException ex )
             {
-                if (ex.Message.Contains("The object already exists."))
+                if ( ex.Message.Contains( "The object already exists." ) )
                 {
-                    throw new Exception($"The user already exists.");
+                    throw new LdapException( $"The user already exists.", LdapExceptionType.AlreadyExists );
                 }
-                if (ex.Message.Contains("There is no such object on the server."))
+                if ( ex.Message.Contains( "There is no such object on the server." ) )
                 {
-                    throw new Exception("The LDAP path is not valid.");
+                    throw new LdapException( "The LDAP path is not valid.", LdapExceptionType.InvalidPath );
                 }
                 throw;
             }
@@ -168,36 +168,36 @@ namespace Synapse.Ldap.Core
 
         public static void SetUserPassword(string username, string newPassword, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(newPassword))
+            if ( String.IsNullOrWhiteSpace( newPassword ) )
             {
-                throw new Exception("New password is not specified.");
+                throw new LdapException( "New password is not specified.", LdapExceptionType.MissingInput );
             }
 
             try
             {
-                UserPrincipal userPrincipal = GetUser(username);
-                if (userPrincipal != null)
+                UserPrincipal userPrincipal = GetUser( username );
+                if ( userPrincipal != null )
                 {
-                    if (!isDryRun)
+                    if ( !isDryRun )
                     {
-                        userPrincipal.SetPassword(newPassword);
+                        userPrincipal.SetPassword( newPassword );
                     }
                 }
                 else
                 {
-                    throw new Exception("User cannot be found.");
+                    throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
                 }
             }
-            catch (PasswordException ex)
+            catch ( PasswordException ex )
             {
-                if (ex.Message.Contains("The password does not meet the password policy requirements."))
+                if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
                 {
-                    throw new Exception("The password does not meet the password policy requirements.");
+                    throw new LdapException( "The password does not meet the password policy requirements.", LdapExceptionType.PasswordPolicyNotMet );
                 }
                 throw;
             }
@@ -205,38 +205,38 @@ namespace Synapse.Ldap.Core
 
         public static void ResetPasswordEx(string username, string newPassword)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (String.IsNullOrWhiteSpace(newPassword))
+            if ( String.IsNullOrWhiteSpace( newPassword ) )
             {
-                throw new Exception("New password is not specified.");
+                throw new LdapException( "New password is not specified.", LdapExceptionType.MissingInput );
             }
 
-            PrincipalContext context = new PrincipalContext(ContextType.Domain);
-            UserPrincipal userDn = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username);
+            PrincipalContext context = new PrincipalContext( ContextType.Domain );
+            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
 
-            if (userDn == null)
+            if ( userDn == null )
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
             try
             {
-                using (DirectoryEntry user = new DirectoryEntry($"LDAP://{userDn.DistinguishedName}"))
+                using ( DirectoryEntry user = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
                 {
-                    user.Invoke("SetPassword", new object[] { newPassword });
+                    user.Invoke( "SetPassword", new object[] { newPassword } );
                     //                    user.Properties["LockOutTime"].Value = 0; //unlock account
                     user.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
                     user.CommitChanges();
                 }
             }
-            catch (TargetInvocationException ex)
+            catch ( TargetInvocationException ex )
             {
-                if (ex.InnerException != null && ex.InnerException.Message.Contains("The password does not meet the password policy requirements."))
+                if ( ex.InnerException != null && ex.InnerException.Message.Contains( "The password does not meet the password policy requirements." ) )
                 {
-                    throw new Exception(ex.InnerException.Message);
+                    throw new LdapException( ex.InnerException.Message, LdapExceptionType.PasswordPolicyNotMet );
                 }
                 throw;
             }
@@ -244,49 +244,49 @@ namespace Synapse.Ldap.Core
 
         public static void UnlockUserAccount(string username, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal != null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal != null )
             {
                 userPrincipal.UnlockAccount();
                 userPrincipal.Save();
             }
             else
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
         public static void UnlockUserEx(string username)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            PrincipalContext context = new PrincipalContext(ContextType.Domain);
-            UserPrincipal userDn = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username);
+            PrincipalContext context = new PrincipalContext( ContextType.Domain );
+            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
 
-            if (userDn == null)
+            if ( userDn == null )
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
             try
             {
-                using (DirectoryEntry uEntry = new DirectoryEntry($"LDAP://{userDn.DistinguishedName}"))
+                using ( DirectoryEntry uEntry = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
                 {
                     uEntry.Properties["LockOutTime"].Value = 0; //unlock account
                     uEntry.CommitChanges(); //may not be needed but adding it anyways
                 }
             }
-            catch (DirectoryServicesCOMException ex)
+            catch ( DirectoryServicesCOMException ex )
             {
-                throw new Exception(ex.Message);
+                throw ex;
             }
         }
 
@@ -294,29 +294,29 @@ namespace Synapse.Ldap.Core
         {
             bool isLocked = false;
 
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            PrincipalContext context = new PrincipalContext(ContextType.Domain);
-            UserPrincipal userDn = UserPrincipal.FindByIdentity(context, IdentityType.SamAccountName, username);
+            PrincipalContext context = new PrincipalContext( ContextType.Domain );
+            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
 
-            if (userDn == null)
+            if ( userDn == null )
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
 
             try
             {
-                using (DirectoryEntry uEntry = new DirectoryEntry($"LDAP://{userDn.DistinguishedName}"))
+                using ( DirectoryEntry uEntry = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
                 {
-                    isLocked = Convert.ToBoolean(uEntry.InvokeGet("IsAccountLocked"));
+                    isLocked = Convert.ToBoolean( uEntry.InvokeGet( "IsAccountLocked" ) );
                 }
             }
-            catch (DirectoryServicesCOMException ex)
+            catch ( DirectoryServicesCOMException ex )
             {
-                throw new Exception(ex.Message);
+                throw ex;
             }
 
             return isLocked;
@@ -326,43 +326,43 @@ namespace Synapse.Ldap.Core
         {
             var bytes = new byte[length];
             var rnd = new Random();
-            rnd.NextBytes(bytes);
-            return Convert.ToBase64String(bytes).Replace("=", "").Replace("+", "").Replace("/", "");
+            rnd.NextBytes( bytes );
+            return Convert.ToBase64String( bytes ).Replace( "=", "" ).Replace( "+", "" ).Replace( "/", "" );
         }
 
 
         public static void DeleteUser(string username, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal != null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal != null )
             {
-                if (!isDryRun)
+                if ( !isDryRun )
                 {
                     userPrincipal.Delete();
                 }
             }
             else
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
         public static void EnableUserAccount(string username, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not provided.");
+                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal != null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal != null )
             {
-                if (!isDryRun)
+                if ( !isDryRun )
                 {
                     userPrincipal.Enabled = true;
                     userPrincipal.Save();
@@ -370,21 +370,21 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
         public static void ExpireUserPassword(string username, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not provided.");
+                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal != null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal != null )
             {
-                if (!isDryRun)
+                if ( !isDryRun )
                 {
                     userPrincipal.ExpirePasswordNow();
                     userPrincipal.Save();
@@ -392,64 +392,64 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
         public static void DisableUserAccount(string username, bool isDryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not provided.");
+                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
             }
 
 
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal != null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal != null )
             {
                 userPrincipal.Enabled = false;
                 userPrincipal.Save();
             }
             else
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
         }
 
 
         public static void UpdateUserAttribute(string username, string attribute, string value, bool dryRun = false)
         {
-            if (String.IsNullOrWhiteSpace(username))
+            if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new Exception("Username is not specified.");
+                throw new LdapException( "Username is not specified.", LdapExceptionType.MissingInput );
             }
 
-            if (!IsValidUserAttribute(attribute))
+            if ( !IsValidUserAttribute( attribute ) )
             {
-                throw new Exception("Attribute is not supported.");
+                throw new LdapException( "Attribute is not supported.", LdapExceptionType.NotSupported );
             }
 
             string ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
 
-            using (DirectoryEntry entry = new DirectoryEntry(ldapPath))
+            using ( DirectoryEntry entry = new DirectoryEntry( ldapPath ) )
             {
-                using (DirectorySearcher mySearcher = new DirectorySearcher(entry)
+                using ( DirectorySearcher mySearcher = new DirectorySearcher( entry )
                 {
                     Filter = "(sAMAccountName=" + username + ")"
-                })
+                } )
                 {
                     try
                     {
-                        mySearcher.PropertiesToLoad.Add("" + attribute + "");
+                        mySearcher.PropertiesToLoad.Add( "" + attribute + "" );
                         SearchResult result = mySearcher.FindOne();
-                        if (result != null)
+                        if ( result != null )
                         {
-                            if (!dryRun)
+                            if ( !dryRun )
                             {
                                 DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
-                                if (result.Properties.Contains("" + attribute + ""))
+                                if ( result.Properties.Contains( "" + attribute + "" ) )
                                 {
-                                    if (!String.IsNullOrWhiteSpace(value))
+                                    if ( !String.IsNullOrWhiteSpace( value ) )
                                     {
                                         entryToUpdate.Properties["" + attribute + ""].Value = value;
                                     }
@@ -460,29 +460,29 @@ namespace Synapse.Ldap.Core
                                 }
                                 else
                                 {
-                                    entryToUpdate.Properties["" + attribute + ""].Add(value);
+                                    entryToUpdate.Properties["" + attribute + ""].Add( value );
                                 }
                                 entryToUpdate.CommitChanges();
                             }
                         }
                         else
                         {
-                            throw new Exception("User cannot be found.");
+                            throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
                         }
                     }
-                    catch (DirectoryServicesCOMException ex)
+                    catch ( DirectoryServicesCOMException ex )
                     {
-                        if (ex.Message.Contains("The attribute syntax specified to the directory service is invalid."))
+                        if ( ex.Message.Contains( "The attribute syntax specified to the directory service is invalid." ) )
                         {
-                            throw new Exception("The attribute value is invalid.");
+                            throw new LdapException( "The attribute value is invalid.", LdapExceptionType.InvalidAttribute );
                         }
-                        if (ex.Message.Contains("A constraint violation occurred."))
+                        if ( ex.Message.Contains( "A constraint violation occurred." ) )
                         {
-                            throw new Exception("The attribute value is invalid.");
+                            throw new LdapException( "The attribute value is invalid.", LdapExceptionType.InvalidAttribute );
                         }
-                        if (ex.Message.Contains("The directory service cannot perform the requested operation on the RDN attribute of an object."))
+                        if ( ex.Message.Contains( "The directory service cannot perform the requested operation on the RDN attribute of an object." ) )
                         {
-                            throw new Exception("Operation is not allowed.");
+                            throw new LdapException( "Operation is not allowed.", LdapExceptionType.NotAllowed );
                         }
                         throw;
                     }
@@ -511,20 +511,20 @@ namespace Synapse.Ldap.Core
 
             };
 
-            return attributes.ContainsKey(attribute);
+            return attributes.ContainsKey( attribute );
         }
 
         public static bool IsExistingUser(string username)
         {
-            return GetUser(username) != null;
+            return GetUser( username ) != null;
         }
 
         public static bool? IsUserEnabled(string username)
         {
-            UserPrincipal userPrincipal = GetUser(username);
-            if (userPrincipal == null)
+            UserPrincipal userPrincipal = GetUser( username );
+            if ( userPrincipal == null )
             {
-                throw new Exception("User cannot be found.");
+                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
             }
             return userPrincipal.Enabled;
         }
@@ -534,9 +534,9 @@ namespace Synapse.Ldap.Core
         {
             bool status = false;
 
-            if (String.IsNullOrEmpty(userName) || String.IsNullOrWhiteSpace(userName))
+            if ( String.IsNullOrEmpty( userName ) || String.IsNullOrWhiteSpace( userName ) )
             {
-                Console.WriteLine("No username is provided.");
+                Console.WriteLine( "No username is provided." );
                 return status;
             }
 
@@ -544,14 +544,14 @@ namespace Synapse.Ldap.Core
             try
             {
                 // set up domain context
-                PrincipalContext ctx = new PrincipalContext(ContextType.Domain);
-                UserPrincipal user = UserPrincipal.FindByIdentity(ctx, userName);
+                PrincipalContext ctx = new PrincipalContext( ContextType.Domain );
+                UserPrincipal user = UserPrincipal.FindByIdentity( ctx, userName );
                 user?.Delete();
                 status = true;
             }
-            catch (Exception ex)
+            catch ( Exception ex )
             {
-                Console.WriteLine($"Encountered exception while trying to delete user: {ex.Message}");
+                Console.WriteLine( $"Encountered exception while trying to delete user: {ex.Message}" );
             }
 
             return status;
