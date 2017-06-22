@@ -16,6 +16,9 @@ namespace Synapse.Ldap.Core
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
                 UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                if ( user == null )
+                    throw new LdapException( $"User [{sAMAccountName}] Not Found.", LdapExceptionType.DoesNotExist );
+
                 u = new UserPrincipalObject( user );
                 if ( getGroups )
                     u.GetGroups();
