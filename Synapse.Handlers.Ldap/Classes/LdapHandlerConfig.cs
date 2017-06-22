@@ -19,7 +19,11 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public bool RunSequential { get; set; }
         [XmlElement]
-        public bool QueryGroupMembership { get; set; }
+        public bool QueryGroupMembership { get; set; } = true;
+        [XmlElement]
+        public bool ReturnObjects { get; set; } = true;
+        [XmlElement]
+        public bool SuppressOutput { get; set; } = false;
         [XmlElement]
         public SerializationFormat OutputType { get; set; } = SerializationFormat.Json;
         [XmlElement]
