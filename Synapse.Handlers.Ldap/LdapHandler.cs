@@ -148,18 +148,24 @@ public class LdapHandler : HandlerRuntimeBase
                 UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                 if (returnObject)
                     results.Add( status, upo );
+                else
+                    results.Add( status, (UserPrincipalObject)null );
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
                 GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                 if (returnObject)
                     results.Add( status, gpo );
+                else
+                    results.Add( status, (GroupPrincipalObject)null );
                 break;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
-                if (returnObject)
+                if ( returnObject )
                     results.Add( status, ouo );
+                else
+                    results.Add( status, (OrganizationalUnitObject)null );
 
                 break;
             default:

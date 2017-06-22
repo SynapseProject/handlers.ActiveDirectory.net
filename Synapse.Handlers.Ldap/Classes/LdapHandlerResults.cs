@@ -22,9 +22,6 @@ namespace Synapse.Handlers.Ldap
 
         public void Add(LdapStatus status, UserPrincipalObject user)
         {
-            if ( user == null )
-                return;
-
             if ( Users == null )
                 Users = new List<UserPrincipalObjectWithStatus>();
 
@@ -39,9 +36,6 @@ namespace Synapse.Handlers.Ldap
 
         public void Add(LdapStatus status, GroupPrincipalObject group)
         {
-            if ( group == null )
-                return;
-
             if ( Groups == null )
                 Groups = new List<GroupPrincipalObjectWithStatus>();
 
@@ -56,9 +50,6 @@ namespace Synapse.Handlers.Ldap
 
         public void Add(LdapStatus status, OrganizationalUnitObject orgUnit)
         {
-            if ( orgUnit == null )
-                return;
-
             if ( OrganizationalUnits == null )
                 OrganizationalUnits = new List<OrganizationalUnitObjectWithStatus>();
 
