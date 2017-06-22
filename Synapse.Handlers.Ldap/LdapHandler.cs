@@ -245,12 +245,18 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
                 foreach ( String userGroup in user.Groups )
+                {
                     DirectoryServices.RemoveUserFromGroup( user.Name, userGroup, isDryRun );
+                    OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + userGroup + "]." );
+                }
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
                 foreach ( String groupGroup in group.Groups )
+                {
                     DirectoryServices.RemoveGroupFromGroup( group.Name, groupGroup, isDryRun );
+                    OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + groupGroup + "]." );
+                }
                 break;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
