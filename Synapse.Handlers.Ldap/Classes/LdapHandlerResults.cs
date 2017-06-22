@@ -14,51 +14,60 @@ namespace Synapse.Handlers.Ldap
     public class LdapHandlerResults
     {
         [XmlArrayItem( ElementName = "User" )]
-        public List<UserPrincipalObject> Users { get; set; }
+        public List<UserPrincipalObjectWithStatus> Users { get; set; }
         [XmlArrayItem( ElementName = "Group" )]
-        public List<GroupPrincipalObject> Groups { get; set; }
+        public List<GroupPrincipalObjectWithStatus> Groups { get; set; }
         [XmlArrayItem( ElementName = "OrganizationalUnit" )]
-        public List<OrganizationalUnitObject> OrganizationalUnits { get; set; }
+        public List<OrganizationalUnitObjectWithStatus> OrganizationalUnits { get; set; }
 
-        public void Add(UserPrincipalObject user)
+        public void Add(LdapStatus status, UserPrincipalObject user)
         {
             if ( user == null )
                 return;
 
             if ( Users == null )
-                Users = new List<UserPrincipalObject>();
+                Users = new List<UserPrincipalObjectWithStatus>();
+
+            UserPrincipalObjectWithStatus obj = new UserPrincipalObjectWithStatus( status );
+            obj.User = user;
 
             lock ( Users )
             {
-                Users.Add( user );
+                Users.Add( obj );
             }
         }
 
-        public void Add(GroupPrincipalObject group)
+        public void Add(LdapStatus status, GroupPrincipalObject group)
         {
             if ( group == null )
                 return;
 
             if ( Groups == null )
-                Groups = new List<GroupPrincipalObject>();
+                Groups = new List<GroupPrincipalObjectWithStatus>();
+
+            GroupPrincipalObjectWithStatus obj = new GroupPrincipalObjectWithStatus( status );
+            obj.Group = group;
 
             lock ( Groups )
             {
-                Groups.Add( group );
+                Groups.Add( obj );
             }
         }
 
-        public void Add(OrganizationalUnitObject orgUnit)
+        public void Add(LdapStatus status, OrganizationalUnitObject orgUnit)
         {
             if ( orgUnit == null )
                 return;
 
             if ( OrganizationalUnits == null )
-                OrganizationalUnits = new List<OrganizationalUnitObject>();
+                OrganizationalUnits = new List<OrganizationalUnitObjectWithStatus>();
+
+            OrganizationalUnitObjectWithStatus obj = new OrganizationalUnitObjectWithStatus( status );
+            obj.OrganizationalUnit = orgUnit;
 
             lock ( OrganizationalUnits )
             {
-                OrganizationalUnits.Add( orgUnit );
+                OrganizationalUnits.Add( obj );
             }
         }
 
@@ -91,5 +100,52 @@ namespace Synapse.Handlers.Ldap
         {
             return XmlHelpers.Serialize<LdapHandlerResults>( this, true, true, prettyPrint );
         }
+    }
+
+    public class LdapStatus
+    {
+        [XmlElement]
+        public int StatusCode { get; set; } = 42;
+        [XmlElement]
+        public String StatusMessage { get; set; } = "Success";
+        [XmlElement]
+        public ActionType Action { get; set; }
+
+        public LdapStatus() { }
+
+        public LdapStatus(LdapStatus status)
+        {
+            StatusCode = status.StatusCode;
+            StatusMessage = status.StatusMessage;
+            Action = status.Action;
+        }
+
+    }
+
+    public class UserPrincipalObjectWithStatus : LdapStatus
+    {
+        [XmlElement]
+        public UserPrincipalObject User { get; set; }
+
+        public UserPrincipalObjectWithStatus() { }
+        public UserPrincipalObjectWithStatus(LdapStatus status) : base( status ) { }
+    }
+
+    public class GroupPrincipalObjectWithStatus : LdapStatus
+    {
+        [XmlElement]
+        public GroupPrincipalObject Group { get; set; }
+
+        public GroupPrincipalObjectWithStatus() { }
+        public GroupPrincipalObjectWithStatus(LdapStatus status) : base( status ) { }
+    }
+
+    public class OrganizationalUnitObjectWithStatus : LdapStatus
+    {
+        [XmlElement]
+        public OrganizationalUnitObject OrganizationalUnit { get; set; }
+
+        public OrganizationalUnitObjectWithStatus() { }
+        public OrganizationalUnitObjectWithStatus(LdapStatus status) : base( status ) { }
     }
 }

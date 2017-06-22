@@ -138,25 +138,28 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessQuery(LdapObject obj, bool returnObject = true)
     {
+        LdapStatus status = new LdapStatus();
+        status.Action = config.Action;
+
         switch ( obj.Type )
         {
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
                 UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                 if (returnObject)
-                    results.Add( upo );
+                    results.Add( status, upo );
                 break;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
                 GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                 if (returnObject)
-                    results.Add( gpo );
+                    results.Add( status, gpo );
                 break;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
                 if (returnObject)
-                    results.Add( ouo );
+                    results.Add( status, ouo );
 
                 break;
             default:
