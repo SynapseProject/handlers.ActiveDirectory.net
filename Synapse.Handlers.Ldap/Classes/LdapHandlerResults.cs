@@ -96,19 +96,25 @@ namespace Synapse.Handlers.Ldap
     public class LdapStatus
     {
         [XmlElement]
-        public int StatusCode { get; set; } = 42;
+        public LdapStatusType Status { get; set; } = LdapStatusType.Success;
         [XmlElement]
-        public String StatusMessage { get; set; } = "Success";
+        public String Message { get; set; } = "Success";
         [XmlElement]
         public ActionType Action { get; set; }
+        [XmlElement]
+        public String Name { get; set; }
+        [XmlElement]
+        public String Path { get; set; }
 
         public LdapStatus() { }
 
         public LdapStatus(LdapStatus status)
         {
-            StatusCode = status.StatusCode;
-            StatusMessage = status.StatusMessage;
+            Status = status.Status;
+            Message = status.Message;
             Action = status.Action;
+            Name = status.Name;
+            Path = status.Path;
         }
 
     }

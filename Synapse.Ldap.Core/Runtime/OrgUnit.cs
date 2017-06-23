@@ -14,7 +14,7 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
-                throw new LdapException( "New organization unit is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "New organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
             parentOrgUnitPath = String.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
@@ -30,7 +30,7 @@ namespace Synapse.Ldap.Core
                 {
                     if ( IsExistingOrganizationUnit( newOrgUnitPath ) )
                     {
-                        throw new LdapException( "New organization unit already exists.", LdapExceptionType.AlreadyExists );
+                        throw new LdapException( "New organization unit already exists.", LdapStatusType.AlreadyExists );
                     }
 
                     using ( DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add( $"OU={newOrgUnitName}", "OrganizationalUnit" ) )
@@ -49,7 +49,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "Parent organization unit does not exist.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Parent organization unit does not exist.", LdapStatusType.DoesNotExist );
             }
         }
 
@@ -58,7 +58,7 @@ namespace Synapse.Ldap.Core
             // Exact distinguished name of the organization unit is expected.
             if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
             orgUnitDistName = orgUnitDistName.Replace( "LDAP://", "" );
@@ -80,14 +80,14 @@ namespace Synapse.Ldap.Core
                         }
                         catch ( InvalidOperationException )
                         {
-                            throw new LdapException( "Organization unit specified is not a container.", LdapExceptionType.InvalidContainer );
+                            throw new LdapException( "Organization unit specified is not a container.", LdapStatusType.InvalidContainer );
                         }
                     }
                 }
             }
             else
             {
-                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Organization unit cannot be found.", LdapStatusType.DoesNotExist );
             }
         }
 
@@ -203,22 +203,22 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new LdapException( "User is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "User is not specified.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
             if ( !IsExistingUser( username ) )
             {
-                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
             {
-                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Organization unit cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             UserPrincipal userPrincipal = GetUser( username );
@@ -249,22 +249,22 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group is not specified.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
-                throw new LdapException( "Organization unit is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
             if ( !IsExistingGroup( groupName ) )
             {
-                throw new LdapException( "Group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
             {
-                throw new LdapException( "Organization unit cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Organization unit cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             GroupPrincipal groupPrincipal = GetGroup( groupName );

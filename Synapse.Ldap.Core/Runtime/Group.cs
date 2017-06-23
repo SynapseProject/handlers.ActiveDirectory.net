@@ -13,12 +13,12 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
-                throw new LdapException( "OU path is not specified.", LdapExceptionType.InvalidPath );
+                throw new LdapException( "OU path is not specified.", LdapStatusType.InvalidPath );
             }
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
 
             // OU path here cannot have the LDAP prefix.
@@ -44,7 +44,7 @@ namespace Synapse.Ldap.Core
             {
                 if ( ex.Message.Contains( "The server is not operational." ) )
                 {
-                    throw new LdapException( "Unable to connect to the domain controller. Check the OU path.", LdapExceptionType.ConnectionError );
+                    throw new LdapException( "Unable to connect to the domain controller. Check the OU path.", LdapStatusType.ConnectionError );
                 }
                 throw;
             }
@@ -52,14 +52,14 @@ namespace Synapse.Ldap.Core
             {
                 if ( ex.Message.Contains( "The object already exists." ) )
                 {
-                    throw new LdapException( "The group already exists.", LdapExceptionType.AlreadyExists );
+                    throw new LdapException( "The group already exists.", LdapStatusType.AlreadyExists );
                 }
             }
             catch ( PrincipalOperationException ex )
             {
                 if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
                 {
-                    throw new LdapException( "The OU path is not valid.", LdapExceptionType.InvalidPath );
+                    throw new LdapException( "The OU path is not valid.", LdapStatusType.InvalidPath );
                 }
                 throw;
             }
@@ -71,7 +71,7 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
 
             try
@@ -90,7 +90,7 @@ namespace Synapse.Ldap.Core
                 }
                 else
                 {
-                    throw new LdapException( "Group does not exist.", LdapExceptionType.DoesNotExist );
+                    throw new LdapException( "Group does not exist.", LdapStatusType.DoesNotExist );
                 }
             }
             catch ( InvalidOperationException e )
@@ -104,12 +104,12 @@ namespace Synapse.Ldap.Core
             GroupPrincipal gp = GetGroup( groupName );
             if ( gp == null )
             {
-                throw new LdapException( "Group does not exist.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Group does not exist.", LdapStatusType.DoesNotExist );
             }
 
             if ( !IsValidGroupAttribute( attribute ) )
             {
-                throw new LdapException( "The attribute is not supported.", LdapExceptionType.NotSupported );
+                throw new LdapException( "The attribute is not supported.", LdapStatusType.NotSupported );
             }
 
             string ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
@@ -152,18 +152,18 @@ namespace Synapse.Ldap.Core
                         }
                         else
                         {
-                            throw new LdapException( "Group cannot be found.", LdapExceptionType.DoesNotExist );
+                            throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
                         }
                     }
                     catch ( DirectoryServicesCOMException ex )
                     {
                         if ( ex.Message.Contains( "The attribute syntax specified to the directory service is invalid." ) )
                         {
-                            throw new LdapException( "The attribute value is invalid.", LdapExceptionType.InvalidAttribute );
+                            throw new LdapException( "The attribute value is invalid.", LdapStatusType.InvalidAttribute );
                         }
                         if ( ex.Message.Contains( "A constraint violation occurred." ) )
                         {
-                            throw new LdapException( "The attribute value is invalid.", LdapExceptionType.InvalidAttribute );
+                            throw new LdapException( "The attribute value is invalid.", LdapStatusType.InvalidAttribute );
                         }
                         throw ex;
                     }
@@ -171,7 +171,7 @@ namespace Synapse.Ldap.Core
                     {
                         if ( ex.Message.Contains( "The server is not operational." ) )
                         {
-                            throw new LdapException( "LDAP path specifieid is not valid.", LdapExceptionType.ConnectionError );
+                            throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.ConnectionError );
                         }
                         throw;
                     }
@@ -183,23 +183,23 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
             UserPrincipal userPrincipal = GetUser( username );
             if ( userPrincipal == null )
             {
-                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
             GroupPrincipal groupPrincipal = GetGroup( groupName );
             if ( groupPrincipal == null )
             {
-                throw new LdapException( "Group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( !IsUserGroupMember( username, groupName ) )
@@ -212,7 +212,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "User already exists in the group.", LdapExceptionType.AlreadyExists );
+                throw new LdapException( "User already exists in the group.", LdapStatusType.AlreadyExists );
             }
         }
 
@@ -220,23 +220,23 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( childGroupName ) )
             {
-                throw new LdapException( "Child group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( parentGroupName ) )
             {
-                throw new LdapException( "Parent group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
             GroupPrincipal childGroupPrincipal = GetGroup( childGroupName );
             if ( childGroupPrincipal == null )
             {
-                throw new LdapException( "Child group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
             GroupPrincipal parentGroupPrincipal = GetGroup( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
-                throw new LdapException( "Parent group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( !IsGroupGroupMember( childGroupName, parentGroupName ) )
@@ -249,7 +249,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "Child group already exists in the parent group.", LdapExceptionType.AlreadyExists );
+                throw new LdapException( "Child group already exists in the parent group.", LdapStatusType.AlreadyExists );
             }
         }
 
@@ -257,23 +257,23 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
             UserPrincipal userPrincipal = GetUser( username );
             if ( userPrincipal == null )
             {
-                throw new LdapException( "User cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
             GroupPrincipal groupPrincipal = GetGroup( groupName );
             if ( groupPrincipal == null )
             {
-                throw new LdapException( "Group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( IsUserGroupMember( username, groupName ) )
@@ -286,7 +286,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "User does not exist in the group.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "User does not exist in the group.", LdapStatusType.DoesNotExist );
             }
         }
 
@@ -294,23 +294,23 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( childGroupName ) )
             {
-                throw new LdapException( "Child group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( parentGroupName ) )
             {
-                throw new LdapException( "Parent group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
             GroupPrincipal childGroupPrincipal = GetGroup( childGroupName );
             if ( childGroupPrincipal == null )
             {
-                throw new LdapException( "Child group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
             GroupPrincipal parentGroupPrincipal = GetGroup( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
-                throw new LdapException( "Parent group cannot be found.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
             if ( IsGroupGroupMember( childGroupName, parentGroupName ) )
@@ -323,7 +323,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "Child group does not exist in the parent group.", LdapExceptionType.DoesNotExist );
+                throw new LdapException( "Child group does not exist in the parent group.", LdapStatusType.DoesNotExist );
             }
         }
 
@@ -420,12 +420,12 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( ldapPath ) )
@@ -451,7 +451,7 @@ namespace Synapse.Ldap.Core
                         }
                         else
                         {
-                            throw new LdapException( "Specified user cannot be found.", LdapExceptionType.DoesNotExist );
+                            throw new LdapException( "Specified user cannot be found.", LdapStatusType.DoesNotExist );
                         }
                     }
 
@@ -469,12 +469,12 @@ namespace Synapse.Ldap.Core
                             }
                             else
                             {
-                                throw new LdapException( "User is already a member of the group.", LdapExceptionType.AlreadyExists );
+                                throw new LdapException( "User is already a member of the group.", LdapStatusType.AlreadyExists );
                             }
                         }
                         else
                         {
-                            throw new LdapException( "Specified group cannot be found.", LdapExceptionType.DoesNotExist );
+                            throw new LdapException( "Specified group cannot be found.", LdapStatusType.DoesNotExist );
                         }
                     }
                 }
@@ -482,14 +482,14 @@ namespace Synapse.Ldap.Core
                 {
                     if ( ex.Message.Contains( "The server is unwilling to process the request." ) )
                     {
-                        throw new LdapException( "User's distinguished name is invalid.", LdapExceptionType.InvalidName );
+                        throw new LdapException( "User's distinguished name is invalid.", LdapStatusType.InvalidName );
                     }
                 }
                 catch ( COMException ex )
                 {
                     if ( ex.Message.Contains( "The server is not operational." ) )
                     {
-                        throw new LdapException( "LDAP path specifieid is not valid.", LdapExceptionType.InvalidPath );
+                        throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.InvalidPath );
                     }
                 }
             }
@@ -499,13 +499,13 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
-                throw new LdapException( "OU path is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
             }
 
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
 
             ouPath = ouPath.Contains( "LDAP://" ) ? ouPath : $"LDAP://{ouPath}";
@@ -526,14 +526,14 @@ namespace Synapse.Ldap.Core
                 }
                 else
                 {
-                    throw new LdapException( groupPath + " already exists.", LdapExceptionType.AlreadyExists );
+                    throw new LdapException( groupPath + " already exists.", LdapStatusType.AlreadyExists );
                 }
             }
             catch ( COMException e )
             {
                 if ( e.Message.Contains( "Unknown error " ) )
                 {
-                    throw new LdapException( "OU path is not valid.", LdapExceptionType.InvalidPath );
+                    throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
                 }
             }
         }
@@ -542,12 +542,12 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
-                throw new LdapException( "OU path is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( groupPath ) )
             {
-                throw new LdapException( "Group path is not specified.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group path is not specified.", LdapStatusType.MissingInput );
             }
 
             ouPath = $"LDAP://{ouPath.Replace( "LDAP://", "" )}";
@@ -571,20 +571,20 @@ namespace Synapse.Ldap.Core
                     {
                         if ( e.Message.Contains( "Unknown error " ) )
                         {
-                            throw new LdapException( "OU path is not valid.", LdapExceptionType.InvalidPath );
+                            throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
                         }
                     }
                 }
                 else
                 {
-                    throw new LdapException( ouPath + " doesn't exist", LdapExceptionType.InvalidPath );
+                    throw new LdapException( ouPath + " doesn't exist", LdapStatusType.InvalidPath );
                 }
             }
             catch ( COMException e )
             {
                 if ( e.Message.Contains( "Unknown error " ) )
                 {
-                    throw new LdapException( "OU path is not valid.", LdapExceptionType.InvalidPath );
+                    throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
                 }
             }
         }
@@ -593,12 +593,12 @@ namespace Synapse.Ldap.Core
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
-                throw new LdapException( "Username is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
-                throw new LdapException( "Group name is not provided.", LdapExceptionType.MissingInput );
+                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
             if ( String.IsNullOrWhiteSpace( ldapPath ) )
@@ -624,7 +624,7 @@ namespace Synapse.Ldap.Core
                         }
                         else
                         {
-                            throw new LdapException( "Specified user cannot be found.", LdapExceptionType.DoesNotExist );
+                            throw new LdapException( "Specified user cannot be found.", LdapStatusType.DoesNotExist );
                         }
                     }
 
@@ -642,12 +642,12 @@ namespace Synapse.Ldap.Core
                             }
                             else
                             {
-                                throw new LdapException( "User is not a member of the group.", LdapExceptionType.DoesNotExist );
+                                throw new LdapException( "User is not a member of the group.", LdapStatusType.DoesNotExist );
                             }
                         }
                         else
                         {
-                            throw new LdapException( "Specified group cannot be found.", LdapExceptionType.DoesNotExist );
+                            throw new LdapException( "Specified group cannot be found.", LdapStatusType.DoesNotExist );
                         }
                     }
                 }
@@ -655,14 +655,14 @@ namespace Synapse.Ldap.Core
                 {
                     if ( ex.Message.Contains( "The server is unwilling to process the request." ) )
                     {
-                        throw new LdapException( "User's distinguished name is invalid.", LdapExceptionType.InvalidName );
+                        throw new LdapException( "User's distinguished name is invalid.", LdapStatusType.InvalidName );
                     }
                 }
                 catch ( COMException ex )
                 {
                     if ( ex.Message.Contains( "The server is not operational." ) )
                     {
-                        throw new LdapException( "LDAP path specifieid is not valid.", LdapExceptionType.InvalidPath );
+                        throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.InvalidPath );
                     }
                 }
             }

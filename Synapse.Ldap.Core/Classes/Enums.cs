@@ -38,4 +38,22 @@ namespace Synapse.Ldap.Core
         AddToGroup,
         RemoveFromGroup
     }
+
+    public enum LdapStatusType
+    {
+        Unknown,
+        Success,
+        MissingInput,
+        AlreadyExists,
+        DoesNotExist,
+        PasswordPolicyNotMet,
+        InvalidPath,
+        NotSupported,
+        NotAllowed,
+        InvalidAttribute,
+        ConnectionError,
+        InvalidName,
+        InvalidContainer
+    }
+
 }

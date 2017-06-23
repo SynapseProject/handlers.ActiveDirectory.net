@@ -7,44 +7,28 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public enum LdapExceptionType
-    {
-        Unknown,
-        MissingInput,
-        AlreadyExists,
-        DoesNotExist,
-        PasswordPolicyNotMet,
-        InvalidPath,
-        NotSupported,
-        NotAllowed,
-        InvalidAttribute,
-        ConnectionError,
-        InvalidName,
-        InvalidContainer
-    }
-
     public class LdapException : Exception
     {
-        public LdapExceptionType Type { get; set; } = LdapExceptionType.Unknown;
+        public LdapStatusType Type { get; set; } = LdapStatusType.Unknown;
 
-        public LdapException(LdapExceptionType type = LdapExceptionType.Unknown) : base()
+        public LdapException(LdapStatusType type = LdapStatusType.Unknown) : base()
         {
             this.Type = type;
         }
 
-        public LdapException(String message, LdapExceptionType type = LdapExceptionType.Unknown) 
+        public LdapException(String message, LdapStatusType type = LdapStatusType.Unknown) 
             : base( message )
         {
             this.Type = type;
         }
 
-        public LdapException(String message, Exception innerException, LdapExceptionType type = LdapExceptionType.Unknown)
+        public LdapException(String message, Exception innerException, LdapStatusType type = LdapStatusType.Unknown)
             : base( message, innerException )
         {
             this.Type = type;
         }
 
-        public LdapException( SerializationInfo info, StreamingContext context, LdapExceptionType type = LdapExceptionType.Unknown)
+        public LdapException( SerializationInfo info, StreamingContext context, LdapStatusType type = LdapStatusType.Unknown)
             : base( info, context )
         {
             this.Type = type;
