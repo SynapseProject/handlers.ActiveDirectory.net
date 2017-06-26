@@ -1,8 +1,8 @@
-Name: QueryGroupApi
-Description: Lookup Ldap Group
+Name: QueryOrgUnitApi
+Description: Lookup Ldap Organizational Unit
 IsActive: true
 Actions:
-- Name: QueryGroup
+- Name: QueryOrgUnit
   Handler:
     Type: Synapse.Handlers.Ldap:LdapHandler
     Config:
@@ -16,11 +16,20 @@ Actions:
         PrettyPrint: false
         ReturnObjects: true
         SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
   Parameters:
     Type: Yaml
     Values:
-      Groups:
+      OrganizationalUnits:
       - Name: xxxxxx
     Dynamic:
     - Name: name
-      Path: Groups[0]:Name
+      Path: OrganizationalUnits[0]:Name

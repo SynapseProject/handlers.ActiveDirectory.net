@@ -65,9 +65,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Plans\QueryOrgUnit.yaml" />
-    <None Include="Plans\QueryGroup.yaml" />
-    <None Include="Plans\QueryUser.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Synapse.Ldap.Core\Synapse.Ldap.Core.csproj">

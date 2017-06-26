@@ -77,6 +77,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Plans\QueryGroup.yaml" />
+    <None Include="Plans\QueryOrgUnit.yaml" />
+    <None Include="Plans\QueryUser.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Synapse.Handlers.Ldap\Synapse.Handlers.Ldap.csproj">
