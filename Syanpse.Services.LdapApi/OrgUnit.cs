@@ -8,26 +8,28 @@ using Synapse.Services;
 using Synapse.Services.LdapApi;
 using Synapse.Ldap.Core;
 using Synapse.Core.Utilities;
+using Synapse.Handlers.Ldap;
 
 public partial class LdapApiController : ApiController
 {
     [HttpGet]
     [Route( "ou/{name}" )]
-    public OrganizationalUnitObject GetOrgUnit(string name, bool runAtNode = true)
+    public LdapHandlerResults GetOrgUnit(string name, bool groups = false, bool runAtNode = true)
     {
-        if( runAtNode )
+        String planName = @"QueryOrgUnit";
+        if ( runAtNode )
         {
             IExecuteController ec = GetExecuteControllerInstance();
 
             StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
             pe.DynamicParameters.Add( nameof( name ), name );
-            pe.DynamicParameters.Add( "type", ObjectClass.OrganizationalUnit.ToString() );
 
-            return SynapseHelper.ExecuteAsync<OrganizationalUnitObject>( ec, "GetOrgUnit", pe );
+            String reply = (String)ec.StartPlanSync( pe, planName, setContentType: false );
+            return YamlHelpers.Deserialize<LdapHandlerResults>( reply );
         }
         else
         {
-            return DirectoryServices.GetOrganizationalUnit( name, null );
+            return null;
         }
     }
 

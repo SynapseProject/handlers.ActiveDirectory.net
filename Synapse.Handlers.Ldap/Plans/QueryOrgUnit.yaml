@@ -1,0 +1,26 @@
+Name: QueryOrgUnitApi
+Description: Lookup Ldap Organizational Unit
+IsActive: true
+Actions:
+- Name: QueryOrgUnit
+  Handler:
+    Type: Synapse.Handlers.Ldap:LdapHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Query
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        SuppressOutput: false
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Name: xxxxxx
+    Dynamic:
+    - Name: name
+      Path: OrganizationalUnits[0]:Name

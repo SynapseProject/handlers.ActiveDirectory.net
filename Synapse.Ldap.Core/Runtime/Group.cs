@@ -674,6 +674,9 @@ namespace Synapse.Ldap.Core
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
                 GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                if ( group == null )
+                    throw new LdapException( $"Group [{sAMAccountName}] Not Found.", LdapStatusType.DoesNotExist );
+
                 g = new GroupPrincipalObject( group );
                 if ( getGroups )
                     g.GetGroups();

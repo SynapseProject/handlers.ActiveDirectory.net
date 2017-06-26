@@ -373,7 +373,7 @@ namespace Synapse.Ldap.Core
                         ou = result.GetDirectoryEntry();
 
                 if ( ou == null )
-                    return null;
+                    throw new LdapException( $"Organizational Unit [{name}] Not Found.", LdapStatusType.DoesNotExist );
                 else
                     return new OrganizationalUnitObject( ou );
             }

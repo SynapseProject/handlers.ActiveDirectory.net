@@ -1,0 +1,26 @@
+Name: QueryGroupApi
+Description: Lookup Ldap Group
+IsActive: true
+Actions:
+- Name: QueryGroup
+  Handler:
+    Type: Synapse.Handlers.Ldap:LdapHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Query
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        SuppressOutput: false
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Name: xxxxxx
+    Dynamic:
+    - Name: name
+      Path: Groups[0]:Name
