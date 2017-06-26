@@ -14,7 +14,7 @@ public partial class LdapApiController : ApiController
 {
     [HttpGet]
     [Route( "hello" )]
-    public string Hello() { return "Hello from LyraApi, World!"; }
+    public string Hello() { return "Hello from LdapApiController, World!"; }
 
     [HttpGet]
     [Route( "synapse" )]

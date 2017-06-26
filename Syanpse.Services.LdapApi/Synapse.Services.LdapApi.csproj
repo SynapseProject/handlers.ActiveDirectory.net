@@ -79,6 +79,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Synapse.Handlers.Ldap\Synapse.Handlers.Ldap.csproj">
+      <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
+      <Name>Synapse.Handlers.Ldap</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Synapse.Ldap.Core\Synapse.Ldap.Core.csproj">
       <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
       <Name>Synapse.Ldap.Core</Name>
