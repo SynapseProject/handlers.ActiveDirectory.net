@@ -79,6 +79,7 @@
     </None>
     <None Include="Plans\QueryGroup.yaml" />
     <None Include="Plans\QueryOrgUnit.yaml" />
+    <None Include="Plans\DeleteUser.yaml" />
     <None Include="Plans\QueryUser.yaml" />
   </ItemGroup>
   <ItemGroup>

@@ -1,0 +1,35 @@
+Name: QueryUserApi
+Description: Lookup Ldap User
+IsActive: true
+Actions:
+- Name: QueryUser
+  Handler:
+    Type: Synapse.Handlers.Ldap:LdapHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Delete
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Name: xxxxxx
+    Dynamic:
+    - Name: name
+      Path: Users[0]:Name
