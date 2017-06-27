@@ -147,29 +147,24 @@ public class LdapHandler : HandlerRuntimeBase
 
         try
         {
+            object ldapObject = GetLdapObject( obj );
             switch ( obj.Type )
             {
                 case ObjectClass.User:
-                    LdapUser user = (LdapUser)obj;
-                    UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                     if ( returnObject )
-                        results.Add( status, upo );
+                        results.Add( status, (UserPrincipalObject)ldapObject );
                     else
                         results.Add( status, (UserPrincipalObject)null );
                     break;
                 case ObjectClass.Group:
-                    LdapGroup group = (LdapGroup)obj;
-                    GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                     if ( returnObject )
-                        results.Add( status, gpo );
+                        results.Add( status, (GroupPrincipalObject)ldapObject );
                     else
                         results.Add( status, (GroupPrincipalObject)null );
                     break;
                 case ObjectClass.OrganizationalUnit:
-                    LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                    OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
                     if ( returnObject )
-                        results.Add( status, ouo );
+                        results.Add( status, (OrganizationalUnitObject)ldapObject );
                     else
                         results.Add( status, (OrganizationalUnitObject)null );
 
@@ -178,9 +173,30 @@ public class LdapHandler : HandlerRuntimeBase
                     throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
             }
         }
-        catch (LdapException ex)
+        catch ( LdapException ex )
         {
             ProcessLdapException( ex, config.Action, obj );
+        }
+    }
+
+    private object GetLdapObject(LdapObject obj)
+    {
+        switch ( obj.Type )
+        {
+            case ObjectClass.User:
+                LdapUser user = (LdapUser)obj;
+                UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
+                return upo;
+            case ObjectClass.Group:
+                LdapGroup group = (LdapGroup)obj;
+                GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
+                return gpo;
+            case ObjectClass.OrganizationalUnit:
+                LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
+                OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
+                return ouo;
+            default:
+                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
         }
     }
 
@@ -195,6 +211,8 @@ public class LdapHandler : HandlerRuntimeBase
 
         try
         {
+            object ldapObject = null;
+
             switch ( obj.Type )
             {
                 case ObjectClass.User:
@@ -203,6 +221,13 @@ public class LdapHandler : HandlerRuntimeBase
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
+                    if (returnObject)
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (UserPrincipalObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (UserPrincipalObject)null );
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
@@ -210,18 +235,29 @@ public class LdapHandler : HandlerRuntimeBase
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
+                    if ( returnObject )
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (GroupPrincipalObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (GroupPrincipalObject)null );
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     DirectoryServices.CreateOrganizationUnit( ou.Path, ou.Name );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    if ( returnObject )
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (OrganizationalUnitObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (OrganizationalUnitObject)null );
                     break;
                 default:
                     throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
             }
-
-            if ( returnObject )
-                ProcessQuery( obj, true );
         }
         catch ( LdapException ex )
         {

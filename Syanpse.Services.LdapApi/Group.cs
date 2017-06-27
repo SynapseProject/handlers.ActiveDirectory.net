@@ -33,4 +33,23 @@ public partial class LdapApiController : ApiController
 
         return CallPlan( planName, pe );
     }
+
+    [HttpPost]
+    [Route( "group/{name}" )]
+    public LdapHandlerResults CreateGroup(string name, LdapGroup group)
+    {
+        String planName = @"CreateGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        if ( !String.IsNullOrWhiteSpace( group.Path ) )
+            pe.DynamicParameters.Add( @"path", group.Path );
+        if ( !String.IsNullOrWhiteSpace( group.Description ) )
+            pe.DynamicParameters.Add( @"description", group.Description );
+
+        pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
+        pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
+
+        return CallPlan( planName, pe );
+    }
 }

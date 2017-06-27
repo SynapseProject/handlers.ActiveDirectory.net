@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
     <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
       <Private>True</Private>
@@ -77,8 +78,11 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Plans\CreateOrgUnit.yaml" />
+    <None Include="Plans\CreateGroup.yaml" />
     <None Include="Plans\DeleteOrgUnit.yaml" />
     <None Include="Plans\DeleteGroup.yaml" />
+    <None Include="Plans\CreateUser.yaml" />
     <None Include="Plans\QueryGroup.yaml" />
     <None Include="Plans\QueryOrgUnit.yaml" />
     <None Include="Plans\DeleteUser.yaml" />

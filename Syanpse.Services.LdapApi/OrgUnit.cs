@@ -37,4 +37,17 @@ public partial class LdapApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "ou/{name}" )]
+    public LdapHandlerResults CreateOrgUnit(string name, OrganizationalUnitObject ou)
+    {
+        String planName = @"CreateOrgUnit";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( @"path", ou.Path );
+
+        return CallPlan( planName, pe );
+    }
+
 }
