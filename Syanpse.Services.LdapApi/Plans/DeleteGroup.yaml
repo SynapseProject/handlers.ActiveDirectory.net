@@ -1,8 +1,8 @@
-Name: DeleteUserApi
-Description: Delete Ldap User
+Name: DeleteGroupApi
+Description: Delete Ldap Group
 IsActive: true
 Actions:
-- Name: DeleteUser
+- Name: DeleteGroup
   Handler:
     Type: Synapse.Handlers.Ldap:LdapHandler
     Config:
@@ -28,8 +28,8 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Groups:
       - Name: xxxxxx
     Dynamic:
     - Name: name
-      Path: Users[0]:Name
+      Path: Groups[0]:Name

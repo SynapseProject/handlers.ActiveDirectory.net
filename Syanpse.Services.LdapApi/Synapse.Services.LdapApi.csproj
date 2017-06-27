@@ -77,6 +77,8 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Plans\DeleteOrgUnit.yaml" />
+    <None Include="Plans\DeleteGroup.yaml" />
     <None Include="Plans\QueryGroup.yaml" />
     <None Include="Plans\QueryOrgUnit.yaml" />
     <None Include="Plans\DeleteUser.yaml" />

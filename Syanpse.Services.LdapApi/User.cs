@@ -23,5 +23,17 @@ public partial class LdapApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpDelete]
+    [Route( "user/{name}" )]
+    public LdapHandlerResults DeleteUser(string name)
+    {
+        String planName = @"DeleteUser";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+
+        return CallPlan( planName, pe );
+    }
+
 
 }

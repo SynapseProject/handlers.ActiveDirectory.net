@@ -138,10 +138,12 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessQuery(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus();
-        status.Action = config.Action;
-        status.Name = obj.Name;
-        status.Path = obj.Path;
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Name = obj.Name,
+            Path = obj.Path
+        };
 
         try
         {
@@ -184,6 +186,13 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessCreate(LdapObject obj, bool returnObject = true)
     {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Name = obj.Name,
+            Path = obj.Path
+        };
+
         try
         {
             switch ( obj.Type )
@@ -224,6 +233,13 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessDelete(LdapObject obj, bool returnObject = false)
     {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Name = obj.Name,
+            Path = obj.Path
+        };
+
         try
         {
             switch ( obj.Type )
@@ -231,14 +247,17 @@ public class LdapHandler : HandlerRuntimeBase
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
                     DirectoryServices.DeleteUser( user.Name );
+                    results.Add( status, (UserPrincipalObject)null );
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
                     DirectoryServices.DeleteGroup( group.Name, isDryRun );
+                    results.Add( status, (GroupPrincipalObject)null );
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     DirectoryServices.DeleteOrganizationUnit( ou.Name );
+                    results.Add( status, (OrganizationalUnitObject)null );
                     break;
                 default:
                     throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
@@ -325,12 +344,14 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessLdapException(LdapException ex, ActionType action, LdapObject obj)
     {
-        LdapStatus status = new LdapStatus();
-        status.Action = action;
-        status.Status = ex.Type;
-        status.Message = ex.Message;
-        status.Name = obj.Name;
-        status.Path = obj.Path;
+        LdapStatus status = new LdapStatus()
+        {
+            Action = action,
+            Status = ex.Type,
+            Message = ex.Message,
+            Name = obj.Name,
+            Path = obj.Path
+        };
 
         switch ( obj.Type )
         {

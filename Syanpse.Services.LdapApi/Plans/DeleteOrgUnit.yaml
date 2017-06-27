@@ -1,8 +1,8 @@
-Name: DeleteUserApi
-Description: Delete Ldap User
+Name: DeleteOrgUnitApi
+Description: Delete Ldap OrgUnit
 IsActive: true
 Actions:
-- Name: DeleteUser
+- Name: DeleteOrgUnit
   Handler:
     Type: Synapse.Handlers.Ldap:LdapHandler
     Config:
@@ -28,8 +28,8 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      OrganizationalUnits:
       - Name: xxxxxx
     Dynamic:
     - Name: name
-      Path: Users[0]:Name
+      Path: OrganizationalUnits[0]:Name

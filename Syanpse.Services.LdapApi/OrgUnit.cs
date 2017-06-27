@@ -25,4 +25,16 @@ public partial class LdapApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpDelete]
+    [Route( "ou/{name}" )]
+    public LdapHandlerResults DeleteOrgUnit(string name)
+    {
+        String planName = @"DeleteOrgUnit";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+
+        return CallPlan( planName, pe );
+    }
+
 }

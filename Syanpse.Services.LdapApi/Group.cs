@@ -20,5 +20,17 @@ public partial class LdapApiController : ApiController
         pe.DynamicParameters.Add( nameof( name ), name );
 
         return CallPlan( planName, pe );
-   }
+    }
+
+    [HttpDelete]
+    [Route( "group/{name}" )]
+    public LdapHandlerResults DeleteGroup(string name)
+    {
+        String planName = @"DeleteGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+
+        return CallPlan( planName, pe );
+    }
 }
