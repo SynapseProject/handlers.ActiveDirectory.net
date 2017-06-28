@@ -96,7 +96,8 @@ public class LdapHandler : HandlerRuntimeBase
                 ex.Message + " | " + ex.InnerException?.Message;
         }
 
-        result.ExitData = results.Serialize( config.OutputType, config.PrettyPrint );
+        if (results.HasResults)
+            result.ExitData = results.Serialize( config.OutputType, config.PrettyPrint );
 
         if (!config.SuppressOutput)
             OnProgress( __context, result.ExitData?.ToString(), result.Status, sequence: cheapSequence++, ex: exc );
@@ -176,6 +177,13 @@ public class LdapHandler : HandlerRuntimeBase
         catch ( LdapException ex )
         {
             ProcessLdapException( ex, config.Action, obj );
+        }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessQuery", e.Message );
+            OnLogMessage( "ProcessQuery", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
         }
     }
 
@@ -263,8 +271,13 @@ public class LdapHandler : HandlerRuntimeBase
         {
             ProcessLdapException( ex, config.Action, obj );
         }
-
-
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessCreate", e.Message );
+            OnLogMessage( "ProcessCreate", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
+        }
     }
 
     private void ProcessDelete(LdapObject obj, bool returnObject = false)
@@ -305,6 +318,13 @@ public class LdapHandler : HandlerRuntimeBase
         {
             ProcessLdapException( ex, config.Action, obj );
         }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessDelete", e.Message );
+            OnLogMessage( "ProcessDelete", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
+        }
     }
 
     private void ProcessGroupAdd(LdapObject obj, bool returnObject = true)
@@ -339,6 +359,13 @@ public class LdapHandler : HandlerRuntimeBase
         catch ( LdapException ex )
         {
             ProcessLdapException( ex, config.Action, obj );
+        }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessGroupAdd", e.Message );
+            OnLogMessage( "ProcessGroupAdd", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
         }
 
     }
@@ -376,6 +403,13 @@ public class LdapHandler : HandlerRuntimeBase
         {
             ProcessLdapException( ex, config.Action, obj );
         }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessGroupRemove", e.Message );
+            OnLogMessage( "ProcessGroupRemove", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
+        }
     }
 
     private void ProcessLdapException(LdapException ex, ActionType action, LdapObject obj)
@@ -403,6 +437,8 @@ public class LdapHandler : HandlerRuntimeBase
             default:
                 throw ex;
         }
+
+        OnLogMessage( "Exception", ex.Message );
     }
 
 }

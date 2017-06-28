@@ -20,13 +20,18 @@ namespace Synapse.Handlers.Ldap
         [XmlArrayItem( ElementName = "OrganizationalUnit" )]
         public List<OrganizationalUnitObjectWithStatus> OrganizationalUnits { get; set; }
 
+        [XmlIgnore]
+        public bool HasResults { get { return ((Users != null) || (Groups != null) || (OrganizationalUnits != null));  } }
+
         public void Add(LdapStatus status, UserPrincipalObject user)
         {
             if ( Users == null )
                 Users = new List<UserPrincipalObjectWithStatus>();
 
-            UserPrincipalObjectWithStatus obj = new UserPrincipalObjectWithStatus( status );
-            obj.User = user;
+            UserPrincipalObjectWithStatus obj = new UserPrincipalObjectWithStatus( status )
+            {
+                User = user
+            };
 
             lock ( Users )
             {
@@ -39,8 +44,10 @@ namespace Synapse.Handlers.Ldap
             if ( Groups == null )
                 Groups = new List<GroupPrincipalObjectWithStatus>();
 
-            GroupPrincipalObjectWithStatus obj = new GroupPrincipalObjectWithStatus( status );
-            obj.Group = group;
+            GroupPrincipalObjectWithStatus obj = new GroupPrincipalObjectWithStatus( status )
+            {
+                Group = group
+            };
 
             lock ( Groups )
             {
@@ -53,8 +60,10 @@ namespace Synapse.Handlers.Ldap
             if ( OrganizationalUnits == null )
                 OrganizationalUnits = new List<OrganizationalUnitObjectWithStatus>();
 
-            OrganizationalUnitObjectWithStatus obj = new OrganizationalUnitObjectWithStatus( status );
-            obj.OrganizationalUnit = orgUnit;
+            OrganizationalUnitObjectWithStatus obj = new OrganizationalUnitObjectWithStatus( status )
+            {
+                OrganizationalUnit = orgUnit
+            };
 
             lock ( OrganizationalUnits )
             {

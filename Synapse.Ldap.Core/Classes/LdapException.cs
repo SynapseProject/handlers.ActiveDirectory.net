@@ -34,6 +34,12 @@ namespace Synapse.Ldap.Core
             this.Type = type;
         }
 
+        public LdapException(Exception e, LdapStatusType type = LdapStatusType.Unknown)
+            : base( e.Message, e )
+        {
+            this.Type = LdapStatusType.Unknown;
+        }
+
 
     }
 }
