@@ -96,7 +96,7 @@ public class LdapHandler : HandlerRuntimeBase
                 ex.Message + " | " + ex.InnerException?.Message;
         }
 
-        if (results.HasResults)
+        if (String.IsNullOrWhiteSpace(result.ExitData?.ToString()))
             result.ExitData = results.Serialize( config.OutputType, config.PrettyPrint );
 
         if (!config.SuppressOutput)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using System.Xml;
 using Synapse.Core.Utilities;
+using YamlDotNet.Serialization;
 
 using Synapse.Ldap.Core;
 
@@ -19,9 +20,6 @@ namespace Synapse.Handlers.Ldap
         public List<GroupPrincipalObjectWithStatus> Groups { get; set; }
         [XmlArrayItem( ElementName = "OrganizationalUnit" )]
         public List<OrganizationalUnitObjectWithStatus> OrganizationalUnits { get; set; }
-
-        [XmlIgnore]
-        public bool HasResults { get { return ((Users != null) || (Groups != null) || (OrganizationalUnits != null));  } }
 
         public void Add(LdapStatus status, UserPrincipalObject user)
         {

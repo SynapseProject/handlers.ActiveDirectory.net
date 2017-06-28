@@ -239,6 +239,15 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
             }
 
+            // Verify GroupScope of ParentGroup and ChildGroup is allowed
+            // Logic from : https://technet.microsoft.com/en-us/library/cc755692(v=ws.10).aspx
+            if ( ( parentGroupPrincipal.GroupScope == GroupScope.Universal && childGroupPrincipal.GroupScope == GroupScope.Local ) ||
+                 ( parentGroupPrincipal.GroupScope == GroupScope.Global && childGroupPrincipal.GroupScope != GroupScope.Global ) )
+            {
+                throw new LdapException( $"Scope Error - Child Group [{childGroupPrincipal.Name}] with [{childGroupPrincipal.GroupScope}] Scope is not allowed to be a member of Parent Group [{parentGroupPrincipal.Name}] with [{parentGroupPrincipal.GroupScope}] Scope." );
+            }
+
+
             if ( !IsGroupGroupMember( childGroupName, parentGroupName ) )
             {
                 if ( !isDryRun )
