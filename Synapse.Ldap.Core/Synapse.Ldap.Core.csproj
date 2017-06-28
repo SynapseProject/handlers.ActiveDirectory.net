@@ -34,6 +34,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -48,6 +49,7 @@
     <Compile Include="Classes\GroupPrincipal.cs" />
     <Compile Include="Classes\Principal.cs" />
     <Compile Include="Classes\UserPrincipal.cs" />
+    <Compile Include="Runtime\Dns.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />
     <Compile Include="Runtime\User.cs" />
