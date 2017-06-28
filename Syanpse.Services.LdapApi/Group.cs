@@ -52,4 +52,32 @@ public partial class LdapApiController : ApiController
 
         return CallPlan( planName, pe );
     }
+
+    [HttpPost]
+    [Route( "group/{name}/{group}" )]
+    public LdapHandlerResults AddGroupToGroup(string name, string group)
+    {
+        String planName = @"AddGroupToGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( group ), group );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "group/{name}/{group}" )]
+    public LdapHandlerResults RemoveGroupFromGroup(string name, string group)
+    {
+        String planName = @"RemoveGroupFromGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( group ), group );
+
+        return CallPlan( planName, pe );
+    }
+
+
 }

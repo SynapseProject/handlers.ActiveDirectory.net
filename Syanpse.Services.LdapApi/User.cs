@@ -57,5 +57,31 @@ public partial class LdapApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "user/{name}/{group}" )]
+    public LdapHandlerResults AddUserToGroup(string name, string group)
+    {
+        String planName = @"AddUserToGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( group ), group );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "user/{name}/{group}" )]
+    public LdapHandlerResults RemoveUserFromGroup(string name, string group)
+    {
+        String planName = @"RemoveUserFromGroup";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( group ), group );
+
+        return CallPlan( planName, pe );
+    }
+
 
 }

@@ -78,6 +78,10 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Plans\AddGroupToGroup.yaml" />
+    <None Include="Plans\RemoveGroupFromGroup.yaml" />
+    <None Include="Plans\RemoveUserFromGroup.yaml" />
+    <None Include="Plans\AddUserToGroup.yaml" />
     <None Include="Plans\CreateOrgUnit.yaml" />
     <None Include="Plans\CreateGroup.yaml" />
     <None Include="Plans\DeleteOrgUnit.yaml" />

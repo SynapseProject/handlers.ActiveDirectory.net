@@ -1,0 +1,39 @@
+Name: AddGroupToGroupApi
+Description: Add Group To Ldap Group
+IsActive: true
+Actions:
+- Name: AddGroup
+  Handler:
+    Type: Synapse.Handlers.Ldap:LdapHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: AddToGroup
+        RunSequential: false
+        QueryGroupMembership: true
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Name: xxxxxxxx
+        Groups:
+        - xxxxxxxx
+    Dynamic:
+    - Name: name
+      Path: Groups[0]:Name
+    - Name: group
+      Path: Groups[0]:Groups[0]:Value
