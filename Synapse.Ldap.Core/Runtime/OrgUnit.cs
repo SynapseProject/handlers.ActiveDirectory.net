@@ -18,7 +18,7 @@ namespace Synapse.Ldap.Core
             }
 
             parentOrgUnitPath = String.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
-            string newOrgUnitPath = $"OU ={newOrgUnitName},{parentOrgUnitPath}";
+            string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitPath}";
 
             if ( IsExistingOrganizationUnit( parentOrgUnitPath ) )
             {
@@ -192,7 +192,7 @@ namespace Synapse.Ldap.Core
                 return false;
 
             string rootPath = GetDomainDistinguishedName();
-            if ( !ouPath.Contains( rootPath ) )
+            if ( !ouPath.ToLower().Contains( rootPath.ToLower() ) )
                 return false;
 
             ouPath = $"LDAP://{ouPath.Replace( "LDAP://", "" )}";
