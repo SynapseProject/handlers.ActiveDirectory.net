@@ -202,10 +202,10 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
-                if ( String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                    ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
-                else
+                if ( !String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                     ouo = DirectoryServices.GetOrganizationalUnit( ou.DistinguishedName );
+                else
+                    ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
                 return ouo;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
@@ -309,7 +309,10 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                    DirectoryServices.DeleteOrganizationUnit( ou.Name );
+                    if (!String.IsNullOrWhiteSpace(ou.DistinguishedName))
+                        DirectoryServices.DeleteOrganizationUnit( ou.DistinguishedName );
+                    else
+                        DirectoryServices.DeleteOrganizationUnit( ou.Name, ou.Path );
                     results.Add( status, (OrganizationalUnitObject)null );
                     break;
                 default:

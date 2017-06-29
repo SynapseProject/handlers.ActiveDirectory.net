@@ -53,20 +53,26 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void DeleteOrganizationUnit(string orgUnitDistName, bool isDryRun = false)
+        public static void DeleteOrganizationUnit(string name, string path, bool isDryRun = false)
+        {
+            String distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            DeleteOrganizationUnit( distinguishedName, isDryRun );
+        }
+
+        public static void DeleteOrganizationUnit(string distinguishedName, bool isDryRun = false)
         {
             // Exact distinguished name of the organization unit is expected.
-            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
+            if ( String.IsNullOrWhiteSpace( distinguishedName ) )
             {
                 throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
-            orgUnitDistName = orgUnitDistName.Replace( "LDAP://", "" );
+            distinguishedName = distinguishedName.Replace( "LDAP://", "" );
 
-            if ( IsExistingOrganizationUnit( orgUnitDistName ) )
+            if ( IsExistingOrganizationUnit( distinguishedName ) )
             {
                 using ( DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
-                    $"LDAP://{orgUnitDistName}",
+                    $"LDAP://{distinguishedName}",
                     null, // Username
                     null, // Password
                     AuthenticationTypes.Secure ) )
