@@ -257,7 +257,10 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                    DirectoryServices.CreateOrganizationUnit( ou.Path, ou.Name );
+                    if ( !String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
+                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );
+                    else
+                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( returnObject )
                     {

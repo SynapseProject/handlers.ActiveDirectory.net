@@ -4,13 +4,26 @@ using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices.ActiveDirectory;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 
 namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string parentOrgUnitPath, string newOrgUnitName, string description = "", bool isDryRun = false)
+        public static void CreateOrganizationUnit(string distinguishedPath, string description, bool isDryRun = false)
+        {
+            Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedPath );
+            if ( match.Success )
+            {
+                String ouName = match.Groups[1]?.Value?.Trim();
+                String parentPath = match.Groups[2]?.Value?.Trim();
+                CreateOrganizationUnit( ouName, parentPath, description, isDryRun );
+            }
+        }
+
+        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
