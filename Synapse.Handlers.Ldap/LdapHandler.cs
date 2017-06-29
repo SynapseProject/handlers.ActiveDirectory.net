@@ -201,7 +201,11 @@ public class LdapHandler : HandlerRuntimeBase
                 return gpo;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, config.LdapRoot );
+                OrganizationalUnitObject ouo = null;
+                if ( String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
+                    ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
+                else
+                    ouo = DirectoryServices.GetOrganizationalUnit( ou.DistinguishedName );
                 return ouo;
             default:
                 throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );

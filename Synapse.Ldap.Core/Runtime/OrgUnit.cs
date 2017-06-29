@@ -355,25 +355,37 @@ namespace Synapse.Ldap.Core
             return null;
         }
 
-        public static OrganizationalUnitObject GetOrganizationalUnit(string name, string ldapRoot)
+        public static OrganizationalUnitObject GetOrganizationalUnit(string name, string path)
         {
-            using ( DirectoryEntry root = new DirectoryEntry( ldapRoot ) )
+            String distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            return GetOrganizationalUnit( distinguishedName );
+        }
+
+        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName)
+        {
+            String rootName = distinguishedName;
+            if (distinguishedName.StartsWith("LDAP://"))
+                distinguishedName = distinguishedName.Replace( "LDAP://", "" );
+            else
+                rootName = $"LDAP://{rootName}";
+
+            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
-                searcher.SearchScope = SearchScope.Subtree;
+                searcher.SearchScope = SearchScope.Base;
                 searcher.PropertiesToLoad.Add( "name" );
-                searcher.PropertiesToLoad.Add( "distinguishedName" );
+                searcher.PropertiesToLoad.Add( "distinguishedname" );
                 searcher.ReferralChasing = ReferralChasingOption.All;
 
                 DirectoryEntry ou = null;
                 SearchResultCollection results = searcher.FindAll();
                 foreach ( SearchResult result in results )
-                    if ( result.Properties["name"][0].ToString().Equals( name, StringComparison.OrdinalIgnoreCase ) )
+                    if ( result.Properties["distinguishedname"][0].ToString().Equals( distinguishedName, StringComparison.OrdinalIgnoreCase ) )
                         ou = result.GetDirectoryEntry();
 
                 if ( ou == null )
-                    throw new LdapException( $"Organizational Unit [{name}] Not Found.", LdapStatusType.DoesNotExist );
+                    throw new LdapException( $"Organizational Unit [{distinguishedName}] Not Found.", LdapStatusType.DoesNotExist );
                 else
                     return new OrganizationalUnitObject( ou );
             }
