@@ -59,7 +59,6 @@
     <Compile Include="Classes\LdapHandlerConfig.cs" />
     <Compile Include="Classes\LdapObjects\LdapOrganizationalUnit.cs" />
     <Compile Include="Classes\LdapObjects\LdapUser.cs" />
-    <Compile Include="DnsHandler.cs" />
     <Compile Include="GroupMembershipHandler.cs" />
     <Compile Include="LdapHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
