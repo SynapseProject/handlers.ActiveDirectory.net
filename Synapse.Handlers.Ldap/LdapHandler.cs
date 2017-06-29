@@ -193,7 +193,11 @@ public class LdapHandler : HandlerRuntimeBase
         {
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
-                UserPrincipalObject upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
+                UserPrincipalObject upo = null;
+                if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                    DirectoryServices.GetUser( user.DistinguishedName, config.QueryGroupMembership );
+                else
+                    DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                 return upo;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
@@ -229,7 +233,10 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    DirectoryServices.CreateUser( user.Path, user.Name, user.Password, user.GivenName, user.Surname, user.Description );
+                    if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                        DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description );
+                    else
+                        DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
@@ -302,7 +309,10 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    DirectoryServices.DeleteUser( user.Name );
+                    if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                        DirectoryServices.DeleteUser( user.DistinguishedName );
+                    else
+                        DirectoryServices.DeleteUser( user.Name );
                     results.Add( status, (UserPrincipalObject)null );
                     break;
                 case ObjectClass.Group:

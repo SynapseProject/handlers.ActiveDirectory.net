@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
 
 
@@ -10,8 +11,10 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static UserPrincipalObject GetUser(string sAMAccountName, bool getGroups)
+        public static UserPrincipalObject GetUser(string name, bool getGroups)
         {
+            String sAMAccountName = GetSamAccountName( name );
+
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
@@ -26,7 +29,19 @@ namespace Synapse.Ldap.Core
             return u;
         }
 
-        public static void CreateUser(string ouPath, string username, string password, string givenName = "", string surname = "", string description = "", bool isEnabled = true, bool isDryRun = false)
+        public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+            {
+                String username = match.Groups[1]?.Value?.Trim();
+                String parentPath = match.Groups[2]?.Value?.Trim();
+                CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
+            }
+        }
+
+        public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
@@ -334,8 +349,10 @@ namespace Synapse.Ldap.Core
         }
 
 
-        public static void DeleteUser(string username, bool isDryRun = false)
+        public static void DeleteUser(string name, bool isDryRun = false)
         {
+            String username = GetSamAccountName( name );
+
             if ( String.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
@@ -351,7 +368,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
+                throw new LdapException( $"User [{name}]cannot be found.", LdapStatusType.DoesNotExist );
             }
         }
 
@@ -532,8 +549,18 @@ namespace Synapse.Ldap.Core
             return userPrincipal.Enabled;
         }
 
-        #region To Be Deleted
-        public static bool DeleteUserEx(string userName)
+        private static string GetSamAccountName(String distinguishedName)
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+                return match.Groups[1]?.Value?.Trim();
+            else
+                return distinguishedName;
+        }
+
+            #region To Be Deleted
+            public static bool DeleteUserEx(string userName)
         {
             bool status = false;
 

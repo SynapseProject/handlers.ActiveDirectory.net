@@ -11,10 +11,10 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string distinguishedPath, string description, bool isDryRun = false)
+        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false)
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedPath );
+            Match match = regex.Match( distinguishedName );
             if ( match.Success )
             {
                 String ouName = match.Groups[1]?.Value?.Trim();
