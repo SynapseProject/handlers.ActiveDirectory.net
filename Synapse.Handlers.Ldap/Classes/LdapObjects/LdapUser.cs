@@ -10,13 +10,13 @@ namespace Synapse.Handlers.Ldap
     public class LdapUser : LdapObject
     {
         [XmlElement]
-        public String Password { get; set; }
+        public string Password { get; set; }
         [XmlElement]
-        public String GivenName { get; set; }
+        public string GivenName { get; set; }
         [XmlElement]
-        public String Surname { get; set; }
+        public string Surname { get; set; }
         [XmlArrayItem(ElementName = "Group")]
-        public List<String> Groups { get; set; }
+        public List<string> Groups { get; set; }
 
         public override ObjectClass GetLdapType()
         {

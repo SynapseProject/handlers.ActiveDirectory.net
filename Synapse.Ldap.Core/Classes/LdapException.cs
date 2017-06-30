@@ -16,13 +16,13 @@ namespace Synapse.Ldap.Core
             this.Type = type;
         }
 
-        public LdapException(String message, LdapStatusType type = LdapStatusType.Unknown) 
+        public LdapException(string message, LdapStatusType type = LdapStatusType.Unknown) 
             : base( message )
         {
             this.Type = type;
         }
 
-        public LdapException(String message, Exception innerException, LdapStatusType type = LdapStatusType.Unknown)
+        public LdapException(string message, Exception innerException, LdapStatusType type = LdapStatusType.Unknown)
             : base( message, innerException )
         {
             this.Type = type;

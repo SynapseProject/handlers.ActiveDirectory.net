@@ -13,7 +13,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = "";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
 
@@ -55,7 +55,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = "XXX";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
 
@@ -69,7 +69,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Console.WriteLine($"Creating universal security group {groupName} under {ouPath}...");
@@ -86,7 +86,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Console.WriteLine($"Simulating creation of universal security group {groupName} under {ouPath}...");
@@ -100,7 +100,7 @@ namespace Synapse.Ldap.Tests
         public void DeleteGroup_Delete_NonExistent_Group_Throw_Exception()
         {
             // Arrange 
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteGroup(groupName));
@@ -114,7 +114,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string description = "Created by Synapse";
 
             // Act
@@ -129,7 +129,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ouPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Console.WriteLine($"Simulating deletion of group {groupName}...");
@@ -143,7 +143,7 @@ namespace Synapse.Ldap.Tests
         public void AddGroupToGroup_Non_Existent_Child_Group_Throw_Exception()
         {
             // Arrange 
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -158,7 +158,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string childGroup = "TestGroup1"; // Assume this group always exists.
-            string parentGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.AddGroupToGroup(childGroup, parentGroup));
@@ -199,7 +199,7 @@ namespace Synapse.Ldap.Tests
         public void AddGroupToGroup_Not_Yet_A_Member_Succeed()
         {
             // Arrange 
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -214,7 +214,7 @@ namespace Synapse.Ldap.Tests
         public void AddUserToGroup_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
-            string username = $"User-{DirectoryServices.GenerateToken(8)}";
+            string username = $"User-{Utility.GenerateToken(8)}";
             string groupName = "TestGroup1";
 
             // Act
@@ -228,12 +228,12 @@ namespace Synapse.Ldap.Tests
         public void AddUserToGroup_Non_Existent_Group_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
             string description = "Created by Synapse";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             DirectoryServices.CreateUserEx("", username, password, givenName, surname, description);
@@ -248,7 +248,7 @@ namespace Synapse.Ldap.Tests
         public void AddUserToGroup_Already_Member_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -282,7 +282,7 @@ namespace Synapse.Ldap.Tests
         public void AddUserToGroup_Not_Yet_A_Member_Succeed()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string groupName = "TestGroup1"; // This group should always exist.
@@ -301,7 +301,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveGroupFromGroup_Non_Existent_Child_Group_Throw_Exception()
         {
             // Arrange
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -316,7 +316,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange
             string childGroup = "TestGroup1";
-            string parentGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string parentGroup = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.RemoveGroupFromGroup(childGroup, parentGroup));
@@ -329,7 +329,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveGroupFromGroup_Not_A_Member_Throw_Exception()
         {
             // Arrange
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -344,7 +344,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveGroupFromGroup_Not_A_Member_DryRun_Throw_Exception()
         {
             // Arrange
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -359,7 +359,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveGroupFromGroup_Is_A_Member_Throw_Exception()
         {
             // Arrange
-            string childGroup = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string childGroup = $"TestGroup-{Utility.GenerateToken(8)}";
             string parentGroup = "TestGroup1";
 
             // Act
@@ -375,7 +375,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveUserFromGroup_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string groupName = "TestGroup1"; // This group should always exist.
 
             // Act
@@ -390,7 +390,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange
             string username = "johndoe";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}"; // This group should always exist.
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}"; // This group should always exist.
 
 
             // Act
@@ -404,7 +404,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveUserFromGroup_Not_A_Member_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string groupName = "TestGroup1"; // This group should always exist.
@@ -423,7 +423,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveUserFromGroup_Not_A_Member_DryRun_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string groupName = "TestGroup1"; // This group should always exist.
@@ -442,7 +442,7 @@ namespace Synapse.Ldap.Tests
         public void RemoveUserFromGroup_Is_A_Member_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string groupName = "TestGroup1"; // This group should always exist.
@@ -462,7 +462,7 @@ namespace Synapse.Ldap.Tests
         public void UpdateGroupAttribute_Invalid_Group_Throw_Exception()
         {
             // Arrange
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string attribute = "description";
             string value = "";
 

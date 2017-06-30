@@ -17,7 +17,7 @@ public partial class LdapApiController : ApiController
     [Route( "ou/{name}" )]
     public LdapHandlerResults GetOrgUnit(string name)
     {
-        String planName = @"QueryOrgUnit";
+        string planName = @"QueryOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -29,7 +29,7 @@ public partial class LdapApiController : ApiController
     [Route( "ou/{name}" )]
     public LdapHandlerResults DeleteOrgUnit(string name)
     {
-        String planName = @"DeleteOrgUnit";
+        string planName = @"DeleteOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -41,7 +41,7 @@ public partial class LdapApiController : ApiController
     [Route( "ou/{name}" )]
     public LdapHandlerResults CreateOrgUnit(string name, OrganizationalUnitObject ou)
     {
-        String planName = @"CreateOrgUnit";
+        string planName = @"CreateOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );

@@ -15,7 +15,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults GetUser(string name)
     {
-        String planName = @"QueryUser";
+        string planName = @"QueryUser";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -27,7 +27,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults DeleteUser(string name)
     {
-        String planName = @"DeleteUser";
+        string planName = @"DeleteUser";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -39,19 +39,19 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults CreateUser(string name, LdapUser user)
     {
-        String planName = @"CreateUser";
+        string planName = @"CreateUser";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
-        if ( !String.IsNullOrWhiteSpace( user.Path ) )
+        if ( !string.IsNullOrWhiteSpace( user.Path ) )
             pe.DynamicParameters.Add( @"path", user.Path );
-        if ( !String.IsNullOrWhiteSpace( user.Description ) )
+        if ( !string.IsNullOrWhiteSpace( user.Description ) )
             pe.DynamicParameters.Add( @"description", user.Description );
-        if ( !String.IsNullOrWhiteSpace( user.Password ) )
+        if ( !string.IsNullOrWhiteSpace( user.Password ) )
             pe.DynamicParameters.Add( @"password", user.Password );
-        if ( !String.IsNullOrWhiteSpace( user.GivenName ) )
+        if ( !string.IsNullOrWhiteSpace( user.GivenName ) )
             pe.DynamicParameters.Add( @"givenname", user.GivenName );
-        if ( !String.IsNullOrWhiteSpace( user.Surname ) )
+        if ( !string.IsNullOrWhiteSpace( user.Surname ) )
             pe.DynamicParameters.Add( @"surname", user.Surname );
 
         return CallPlan( planName, pe );
@@ -61,7 +61,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}/{group}" )]
     public LdapHandlerResults AddUserToGroup(string name, string group)
     {
-        String planName = @"AddUserToGroup";
+        string planName = @"AddUserToGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -74,7 +74,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}/{group}" )]
     public LdapHandlerResults RemoveUserFromGroup(string name, string group)
     {
-        String planName = @"RemoveUserFromGroup";
+        string planName = @"RemoveUserFromGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );

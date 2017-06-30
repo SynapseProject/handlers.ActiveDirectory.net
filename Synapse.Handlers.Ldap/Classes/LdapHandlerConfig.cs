@@ -13,7 +13,7 @@ namespace Synapse.Handlers.Ldap
     public class LdapHandlerConfig
     {
         [XmlElement]
-        public String LdapRoot { get; set; }
+        public string LdapRoot { get; set; }
         [XmlElement]
         public ActionType Action { get; set; }
         [XmlElement]

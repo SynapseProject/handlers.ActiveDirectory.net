@@ -12,7 +12,7 @@ namespace Synapse.Ldap.Core
 {
     public class DirectoryEntryObject
     {
-        private String VALID_PARENT_CLASS_NAME = @"organizationalUnit";
+        private string VALID_PARENT_CLASS_NAME = @"organizationalUnit";
 
         public DirectoryEntryObject() { }
         public DirectoryEntryObject(DirectoryEntry de, bool loadSchema = true)
@@ -174,7 +174,7 @@ namespace Synapse.Ldap.Core
             Username = de.Username;
         }
 
-        private PropertyType GetProperty(String name, object values)
+        private PropertyType GetProperty(string name, object values)
         {
             PropertyType prop = new PropertyType();
             prop.Name = name;
@@ -186,7 +186,7 @@ namespace Synapse.Ldap.Core
                 Type type = pvcValues.Current.GetType();
                 if ( type.FullName == @"System.Byte[]" )
                 {
-                    Byte[] bytes = (Byte[])pvcValues.Current;
+                    byte[] bytes = (byte[])pvcValues.Current;
                     if ( bytes.Length == 16 )
                     {
                         Guid guid = new Guid( bytes );
@@ -194,7 +194,7 @@ namespace Synapse.Ldap.Core
                     }
                     else
                     {
-                        String str = System.Text.Encoding.UTF8.GetString( bytes );
+                        string str = System.Text.Encoding.UTF8.GetString( bytes );
                         prop.Values.Add( str );
                     }
                 }
@@ -217,8 +217,8 @@ namespace Synapse.Ldap.Core
     public class PropertyType
     {
         [XmlElement]
-        public String Name { get; set; }
+        public string Name { get; set; }
         [XmlArrayItem( ElementName = "Value" )]
-        public List<String> Values { get; set; } = new List<string>();
+        public List<string> Values { get; set; } = new List<string>();
     }
 }

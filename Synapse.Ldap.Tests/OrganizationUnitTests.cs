@@ -29,7 +29,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = "";
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitDn = $"OU={newOrgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -44,7 +44,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = "OU=XXX";
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
@@ -58,7 +58,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = "";
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
             DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
@@ -73,7 +73,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
@@ -88,7 +88,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
@@ -129,7 +129,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
@@ -145,7 +145,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
-            string newOrgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
@@ -174,7 +174,7 @@ namespace Synapse.Ldap.Tests
         public void MoveGroupToOrganizationUnit_Without_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string orgUnitDistName = "";
 
@@ -190,7 +190,7 @@ namespace Synapse.Ldap.Tests
         public void MoveGroupToOrganizationUnit_Non_Existent_Group_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestGroup-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -204,7 +204,7 @@ namespace Synapse.Ldap.Tests
         public void MoveGroupToOrganizationUnit_Non_Existent_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string orgUnitDistName = "XXX";
 
@@ -220,10 +220,10 @@ namespace Synapse.Ldap.Tests
         public void MoveGroupToOrganizationUnit_With_Valid_Details_Succeed()
         {
             // Arrange 
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
-            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -240,10 +240,10 @@ namespace Synapse.Ldap.Tests
         public void MoveGroupToOrganizationUnit_With_Valid_Details_Dry_Run_Not_A_Member()
         {
             // Arrange 
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
-            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -274,7 +274,7 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Without_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string ldapPath = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
@@ -294,7 +294,7 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -308,7 +308,7 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Non_Existent_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string ldapPath = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
@@ -328,13 +328,13 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_With_Valid_Details_Succeed()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string ldapPath = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
-            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
@@ -350,13 +350,13 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_With_Valid_Details_Dry_Run_Not_A_Member()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string ldapPath = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
-            string orgUnitName = $"TestOU-{DirectoryServices.GenerateToken(8)}";
+            string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
