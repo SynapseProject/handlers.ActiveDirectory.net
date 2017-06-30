@@ -196,8 +196,11 @@ namespace Synapse.Ldap.Core
             };
         }
 
-        public static void AddUserToGroup(string username, string groupName, bool isDryRun = false)
+        public static void AddUserToGroup(string name, string group, bool isDryRun = false)
         {
+            String username = GetCommonName( name );
+            String groupName = GetCommonName( group );
+
             if ( String.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
@@ -233,8 +236,11 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void AddGroupToGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
+        public static void AddGroupToGroup(string group, string parentGroup, bool isDryRun = false)
         {
+            String childGroupName = GetCommonName( group );
+            String parentGroupName = GetCommonName( parentGroup );
+
             if ( String.IsNullOrWhiteSpace( childGroupName ) )
             {
                 throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );
@@ -279,8 +285,11 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void RemoveUserFromGroup(string username, string groupName, bool isDryRun = false)
+        public static void RemoveUserFromGroup(string name, string group, bool isDryRun = false)
         {
+            String username = GetCommonName( name );
+            String groupName = GetCommonName( group );
+
             if ( String.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
@@ -316,8 +325,11 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void RemoveGroupFromGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
+        public static void RemoveGroupFromGroup(string group, string parentGroup, bool isDryRun = false)
         {
+            String childGroupName = GetCommonName( group );
+            String parentGroupName = GetCommonName( parentGroup );
+
             if ( String.IsNullOrWhiteSpace( childGroupName ) )
             {
                 throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );

@@ -374,17 +374,19 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
+                    String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     foreach ( string userGroup in user.Groups )
                     {
-                        DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
+                        DirectoryServices.AddUserToGroup( userName, userGroup, isDryRun );
                         OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + userGroup + "]." );
                     }
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
+                    String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     foreach ( string groupGroup in group.Groups )
                     {
-                        DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
+                        DirectoryServices.AddGroupToGroup( groupName, groupGroup, isDryRun );
                         OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + groupGroup + "]." );
                     }
                     break;
@@ -417,17 +419,19 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
+                    String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     foreach ( string userGroup in user.Groups )
                     {
-                        DirectoryServices.RemoveUserFromGroup( user.Name, userGroup, isDryRun );
+                        DirectoryServices.RemoveUserFromGroup( userName, userGroup, isDryRun );
                         OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + userGroup + "]." );
                     }
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
+                    String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     foreach ( string groupGroup in group.Groups )
                     {
-                        DirectoryServices.RemoveGroupFromGroup( group.Name, groupGroup, isDryRun );
+                        DirectoryServices.RemoveGroupFromGroup( groupName, groupGroup, isDryRun );
                         OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + groupGroup + "]." );
                     }
                     break;
