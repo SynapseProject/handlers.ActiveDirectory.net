@@ -54,16 +54,41 @@ public partial class LdapApiController : ApiController
     }
 
     [HttpPost]
-    [Route( "ou/{name}" )]
-    public LdapHandlerResults CreateOrgUnit(string name, OrganizationalUnitObject ou)
+    [Route( "ou/{distinguishedname}" )]
+    public LdapHandlerResults CreateOrgUnit(string distinguishedname, LdapOrganizationalUnit ou)
+    {
+        string planName = @"CreateOrgUnit";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+        pe.DynamicParameters.Add( "name", String.Empty );
+        pe.DynamicParameters.Add( "path", String.Empty );
+
+        if ( !string.IsNullOrWhiteSpace( ou.Description ) )
+            pe.DynamicParameters.Add( @"description", ou.Description );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpPost]
+    [Route( "ou/{name}/{path}" )]
+    public LdapHandlerResults CreateOrgUnit(string name, string path, LdapOrganizationalUnit ou)
     {
         string planName = @"CreateOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( @"path", ou.Path );
+        pe.DynamicParameters.Add( nameof( path ), path );
+        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
+
+        if ( ou != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
+                pe.DynamicParameters.Add( @"description", ou.Description );
+        }
 
         return CallPlan( planName, pe );
     }
+
 
 }

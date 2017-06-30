@@ -14,7 +14,7 @@ Actions:
         QueryGroupMembership: false
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: true
+        ReturnObjects: false
         SuppressOutput: false
       Dynamic:
       - Name: showgroups
@@ -31,6 +31,7 @@ Actions:
       Groups:
       - Name: xxxxxxxx
         Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
         Scope: Universal     # Local, Global or Universal
         Description: xxxxxxxx
         IsSecurityGroup: true
@@ -39,6 +40,8 @@ Actions:
       Path: Groups[0]:Name
     - Name: path
       Path: Groups[0]:Path
+    - Name: distinguishedname
+      Path: Groups[0]:DistinguishedName
     - Name: scope
       Path: Groups[0]:Scope
     - Name: description

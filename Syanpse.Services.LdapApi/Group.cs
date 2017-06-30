@@ -52,7 +52,19 @@ public partial class LdapApiController : ApiController
         string planName = @"CreateGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
+        if ( IsDistinguishedName( name ) )
+        {
+            String distinguishedname = name;
+            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+            pe.DynamicParameters.Add( nameof( name ), String.Empty );
+        }
+        else
+        {
+            String distinguishedname = String.Empty;
+            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+            pe.DynamicParameters.Add( nameof( name ), name );
+        }
+
         if ( !string.IsNullOrWhiteSpace( group.Path ) )
             pe.DynamicParameters.Add( @"path", group.Path );
         if ( !string.IsNullOrWhiteSpace( group.Description ) )

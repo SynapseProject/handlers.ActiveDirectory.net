@@ -31,6 +31,7 @@ Actions:
       Users:
       - Name: xxxxxxxx
         Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
         Password: xxxxxxxx
         GivenName: xxxxxxxx
         Surname: xxxxxxxx
@@ -43,6 +44,8 @@ Actions:
       Path: Users[0]:Name
     - Name: path
       Path: Users[0]:Path
+    - Name: distinguishedname
+      Path: Users[0]:DistinguishedName
     - Name: password
       Path: Users[0]:Password
     - Name: givenname

@@ -14,7 +14,7 @@ Actions:
         QueryGroupMembership: false
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: true
+        ReturnObjects: false
         SuppressOutput: false
       Dynamic:
       - Name: showgroups
@@ -31,8 +31,14 @@ Actions:
       OrganizationalUnits:
       - Name: xxxxxxxx
         Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
+        Description: Created by Synapse
     Dynamic:
     - Name: name
       Path: OrganizationalUnits[0]:Name
     - Name: path
       Path: OrganizationalUnits[0]:Path
+    - Name: distinguishedname
+      Path: OrganizationalUnits[0]:DistinguishedName
+    - Name: description
+      Path: OrganizationalUnits[0]:Description
