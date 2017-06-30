@@ -10,7 +10,7 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        public static GroupPrincipal CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -18,8 +18,10 @@ namespace Synapse.Ldap.Core
             {
                 String groupName = match.Groups[1]?.Value?.Trim();
                 String parentPath = match.Groups[2]?.Value?.Trim();
-                CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun );
+                return CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun );
             }
+            else
+                throw new LdapException( $"Unable To Locate Group Name In Distinguished Name [{distinguishedName}]." );
         }
 
         public static GroupPrincipal CreateGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)

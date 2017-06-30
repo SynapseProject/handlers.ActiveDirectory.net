@@ -39,6 +39,8 @@ namespace Synapse.Ldap.Core
                 String parentPath = match.Groups[2]?.Value?.Trim();
                 CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
             }
+            else
+                throw new LdapException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
         }
 
         public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)

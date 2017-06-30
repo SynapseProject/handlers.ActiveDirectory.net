@@ -21,6 +21,9 @@ namespace Synapse.Ldap.Core
                 string parentPath = match.Groups[2]?.Value?.Trim();
                 CreateOrganizationUnit( ouName, parentPath, description, isDryRun );
             }
+            else
+                throw new LdapException( $"Unable To Locate OrgUnit Name In Distinguished Name [{distinguishedName}]." );
+
         }
 
         public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)

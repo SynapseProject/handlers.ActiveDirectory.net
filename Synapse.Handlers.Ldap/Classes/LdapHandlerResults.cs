@@ -112,6 +112,8 @@ namespace Synapse.Handlers.Ldap
         public string Name { get; set; }
         [XmlElement]
         public string Path { get; set; }
+        [XmlElement]
+        public string DistinguishedName { get; set; }
 
         public LdapStatus() { }
 
@@ -122,6 +124,7 @@ namespace Synapse.Handlers.Ldap
             Action = status.Action;
             Name = status.Name;
             Path = status.Path;
+            DistinguishedName = status.DistinguishedName;
         }
 
     }

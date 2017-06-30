@@ -88,7 +88,7 @@ public class LdapHandler : HandlerRuntimeBase
             }
         }
         //something wnet wrong: hand-back the Exception and mark the execution as Failed
-        catch( Exception ex )
+        catch ( Exception ex )
         {
             exc = ex;
             result.Status = StatusType.Failed;
@@ -142,8 +142,11 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
             Name = obj.Name,
-            Path = obj.Path
+            Path = obj.Path,
+            DistinguishedName = obj.DistinguishedName
         };
 
         try
@@ -171,7 +174,7 @@ public class LdapHandler : HandlerRuntimeBase
 
                     break;
                 default:
-                    throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
         }
         catch ( LdapException ex )
@@ -216,7 +219,7 @@ public class LdapHandler : HandlerRuntimeBase
                     ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
                 return ouo;
             default:
-                throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
         }
     }
 
@@ -225,8 +228,11 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
             Name = obj.Name,
-            Path = obj.Path
+            Path = obj.Path,
+            DistinguishedName = obj.DistinguishedName
         };
 
         try
@@ -285,7 +291,7 @@ public class LdapHandler : HandlerRuntimeBase
                         results.Add( status, (OrganizationalUnitObject)null );
                     break;
                 default:
-                    throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
         }
         catch ( LdapException ex )
@@ -306,8 +312,11 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
             Name = obj.Name,
-            Path = obj.Path
+            Path = obj.Path,
+            DistinguishedName = obj.DistinguishedName
         };
 
         try
@@ -339,7 +348,7 @@ public class LdapHandler : HandlerRuntimeBase
                     results.Add( status, (OrganizationalUnitObject)null );
                     break;
                 default:
-                    throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
 
             OnLogMessage( "ProcessDelete", obj.Type + " [" + obj.Name + "] Deleted." );
@@ -380,7 +389,7 @@ public class LdapHandler : HandlerRuntimeBase
                     }
                     break;
                 default:
-                    throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
 
             if ( returnObject )
@@ -423,7 +432,7 @@ public class LdapHandler : HandlerRuntimeBase
                     }
                     break;
                 default:
-                    throw new Exception( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]" );
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
 
             if ( returnObject )
@@ -450,7 +459,8 @@ public class LdapHandler : HandlerRuntimeBase
             Status = ex.Type,
             Message = ex.Message,
             Name = obj.Name,
-            Path = obj.Path
+            Path = obj.Path,
+            DistinguishedName = obj.DistinguishedName
         };
 
         switch ( obj.Type )
