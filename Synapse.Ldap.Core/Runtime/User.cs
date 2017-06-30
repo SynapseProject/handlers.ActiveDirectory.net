@@ -13,7 +13,7 @@ namespace Synapse.Ldap.Core
     {
         public static UserPrincipalObject GetUser(string name, bool getGroups)
         {
-            String sAMAccountName = GetSamAccountName( name );
+            string sAMAccountName = GetSamAccountName( name );
 
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
@@ -35,36 +35,36 @@ namespace Synapse.Ldap.Core
             Match match = regex.Match( distinguishedName );
             if ( match.Success )
             {
-                String username = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
+                string username = match.Groups[1]?.Value?.Trim();
+                string parentPath = match.Groups[2]?.Value?.Trim();
                 CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
             }
         }
 
         public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
+            if ( string.IsNullOrWhiteSpace( ouPath ) )
             {
                 // Default location where user will be created.
                 ouPath = $"cn=Users,{GetDomainDistinguishedName()}";
             }
 
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( password ) )
+            if ( string.IsNullOrWhiteSpace( password ) )
             {
                 throw new LdapException( "Password is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( givenName ) )
+            if ( string.IsNullOrWhiteSpace( givenName ) )
             {
                 throw new LdapException( "Given name is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( surname ) )
+            if ( string.IsNullOrWhiteSpace( surname ) )
             {
                 throw new LdapException( "Surname is not specified.", LdapStatusType.MissingInput );
             }
@@ -115,28 +115,28 @@ namespace Synapse.Ldap.Core
 
         public static void CreateUserEx(string ldapPath, string username, string password, string givenName = "", string surname = "", string description = "")
         {
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
+            if ( string.IsNullOrWhiteSpace( ldapPath ) )
             {
                 // Default location where user will be created.
                 ldapPath = $"CN=Users,{GetDomainDistinguishedName()}";
             }
 
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Cannot create user as username is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( password ) )
+            if ( string.IsNullOrWhiteSpace( password ) )
             {
                 throw new LdapException( "Cannot create user as password is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( givenName ) )
+            if ( string.IsNullOrWhiteSpace( givenName ) )
             {
                 throw new LdapException( "Cannot create user as given name is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( surname ) )
+            if ( string.IsNullOrWhiteSpace( surname ) )
             {
                 throw new LdapException( "Cannot create user as surname is not specified.", LdapStatusType.MissingInput );
             }
@@ -186,12 +186,12 @@ namespace Synapse.Ldap.Core
 
         public static void SetUserPassword(string username, string newPassword, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( newPassword ) )
+            if ( string.IsNullOrWhiteSpace( newPassword ) )
             {
                 throw new LdapException( "New password is not specified.", LdapStatusType.MissingInput );
             }
@@ -223,12 +223,12 @@ namespace Synapse.Ldap.Core
 
         public static void ResetPasswordEx(string username, string newPassword)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( newPassword ) )
+            if ( string.IsNullOrWhiteSpace( newPassword ) )
             {
                 throw new LdapException( "New password is not specified.", LdapStatusType.MissingInput );
             }
@@ -262,7 +262,7 @@ namespace Synapse.Ldap.Core
 
         public static void UnlockUserAccount(string username, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
@@ -281,7 +281,7 @@ namespace Synapse.Ldap.Core
 
         public static void UnlockUserEx(string username)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
@@ -312,7 +312,7 @@ namespace Synapse.Ldap.Core
         {
             bool isLocked = false;
 
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
@@ -340,20 +340,11 @@ namespace Synapse.Ldap.Core
             return isLocked;
         }
 
-        public static string GenerateToken(Byte length)
-        {
-            var bytes = new byte[length];
-            var rnd = new Random();
-            rnd.NextBytes( bytes );
-            return Convert.ToBase64String( bytes ).Replace( "=", "" ).Replace( "+", "" ).Replace( "/", "" );
-        }
-
-
         public static void DeleteUser(string name, bool isDryRun = false)
         {
-            String username = GetSamAccountName( name );
+            string username = GetSamAccountName( name );
 
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
@@ -374,7 +365,7 @@ namespace Synapse.Ldap.Core
 
         public static void EnableUserAccount(string username, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
@@ -396,7 +387,7 @@ namespace Synapse.Ldap.Core
 
         public static void ExpireUserPassword(string username, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
@@ -418,7 +409,7 @@ namespace Synapse.Ldap.Core
 
         public static void DisableUserAccount(string username, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
@@ -439,7 +430,7 @@ namespace Synapse.Ldap.Core
 
         public static void UpdateUserAttribute(string username, string attribute, string value, bool dryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
             }
@@ -469,7 +460,7 @@ namespace Synapse.Ldap.Core
                                 DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
                                 if ( result.Properties.Contains( "" + attribute + "" ) )
                                 {
-                                    if ( !String.IsNullOrWhiteSpace( value ) )
+                                    if ( !string.IsNullOrWhiteSpace( value ) )
                                     {
                                         entryToUpdate.Properties["" + attribute + ""].Value = value;
                                     }
@@ -549,7 +540,7 @@ namespace Synapse.Ldap.Core
             return userPrincipal.Enabled;
         }
 
-        private static string GetSamAccountName(String distinguishedName)
+        private static string GetSamAccountName(string distinguishedName)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -564,7 +555,7 @@ namespace Synapse.Ldap.Core
         {
             bool status = false;
 
-            if ( String.IsNullOrEmpty( userName ) || String.IsNullOrWhiteSpace( userName ) )
+            if ( string.IsNullOrEmpty( userName ) || string.IsNullOrWhiteSpace( userName ) )
             {
                 Console.WriteLine( "No username is provided." );
                 return status;

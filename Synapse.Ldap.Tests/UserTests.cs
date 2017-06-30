@@ -16,7 +16,7 @@ namespace Synapse.Ldap.Tests
         //{
         //    // Arrange 
         //    string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //    string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //    string userName = $"User-{Utility.GenerateToken(8)}";
         //    string userPassword = "bi@02LL49_VWQ{b";
         //    DirectoryServices.CreateUser(ldapPath, userName, userPassword);
             
@@ -36,7 +36,7 @@ namespace Synapse.Ldap.Tests
         //{
         //    // Arrange 
         //    string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //    string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //    string userName = $"User-{Utility.GenerateToken(8)}";
         //    string userPassword = "bi@02LL49_VWQ{b";
         //    DirectoryServices.CreateUser(ldapPath, userName, userPassword);
         //    string destOrgUnit = $"OU=XXXX,{DirectoryServices.GetDomainDistinguishedName()}";
@@ -68,7 +68,7 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Without_Password_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string newPassword = "";
 
             // Act
@@ -82,7 +82,7 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
@@ -96,7 +96,7 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
@@ -110,7 +110,7 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_With_Valid_User_And_New_Password_Succeed()
         {
             // Arrange 
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string initialPassword = "3J84Ot2FDj9q4Ig";
             string newPassword = "O4l8e73d0sYyOzh";
 
@@ -128,7 +128,7 @@ namespace Synapse.Ldap.Tests
         //        {
         //            // Arrange 
         //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //            string userName = $"User-{Utility.GenerateToken(8)}";
         //            string userPassword = "bi@02LL49_VWQ{b";
         //            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
         //            string groupDn = $"CN=TestGroup,{ldapPath}";
@@ -145,7 +145,7 @@ namespace Synapse.Ldap.Tests
         //        {
         //            // Arrange 
         //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //            string userName = $"User-{Utility.GenerateToken(8)}";
         //            string userPassword = "bi@02LL49_VWQ{b";
         //            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
         //            string groupDn = $"CN=XXXXXX,{ldapPath}";
@@ -162,7 +162,7 @@ namespace Synapse.Ldap.Tests
         //        {
         //            // Arrange 
         //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //            string userName = $"User-{Utility.GenerateToken(8)}";
         //            string userPassword = "bi@02LL49_VWQ{b";
         //            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
         //            string groupDn = $"CN=TestGroup,{ldapPath}";
@@ -179,7 +179,7 @@ namespace Synapse.Ldap.Tests
         //        {
         //            // Arrange 
         //            string ldapPath = DirectoryServices.GetDomainDistinguishedName();
-        //            string userName = $"User-{DirectoryServices.GenerateToken(8)}";
+        //            string userName = $"User-{Utility.GenerateToken(8)}";
         //            string userPassword = "bi@02LL49_VWQ{b";
         //            DirectoryServices.CreateUser(ldapPath, userName, userPassword);
         //            string groupDn = $"CN=XXXXXX,{ldapPath}";
@@ -214,7 +214,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "";
             string givenName = username;
             string surname = username;
@@ -232,7 +232,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "";
             string surname = username;
@@ -250,7 +250,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = "";
@@ -268,7 +268,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -286,7 +286,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "XXX";
             string givenName = username;
             string surname = username;
@@ -304,7 +304,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -322,7 +322,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -342,7 +342,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -362,7 +362,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"OU=XXX,{DirectoryServices.GetDomainDistinguishedName()}";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -381,7 +381,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -401,7 +401,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -448,7 +448,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -467,7 +467,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"";
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -498,7 +498,7 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DisableUserAccount(username));
@@ -511,7 +511,7 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DisableUserAccount(username, true));
@@ -525,12 +525,12 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
             string description = "Created by Synapse";
-            string groupName = $"TestGroup-{DirectoryServices.GenerateToken(8)}";
+            string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
             DirectoryServices.CreateUser("", username, password, givenName, surname, description);
@@ -557,7 +557,7 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.EnableUserAccount(username));
@@ -570,7 +570,7 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.EnableUserAccount(username, true));
@@ -583,7 +583,7 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -614,7 +614,7 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.ExpireUserPassword(username));
@@ -627,7 +627,7 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.ExpireUserPassword(username, true));
@@ -640,7 +640,7 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -672,7 +672,7 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UnlockUserAccount(username));
@@ -685,7 +685,7 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
 
             // Act
             Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UnlockUserAccount(username, true));
@@ -698,7 +698,7 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -735,7 +735,7 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Non_Supported_Attribute_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -755,7 +755,7 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Update_Description_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -777,7 +777,7 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Update_Description_Dry_Run_Not_Modified()
         {
             // Arrange
-            string username = $"TestUser-{DirectoryServices.GenerateToken(8)}";
+            string username = $"TestUser-{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";

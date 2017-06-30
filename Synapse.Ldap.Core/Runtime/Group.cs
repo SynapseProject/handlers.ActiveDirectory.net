@@ -11,12 +11,12 @@ namespace Synapse.Ldap.Core
     {
         public static GroupPrincipal CreateGroup(string ouPath, string groupName, string description = null, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
+            if ( string.IsNullOrWhiteSpace( ouPath ) )
             {
                 throw new LdapException( "OU path is not specified.", LdapStatusType.InvalidPath );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
@@ -31,7 +31,7 @@ namespace Synapse.Ldap.Core
 
                 groupPrincipal = new GroupPrincipal( principalContext, groupName )
                 {
-                    Description = !String.IsNullOrWhiteSpace( description ) ? description : null, // Description cannot be empty string.
+                    Description = !string.IsNullOrWhiteSpace( description ) ? description : null, // Description cannot be empty string.
                     GroupScope = groupScope,
                     IsSecurityGroup = isSecurityGroup
                 };
@@ -69,7 +69,7 @@ namespace Synapse.Ldap.Core
 
         public static void DeleteGroup(string groupName, bool dryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
@@ -133,7 +133,7 @@ namespace Synapse.Ldap.Core
 
                                 if ( result.Properties.Contains( "" + attribute + "" ) )
                                 {
-                                    if ( !(String.IsNullOrEmpty( value )) )
+                                    if ( !(string.IsNullOrEmpty( value )) )
                                     {
                                         entryToUpdate.Properties["" + attribute + ""].Value = value;
                                     }
@@ -181,12 +181,12 @@ namespace Synapse.Ldap.Core
 
         public static void AddUserToGroup(string username, string groupName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
@@ -218,12 +218,12 @@ namespace Synapse.Ldap.Core
 
         public static void AddGroupToGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( childGroupName ) )
+            if ( string.IsNullOrWhiteSpace( childGroupName ) )
             {
                 throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( parentGroupName ) )
+            if ( string.IsNullOrWhiteSpace( parentGroupName ) )
             {
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
@@ -264,12 +264,12 @@ namespace Synapse.Ldap.Core
 
         public static void RemoveUserFromGroup(string username, string groupName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
@@ -301,12 +301,12 @@ namespace Synapse.Ldap.Core
 
         public static void RemoveGroupFromGroup(string childGroupName, string parentGroupName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( childGroupName ) )
+            if ( string.IsNullOrWhiteSpace( childGroupName ) )
             {
                 throw new LdapException( "Child group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( parentGroupName ) )
+            if ( string.IsNullOrWhiteSpace( parentGroupName ) )
             {
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
@@ -368,13 +368,13 @@ namespace Synapse.Ldap.Core
         #region Helper Methods
         public static PrincipalContext GetPrincipalContext(string ouPath = "")
         {
-            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, null, ouPath ) : new PrincipalContext( ContextType.Domain );
+            PrincipalContext principalContext = !string.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, null, ouPath ) : new PrincipalContext( ContextType.Domain );
             return principalContext;
         }
 
-        public static List<String> GetUserGroups(string username)
+        public static List<string> GetUserGroups(string username)
         {
-            List<String> myItems = new List<string>();
+            List<string> myItems = new List<string>();
             UserPrincipal userPrincipal = GetUser( username );
 
             PrincipalSearchResult<Principal> searchResult = userPrincipal.GetGroups();
@@ -388,7 +388,7 @@ namespace Synapse.Ldap.Core
 
         public static UserPrincipal GetUser(string username)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
                 return null;
 
             PrincipalContext principalContext = GetPrincipalContext();
@@ -399,7 +399,7 @@ namespace Synapse.Ldap.Core
 
         public static GroupPrincipal GetGroup(string groupName)
         {
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
                 return null;
 
             PrincipalContext principalContext = GetPrincipalContext();
@@ -427,17 +427,17 @@ namespace Synapse.Ldap.Core
         #region To Be Removed
         public static void AddUserToGroupEx(string username, string groupName, string ldapPath = "")
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
+            if ( string.IsNullOrWhiteSpace( ldapPath ) )
             {
                 ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
             }
@@ -506,13 +506,13 @@ namespace Synapse.Ldap.Core
 
         public static void CreateGroupEx(string ouPath, string groupName, bool dryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
+            if ( string.IsNullOrWhiteSpace( ouPath ) )
             {
                 throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
             }
 
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
@@ -549,12 +549,12 @@ namespace Synapse.Ldap.Core
 
         public static void DeleteGroupEx(string ouPath, string groupPath, bool dryRun)
         {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
+            if ( string.IsNullOrWhiteSpace( ouPath ) )
             {
                 throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupPath ) )
+            if ( string.IsNullOrWhiteSpace( groupPath ) )
             {
                 throw new LdapException( "Group path is not specified.", LdapStatusType.MissingInput );
             }
@@ -600,17 +600,17 @@ namespace Synapse.Ldap.Core
 
         public static void RemoveUserFromGroupEx(string username, string groupName, string ldapPath = "")
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
+            if ( string.IsNullOrWhiteSpace( ldapPath ) )
             {
                 ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
             }

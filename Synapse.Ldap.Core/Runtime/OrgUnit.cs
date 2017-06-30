@@ -17,20 +17,20 @@ namespace Synapse.Ldap.Core
             Match match = regex.Match( distinguishedName );
             if ( match.Success )
             {
-                String ouName = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
+                string ouName = match.Groups[1]?.Value?.Trim();
+                string parentPath = match.Groups[2]?.Value?.Trim();
                 CreateOrganizationUnit( ouName, parentPath, description, isDryRun );
             }
         }
 
         public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( newOrgUnitName ) )
+            if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
                 throw new LdapException( "New organization unit is not specified.", LdapStatusType.MissingInput );
             }
 
-            parentOrgUnitPath = String.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
+            parentOrgUnitPath = string.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitPath}";
 
             if ( IsExistingOrganizationUnit( parentOrgUnitPath ) )
@@ -50,7 +50,7 @@ namespace Synapse.Ldap.Core
                     {
                         if ( !isDryRun )
                         {
-                            if ( !String.IsNullOrWhiteSpace( description ) )
+                            if ( !string.IsNullOrWhiteSpace( description ) )
                             {
                                 newOrgUnit.Properties["Description"].Value = description;
                             }
@@ -68,14 +68,14 @@ namespace Synapse.Ldap.Core
 
         public static void DeleteOrganizationUnit(string name, string path, bool isDryRun = false)
         {
-            String distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            string distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
             DeleteOrganizationUnit( distinguishedName, isDryRun );
         }
 
         public static void DeleteOrganizationUnit(string distinguishedName, bool isDryRun = false)
         {
             // Exact distinguished name of the organization unit is expected.
-            if ( String.IsNullOrWhiteSpace( distinguishedName ) )
+            if ( string.IsNullOrWhiteSpace( distinguishedName ) )
             {
                 throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
@@ -207,7 +207,7 @@ namespace Synapse.Ldap.Core
 
         public static bool IsExistingOrganizationUnit(string ouPath)
         {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
+            if ( string.IsNullOrWhiteSpace( ouPath ) )
                 return false;
 
             string rootPath = GetDomainDistinguishedName();
@@ -220,12 +220,12 @@ namespace Synapse.Ldap.Core
 
         public static void MoveUserToOrganizationUnit(string username, string orgUnitDistName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( string.IsNullOrWhiteSpace( username ) )
             {
                 throw new LdapException( "User is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
+            if ( string.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
                 throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
@@ -266,12 +266,12 @@ namespace Synapse.Ldap.Core
 
         public static void MoveGroupToOrganizationUnit(string groupName, string orgUnitDistName, bool isDryRun = false)
         {
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( string.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group is not specified.", LdapStatusType.MissingInput );
             }
 
-            if ( String.IsNullOrWhiteSpace( orgUnitDistName ) )
+            if ( string.IsNullOrWhiteSpace( orgUnitDistName ) )
             {
                 throw new LdapException( "Organization unit is not specified.", LdapStatusType.MissingInput );
             }
@@ -376,13 +376,13 @@ namespace Synapse.Ldap.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string name, string path)
         {
-            String distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            string distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
             return GetOrganizationalUnit( distinguishedName );
         }
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName)
         {
-            String rootName = distinguishedName;
+            string rootName = distinguishedName;
             if (distinguishedName.StartsWith("LDAP://"))
                 distinguishedName = distinguishedName.Replace( "LDAP://", "" );
             else

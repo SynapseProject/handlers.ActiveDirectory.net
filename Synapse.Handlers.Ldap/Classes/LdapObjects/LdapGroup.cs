@@ -15,7 +15,7 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public bool IsSecurityGroup { get; set; }
         [XmlArrayItem(ElementName = "Group")]
-        public List<String> Groups { get; set; }
+        public List<string> Groups { get; set; }
 
         public override ObjectClass GetLdapType()
         {

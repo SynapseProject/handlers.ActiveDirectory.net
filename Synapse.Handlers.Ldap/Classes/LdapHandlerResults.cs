@@ -105,13 +105,13 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public LdapStatusType Status { get; set; } = LdapStatusType.Success;
         [XmlElement]
-        public String Message { get; set; } = "Success";
+        public string Message { get; set; } = "Success";
         [XmlElement]
         public ActionType Action { get; set; }
         [XmlElement]
-        public String Name { get; set; }
+        public string Name { get; set; }
         [XmlElement]
-        public String Path { get; set; }
+        public string Path { get; set; }
 
         public LdapStatus() { }
 

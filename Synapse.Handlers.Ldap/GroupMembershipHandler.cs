@@ -78,7 +78,7 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         ExecuteResult result = new ExecuteResult()
         {
             Status = StatusType.Initializing,
-            Sequence = Int32.MaxValue
+            Sequence = int.MaxValue
         };
         string msg = "Processing incoming requests...";
         Exception exception = null;
@@ -184,7 +184,7 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         result.ExitData = JsonConvert.SerializeObject( response );
 
         // Final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
-        OnProgress( context, msg, result.Status, sequence: Int32.MaxValue, ex: exception );
+        OnProgress( context, msg, result.Status, sequence: int.MaxValue, ex: exception );
 
         return result;
     }

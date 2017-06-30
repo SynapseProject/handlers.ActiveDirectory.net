@@ -14,7 +14,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults GetGroup(string name)
     {
-        String planName = @"QueryGroup";
+        string planName = @"QueryGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -26,7 +26,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults DeleteGroup(string name)
     {
-        String planName = @"DeleteGroup";
+        string planName = @"DeleteGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -38,13 +38,13 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults CreateGroup(string name, LdapGroup group)
     {
-        String planName = @"CreateGroup";
+        string planName = @"CreateGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
-        if ( !String.IsNullOrWhiteSpace( group.Path ) )
+        if ( !string.IsNullOrWhiteSpace( group.Path ) )
             pe.DynamicParameters.Add( @"path", group.Path );
-        if ( !String.IsNullOrWhiteSpace( group.Description ) )
+        if ( !string.IsNullOrWhiteSpace( group.Description ) )
             pe.DynamicParameters.Add( @"description", group.Description );
 
         pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
@@ -57,7 +57,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}/{group}" )]
     public LdapHandlerResults AddGroupToGroup(string name, string group)
     {
-        String planName = @"AddGroupToGroup";
+        string planName = @"AddGroupToGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
@@ -70,7 +70,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}/{group}" )]
     public LdapHandlerResults RemoveGroupFromGroup(string name, string group)
     {
-        String planName = @"RemoveGroupFromGroup";
+        string planName = @"RemoveGroupFromGroup";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );

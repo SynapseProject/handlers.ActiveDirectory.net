@@ -29,7 +29,7 @@ public class LdapHandler : HandlerRuntimeBase
         ExecuteResult result = new ExecuteResult()
         {
             Status = StatusType.Complete,
-            Sequence = Int32.MaxValue
+            Sequence = int.MaxValue
         };
         string msg = "Complete";
         Exception exc = null;
@@ -96,14 +96,14 @@ public class LdapHandler : HandlerRuntimeBase
                 ex.Message + " | " + ex.InnerException?.Message;
         }
 
-        if (String.IsNullOrWhiteSpace(result.ExitData?.ToString()))
+        if (string.IsNullOrWhiteSpace(result.ExitData?.ToString()))
             result.ExitData = results.Serialize( config.OutputType, config.PrettyPrint );
 
         if (!config.SuppressOutput)
             OnProgress( __context, result.ExitData?.ToString(), result.Status, sequence: cheapSequence++, ex: exc );
 
         //final runtime notification, return sequence=Int32.MaxValue by convention to supercede any other status message
-        OnProgress( __context, msg, result.Status, sequence: Int32.MaxValue, ex: exc );
+        OnProgress( __context, msg, result.Status, sequence: int.MaxValue, ex: exc );
 
         return result;
     }
@@ -194,7 +194,7 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.User:
                 LdapUser user = (LdapUser)obj;
                 UserPrincipalObject upo = null;
-                if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
                     DirectoryServices.GetUser( user.DistinguishedName, config.QueryGroupMembership );
                 else
                     DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
@@ -206,7 +206,7 @@ public class LdapHandler : HandlerRuntimeBase
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
-                if ( !String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
+                if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                     ouo = DirectoryServices.GetOrganizationalUnit( ou.DistinguishedName );
                 else
                     ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
@@ -233,7 +233,7 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                    if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
                         DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description );
                     else
                         DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description );
@@ -264,7 +264,7 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                    if ( !String.IsNullOrWhiteSpace( ou.DistinguishedName ) )
+                    if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                         DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );
                     else
                         DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description );
@@ -309,7 +309,7 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    if (!String.IsNullOrWhiteSpace(user.DistinguishedName))
+                    if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
                         DirectoryServices.DeleteUser( user.DistinguishedName );
                     else
                         DirectoryServices.DeleteUser( user.Name );
@@ -322,7 +322,7 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
-                    if (!String.IsNullOrWhiteSpace(ou.DistinguishedName))
+                    if (!string.IsNullOrWhiteSpace(ou.DistinguishedName))
                         DirectoryServices.DeleteOrganizationUnit( ou.DistinguishedName );
                     else
                         DirectoryServices.DeleteOrganizationUnit( ou.Name, ou.Path );
@@ -355,7 +355,7 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    foreach ( String userGroup in user.Groups )
+                    foreach ( string userGroup in user.Groups )
                     {
                         DirectoryServices.AddUserToGroup( user.Name, userGroup, isDryRun );
                         OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + userGroup + "]." );
@@ -363,7 +363,7 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
-                    foreach ( String groupGroup in group.Groups )
+                    foreach ( string groupGroup in group.Groups )
                     {
                         DirectoryServices.AddGroupToGroup( group.Name, groupGroup, isDryRun );
                         OnLogMessage( "ProcessGroupAdd", obj.Type + " [" + obj.Name + "] Added To Group [" + groupGroup + "]." );
@@ -398,7 +398,7 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    foreach ( String userGroup in user.Groups )
+                    foreach ( string userGroup in user.Groups )
                     {
                         DirectoryServices.RemoveUserFromGroup( user.Name, userGroup, isDryRun );
                         OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + userGroup + "]." );
@@ -406,7 +406,7 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
-                    foreach ( String groupGroup in group.Groups )
+                    foreach ( string groupGroup in group.Groups )
                     {
                         DirectoryServices.RemoveGroupFromGroup( group.Name, groupGroup, isDryRun );
                         OnLogMessage( "ProcessGroupRemove", obj.Type + " [" + obj.Name + "] Removed From Group [" + groupGroup + "]." );

@@ -43,7 +43,7 @@ public partial class LdapApiController : ApiController
         return ExtensibilityUtility.GetExecuteControllerInstance( Url, User );
     }
 
-    private LdapHandlerResults CallPlan(String planName, StartPlanEnvelope planEnvelope)
+    private LdapHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)
     {
         IExecuteController ec = GetExecuteControllerInstance();
         StartPlanEnvelope pe = planEnvelope;
@@ -55,7 +55,7 @@ public partial class LdapApiController : ApiController
         foreach ( KeyValuePair<string, string> kvp in query )
             pe.DynamicParameters.Add( kvp.Key, kvp.Value );
 
-        String reply = (String)ec.StartPlanSync( pe, planName, setContentType: false );
+        string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false );
         return YamlHelpers.Deserialize<LdapHandlerResults>( reply );
     }
 }
