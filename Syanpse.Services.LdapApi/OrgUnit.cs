@@ -14,13 +14,29 @@ using Synapse.Handlers.Ldap;
 public partial class LdapApiController : ApiController
 {
     [HttpGet]
-    [Route( "ou/{name}" )]
-    public LdapHandlerResults GetOrgUnit(string name)
+    [Route( "ou/{distinguishedname}" )]
+    public LdapHandlerResults GetOrgUnit(string distinguishedname)
+    {
+        string planName = @"QueryOrgUnit";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+        pe.DynamicParameters.Add( "name", String.Empty );
+        pe.DynamicParameters.Add( "path", String.Empty );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpGet]
+    [Route( "ou/{name}/{path}" )]
+    public LdapHandlerResults GetOrgUnit(string name, string path)
     {
         string planName = @"QueryOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( path ), path );
+        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
 
         return CallPlan( planName, pe );
     }

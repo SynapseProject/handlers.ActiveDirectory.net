@@ -30,6 +30,9 @@ Actions:
     Values:
       Users:
       - Name: xxxxxx
+        DistinguishedName: xxxxxx
     Dynamic:
     - Name: name
       Path: Users[0]:Name
+    - Name: distinguishedname
+      Path: Users[0]:DistinguishedName

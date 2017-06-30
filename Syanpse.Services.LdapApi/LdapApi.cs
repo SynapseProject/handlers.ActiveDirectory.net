@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -57,5 +58,10 @@ public partial class LdapApiController : ApiController
 
         string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false );
         return YamlHelpers.Deserialize<LdapHandlerResults>( reply );
+    }
+
+    private bool IsDistinguishedName(String name)
+    {
+        return Regex.IsMatch( name, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
     }
 }

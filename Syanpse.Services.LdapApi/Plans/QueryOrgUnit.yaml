@@ -30,6 +30,12 @@ Actions:
     Values:
       OrganizationalUnits:
       - Name: xxxxxx
+        Path: xxxxxx
+        DistinguishedName: xxxxx
     Dynamic:
     - Name: name
       Path: OrganizationalUnits[0]:Name
+    - Name: path
+      Path: OrganizationalUnits[0]:Path
+    - Name: distinguishedname
+      Path: OrganizationalUnits[0]:DistinguishedName
