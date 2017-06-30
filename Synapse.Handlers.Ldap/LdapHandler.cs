@@ -201,7 +201,11 @@ public class LdapHandler : HandlerRuntimeBase
                 return upo;
             case ObjectClass.Group:
                 LdapGroup group = (LdapGroup)obj;
-                GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
+                GroupPrincipalObject gpo = null;
+                if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
+                    gpo = DirectoryServices.GetGroup( group.DistinguishedName, config.QueryGroupMembership );
+                else
+                    gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                 return gpo;
             case ObjectClass.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
@@ -250,7 +254,10 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
-                    DirectoryServices.CreateGroup( group.Path, group.Name, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
+                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                    else
+                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
@@ -317,7 +324,10 @@ public class LdapHandler : HandlerRuntimeBase
                     break;
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
-                    DirectoryServices.DeleteGroup( group.Name, isDryRun );
+                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
+                        DirectoryServices.DeleteGroup( group.DistinguishedName, isDryRun );
+                    else
+                        DirectoryServices.DeleteGroup( group.Name, isDryRun );
                     results.Add( status, (GroupPrincipalObject)null );
                     break;
                 case ObjectClass.OrganizationalUnit:

@@ -13,7 +13,7 @@ namespace Synapse.Ldap.Core
     {
         public static UserPrincipalObject GetUser(string name, bool getGroups)
         {
-            String sAMAccountName = GetSamAccountName( name );
+            String sAMAccountName = GetCommonName( name );
 
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
@@ -351,7 +351,7 @@ namespace Synapse.Ldap.Core
 
         public static void DeleteUser(string name, bool isDryRun = false)
         {
-            String username = GetSamAccountName( name );
+            String username = GetCommonName( name );
 
             if ( String.IsNullOrWhiteSpace( username ) )
             {
@@ -547,16 +547,6 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
             return userPrincipal.Enabled;
-        }
-
-        private static string GetSamAccountName(String distinguishedName)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-                return match.Groups[1]?.Value?.Trim();
-            else
-                return distinguishedName;
         }
 
             #region To Be Deleted

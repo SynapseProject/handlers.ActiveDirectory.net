@@ -73,7 +73,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating universal security group {groupName} under {ouPath}...");
-            GroupPrincipal gp = DirectoryServices.CreateGroup(ouPath, groupName);
+            GroupPrincipal gp = DirectoryServices.CreateGroup(ouPath, groupName, "");
 
             // Assert
             Assert.That(gp.GroupScope, Is.EqualTo(GroupScope.Universal));
@@ -513,7 +513,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             DirectoryServices.UpdateGroupAttribute(groupName, attribute, value);
-            GroupPrincipal gp = DirectoryServices.GetGroup(groupName);
+            GroupPrincipal gp = DirectoryServices.GetGroupPrinciapl(groupName);
 
             // Assert
             Assert.That(gp.DisplayName, Is.EqualTo(value));
@@ -529,7 +529,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             DirectoryServices.UpdateGroupAttribute(groupName, attribute, value);
-            GroupPrincipal gp = DirectoryServices.GetGroup(groupName);
+            GroupPrincipal gp = DirectoryServices.GetGroupPrinciapl(groupName);
 
             // Assert
             Assert.That(gp.Description, Is.Null);

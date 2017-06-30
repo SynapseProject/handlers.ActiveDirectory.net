@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices;
+using System.Text.RegularExpressions;
 using System.DirectoryServices.AccountManagement;
 
 
@@ -42,5 +43,17 @@ namespace Synapse.Ldap.Core
 
             return distinguishedName;
         }
+
+        private static string GetCommonName(String distinguishedName)
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+                return match.Groups[1]?.Value?.Trim();
+            else
+                return distinguishedName;
+        }
+
+
     }
 }

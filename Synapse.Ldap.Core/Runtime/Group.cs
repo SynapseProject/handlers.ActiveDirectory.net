@@ -3,13 +3,26 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 
 namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static GroupPrincipal CreateGroup(string ouPath, string groupName, string description = null, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        public static void CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+            {
+                String groupName = match.Groups[1]?.Value?.Trim();
+                String parentPath = match.Groups[2]?.Value?.Trim();
+                CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun );
+            }
+        }
+
+        public static GroupPrincipal CreateGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
@@ -67,8 +80,10 @@ namespace Synapse.Ldap.Core
             return groupPrincipal;
         }
 
-        public static void DeleteGroup(string groupName, bool dryRun = false)
+        public static void DeleteGroup(string name, bool dryRun = false)
         {
+            string groupName = GetCommonName( name );
+
             if ( String.IsNullOrWhiteSpace( groupName ) )
             {
                 throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
@@ -101,7 +116,7 @@ namespace Synapse.Ldap.Core
 
         public static void UpdateGroupAttribute(string groupName, string attribute, string value, bool dryRun = false)
         {
-            GroupPrincipal gp = GetGroup( groupName );
+            GroupPrincipal gp = GetGroupPrinciapl( groupName );
             if ( gp == null )
             {
                 throw new LdapException( "Group does not exist.", LdapStatusType.DoesNotExist );
@@ -196,7 +211,7 @@ namespace Synapse.Ldap.Core
             {
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroup( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
             if ( groupPrincipal == null )
             {
                 throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
@@ -228,12 +243,12 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroup( childGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
             if ( childGroupPrincipal == null )
             {
                 throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroup( parentGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
                 throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
@@ -279,7 +294,7 @@ namespace Synapse.Ldap.Core
             {
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroup( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
             if ( groupPrincipal == null )
             {
                 throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
@@ -311,12 +326,12 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroup( childGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
             if ( childGroupPrincipal == null )
             {
                 throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroup( parentGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
                 throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
@@ -338,13 +353,13 @@ namespace Synapse.Ldap.Core
 
         public static bool IsExistingGroup(string groupName)
         {
-            return GetGroup( groupName ) != null;
+            return GetGroupPrinciapl( groupName ) != null;
         }
 
         public static bool IsUserGroupMember(string username, string groupName)
         {
             UserPrincipal userPrincipal = GetUser( username );
-            GroupPrincipal groupPrincipal = GetGroup( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
 
             if ( userPrincipal != null && groupPrincipal != null )
             {
@@ -355,8 +370,8 @@ namespace Synapse.Ldap.Core
 
         public static bool IsGroupGroupMember(string childGroupName, string parentGroupName)
         {
-            GroupPrincipal childGroupPrincipal = GetGroup( childGroupName );
-            GroupPrincipal parentGroupPrincipal = GetGroup( parentGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
 
             if ( childGroupPrincipal != null && parentGroupPrincipal != null )
             {
@@ -397,7 +412,7 @@ namespace Synapse.Ldap.Core
             return userPrincipal;
         }
 
-        public static GroupPrincipal GetGroup(string groupName)
+        public static GroupPrincipal GetGroupPrinciapl(string groupName)
         {
             if ( String.IsNullOrWhiteSpace( groupName ) )
                 return null;
@@ -677,14 +692,16 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static GroupPrincipalObject GetGroup(string sAMAccountName, bool getGroups)
+        public static GroupPrincipalObject GetGroup(string name, bool getGroups)
         {
+            string groupName = GetCommonName( name );
+
             GroupPrincipalObject g = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName );
                 if ( group == null )
-                    throw new LdapException( $"Group [{sAMAccountName}] Not Found.", LdapStatusType.DoesNotExist );
+                    throw new LdapException( $"Group [{groupName}] Not Found.", LdapStatusType.DoesNotExist );
 
                 g = new GroupPrincipalObject( group );
                 if ( getGroups )
