@@ -49,7 +49,6 @@
     <Compile Include="Classes\GroupPrincipal.cs" />
     <Compile Include="Classes\Principal.cs" />
     <Compile Include="Classes\UserPrincipal.cs" />
-    <Compile Include="Runtime\Dns.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />
     <Compile Include="Runtime\User.cs" />
