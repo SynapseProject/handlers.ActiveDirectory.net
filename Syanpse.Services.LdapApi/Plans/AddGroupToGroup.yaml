@@ -30,10 +30,13 @@ Actions:
     Values:
       Groups:
       - Name: xxxxxxxx
+        DistinguishedName: xxxxxxxx
         Groups:
         - xxxxxxxx
     Dynamic:
     - Name: name
       Path: Groups[0]:Name
+    - Name: distinguishedname
+      Path: Groups[0]:DistinguishedName
     - Name: group
       Path: Groups[0]:Groups[0]:Value
