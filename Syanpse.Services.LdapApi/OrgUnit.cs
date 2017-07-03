@@ -42,13 +42,29 @@ public partial class LdapApiController : ApiController
     }
 
     [HttpDelete]
-    [Route( "ou/{name}" )]
-    public LdapHandlerResults DeleteOrgUnit(string name)
+    [Route( "ou/{distinguishedname}" )]
+    public LdapHandlerResults DeleteOrgUnit(string distinguishedname)
+    {
+        string planName = @"DeleteOrgUnit";
+
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+        pe.DynamicParameters.Add( "name", String.Empty );
+        pe.DynamicParameters.Add( "path", String.Empty );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "ou/{name}/{path}" )]
+    public LdapHandlerResults DeleteOrgUnit(string name, string path)
     {
         string planName = @"DeleteOrgUnit";
 
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( path ), path );
+        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
 
         return CallPlan( planName, pe );
     }
