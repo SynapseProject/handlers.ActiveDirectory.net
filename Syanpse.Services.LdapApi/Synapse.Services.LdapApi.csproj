@@ -91,6 +91,7 @@
     <None Include="Plans\QueryOrgUnit.yaml" />
     <None Include="Plans\DeleteUser.yaml" />
     <None Include="Plans\QueryUser.yaml" />
+    <None Include="Plans\WhoAmI.yaml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Synapse.Handlers.Ldap\Synapse.Handlers.Ldap.csproj">

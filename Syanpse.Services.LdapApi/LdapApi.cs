@@ -24,6 +24,17 @@ public partial class LdapApiController : ApiController
     public string SynapseHello() { return GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
+    [Route( "whoami" )]
+    public string WhoAmI()
+    {
+        string planName = @"WhoAmI";
+
+        IExecuteController ec = GetExecuteControllerInstance();
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        return (string)ec.StartPlanSync( pe, planName, setContentType: false );
+    }
+
+    [HttpGet]
     [Route( "object/{type}/{name}" )]
     public async Task<string> GetObject(ObjectClass type, string name)
     {

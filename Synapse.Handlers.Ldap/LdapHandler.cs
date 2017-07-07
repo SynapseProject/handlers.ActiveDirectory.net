@@ -39,6 +39,8 @@ public class LdapHandler : HandlerRuntimeBase
         //deserialize the Parameters from the Action declaration
         Synapse.Handlers.Ldap.LdapHandlerParameters parameters = base.DeserializeOrNew<Synapse.Handlers.Ldap.LdapHandlerParameters>( startInfo.Parameters );
 
+        OnLogMessage( "Execute", $"Running Handler As User [{System.Security.Principal.WindowsIdentity.GetCurrent().Name}]" );
+
         try
         {
             //if IsDryRun == true, test if ConnectionString is valid and works.
