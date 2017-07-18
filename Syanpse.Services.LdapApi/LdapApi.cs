@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Security.Principal;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -52,7 +54,7 @@ public partial class LdapApiController : ApiController
 
     IExecuteController GetExecuteControllerInstance()
     {
-        return ExtensibilityUtility.GetExecuteControllerInstance( Url, User );
+        return ExtensibilityUtility.GetExecuteControllerInstance( Url, User, this.Request?.Headers?.Authorization );
     }
 
     private LdapHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)

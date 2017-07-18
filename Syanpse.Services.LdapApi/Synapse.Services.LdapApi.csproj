@@ -42,7 +42,8 @@
       <HintPath>..\packages\Synapse.Core.Signed.0.1.17166.0-beta\lib\net45\Synapse.Core.dll</HintPath>
     </Reference>
     <Reference Include="Synapse.Server.Extensibility, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Server.Extensibility.0.1.17166.0-beta\lib\net45\Synapse.Server.Extensibility.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\synapse.server.net\Synapse.Server\bin\Release\Synapse.Server.Extensibility.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
