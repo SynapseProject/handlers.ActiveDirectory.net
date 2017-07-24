@@ -29,7 +29,7 @@ namespace Synapse.Ldap.Core
             return u;
         }
 
-        public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
+        public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -37,13 +37,13 @@ namespace Synapse.Ldap.Core
             {
                 String username = match.Groups[1]?.Value?.Trim();
                 String parentPath = match.Groups[2]?.Value?.Trim();
-                CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
+                CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun, upsert );
             }
             else
                 throw new LdapException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
         }
 
-        public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
+        public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
@@ -109,9 +109,99 @@ namespace Synapse.Ldap.Core
                     throw;
                 }
             }
+            else if (upsert)
+            {
+                ModifyUser( username, ouPath, password, givenName, surname, description, isEnabled, isDryRun, false );
+            }
             else
             {
                 throw new LdapException( "The user already exists.", LdapStatusType.AlreadyExists );
+            }
+        }
+
+        public static void ModifyUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+            {
+                String username = match.Groups[1]?.Value?.Trim();
+                String parentPath = match.Groups[2]?.Value?.Trim();
+                ModifyUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
+            }
+            else
+                throw new LdapException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
+        }
+
+        public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
+        {
+            if ( String.IsNullOrWhiteSpace( username ) )
+            {
+                throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
+            }
+
+            if ( String.IsNullOrWhiteSpace( password ) )
+            {
+                throw new LdapException( "Password is not specified.", LdapStatusType.MissingInput );
+            }
+
+            if ( String.IsNullOrWhiteSpace( givenName ) )
+            {
+                throw new LdapException( "Given name is not specified.", LdapStatusType.MissingInput );
+            }
+
+            if ( String.IsNullOrWhiteSpace( surname ) )
+            {
+                throw new LdapException( "Surname is not specified.", LdapStatusType.MissingInput );
+            }
+
+            if ( IsExistingUser( username ) )
+            {
+                try
+                {
+                    String sAMAccountName = GetCommonName( username );
+
+                    using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+                    {
+                        UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                        if ( user == null )
+                            throw new LdapException( $"User [{sAMAccountName}] Not Found.", LdapStatusType.DoesNotExist );
+
+                        user.GivenName = givenName;
+                        user.Surname = surname;
+                        user.Description = description;
+                        user.SetPassword( password );
+
+                        if ( !isDryRun )
+                        {
+                            user.Save();
+                        }
+                    }
+                }
+                catch ( PrincipalOperationException ex )
+                {
+                    if ( ex.Message.Contains( "There is no such object on the server." ) )
+                    {
+                        throw new LdapException( "OU path specified is not valid.", LdapStatusType.InvalidPath );
+                    }
+                    throw;
+                }
+                catch ( PasswordException ex )
+                {
+                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
+                    {
+                        throw new LdapException( "The password does not meet the password policy requirements.", LdapStatusType.PasswordPolicyNotMet );
+                    }
+                    throw;
+                }
+            }
+            else if (upsert)
+            {
+                CreateUser( username, ouPath, password, givenName, surname, description, isEnabled, isDryRun, false );
+            }
+            else
+            {
+                throw new LdapException( "The user does not exist.", LdapStatusType.DoesNotExist );
             }
         }
 

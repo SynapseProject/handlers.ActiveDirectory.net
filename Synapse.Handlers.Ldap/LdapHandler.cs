@@ -69,8 +69,10 @@ public class LdapHandler : HandlerRuntimeBase
                         ProcessLdapObjects( parameters.Users, ProcessCreate );
                         break;
                     case ActionType.Modify:
-                        // TODO : Implement Me
-                        throw new LdapException( "Not Yet Implemented", LdapStatusType.NotSupported );
+                        //ProcessLdapObjects( parameters.OrganizationalUnits, ProcessModify );
+                        //ProcessLdapObjects( parameters.Groups, ProcessModify );
+                        ProcessLdapObjects( parameters.Users, ProcessModify );
+                        break;
                     case ActionType.Delete:
                         ProcessLdapObjects( parameters.Users, ProcessDelete );
                         ProcessLdapObjects( parameters.Groups, ProcessDelete );
@@ -245,14 +247,14 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case ObjectClass.User:
                     LdapUser user = (LdapUser)obj;
-                    if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
-                        DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description );
+                    if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
+                        DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
                     else
-                        DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description );
+                        DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
-                    if (returnObject)
+                    if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
                         results.Add( status, (UserPrincipalObject)ldapObject );
@@ -292,6 +294,91 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (OrganizationalUnitObject)null );
                     break;
+                default:
+                    throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
+            }
+        }
+        catch ( LdapException ex )
+        {
+            ProcessLdapException( ex, config.Action, obj );
+        }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessCreate", e.Message );
+            OnLogMessage( "ProcessCreate", e.StackTrace );
+            LdapException le = new LdapException( e );
+            ProcessLdapException( le, config.Action, obj );
+        }
+    }
+
+    private void ProcessModify(LdapObject obj, bool returnObject = true)
+    {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
+            Name = obj.Name,
+            Path = obj.Path,
+            DistinguishedName = obj.DistinguishedName
+        };
+
+        try
+        {
+            object ldapObject = null;
+
+            switch ( obj.Type )
+            {
+                case ObjectClass.User:
+                    LdapUser user = (LdapUser)obj;
+                    if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
+                        DirectoryServices.ModifyUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
+                    else
+                        DirectoryServices.ModifyUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    if ( user.Groups != null )
+                        ProcessGroupAdd( user, false );
+                    if ( returnObject )
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (UserPrincipalObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (UserPrincipalObject)null );
+                    break;
+/*                case ObjectClass.Group:
+                    LdapGroup group = (LdapGroup)obj;
+                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
+                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                    else
+                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    if ( group.Groups != null )
+                        ProcessGroupAdd( group, false );
+                    if ( returnObject )
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (GroupPrincipalObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (GroupPrincipalObject)null );
+                    break;
+                case ObjectClass.OrganizationalUnit:
+                    LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
+                    if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
+                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );
+                    else
+                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    if ( returnObject )
+                    {
+                        ldapObject = GetLdapObject( obj );
+                        results.Add( status, (OrganizationalUnitObject)ldapObject );
+                    }
+                    else
+                        results.Add( status, (OrganizationalUnitObject)null );
+                    break;
+*/
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }

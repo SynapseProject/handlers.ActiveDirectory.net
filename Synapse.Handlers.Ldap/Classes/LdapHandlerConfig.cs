@@ -25,6 +25,8 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public bool SuppressOutput { get; set; } = false;
         [XmlElement]
+        public bool UseUpsert { get; set; } = true;
+        [XmlElement]
         public SerializationFormat OutputType { get; set; } = SerializationFormat.Json;
         [XmlElement]
         public bool PrettyPrint { get; set; } = true;
