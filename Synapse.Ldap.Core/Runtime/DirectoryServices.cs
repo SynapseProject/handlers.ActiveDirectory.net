@@ -60,5 +60,36 @@ namespace Synapse.Ldap.Core
             return principalContext;
         }
 
+        public static DirectoryEntry GetDirectoryEntry(string distinguishedName)
+        {
+            string rootName = distinguishedName;
+            if ( distinguishedName.StartsWith( "LDAP://" ) )
+                distinguishedName = distinguishedName.Replace( "LDAP://", "" );
+            else
+                rootName = $"LDAP://{rootName}";
+
+            DirectoryEntry de = null;
+            if ( DirectoryEntry.Exists( rootName ) )
+            {
+                using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+                using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
+                {
+                    searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
+                    searcher.SearchScope = SearchScope.Base;
+                    searcher.PropertiesToLoad.Add( "name" );
+                    searcher.PropertiesToLoad.Add( "distinguishedname" );
+                    searcher.ReferralChasing = ReferralChasingOption.All;
+
+                    SearchResultCollection results = searcher.FindAll();
+                    foreach ( SearchResult result in results )
+                        if ( result.Properties["distinguishedname"][0].ToString().Equals( distinguishedName, StringComparison.OrdinalIgnoreCase ) )
+                            de = result.GetDirectoryEntry();
+
+                }
+            }
+
+            return de;
+        }
+
     }
 }

@@ -11,7 +11,7 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false)
+        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false, bool upsert = true )
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -26,7 +26,7 @@ namespace Synapse.Ldap.Core
 
         }
 
-        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
+        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false, bool upsert = true)
         {
             if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
@@ -44,29 +44,78 @@ namespace Synapse.Ldap.Core
                     null, // Password
                     AuthenticationTypes.Secure ) )
                 {
-                    if ( IsExistingOrganizationUnit( newOrgUnitPath ) )
+                    if ( !IsExistingOrganizationUnit( newOrgUnitPath ) )
                     {
-                        throw new LdapException( "New organization unit already exists.", LdapStatusType.AlreadyExists );
-                    }
 
-                    using ( DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add( $"OU={newOrgUnitName}", "OrganizationalUnit" ) )
-                    {
-                        if ( !isDryRun )
+                        using ( DirectoryEntry newOrgUnit = parentOrgUnit.Children.Add( $"OU={newOrgUnitName}", "OrganizationalUnit" ) )
                         {
-                            if ( !string.IsNullOrWhiteSpace( description ) )
+                            if ( !isDryRun )
                             {
-                                newOrgUnit.Properties["Description"].Value = description;
-                            }
+                                if ( !string.IsNullOrWhiteSpace( description ) )
+                                {
+                                    newOrgUnit.Properties["Description"].Value = description;
+                                }
 
-                            newOrgUnit.CommitChanges();
+                                newOrgUnit.CommitChanges();
+                            }
                         }
                     }
+                    else if ( upsert )
+                    {
+                        ModifyOrganizationUnit( newOrgUnitName, parentOrgUnitPath, description, isDryRun, false );
+                    }
+                    else
+                        throw new LdapException( "New organization unit already exists.", LdapStatusType.AlreadyExists );
+
                 }
             }
             else
             {
                 throw new LdapException( "Parent organization unit does not exist.", LdapStatusType.DoesNotExist );
             }
+        }
+
+        public static void ModifyOrganizationUnit(string distinguishedName, string description, bool isDryRun = false, bool upsert = true)
+        {
+            Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+            {
+                string ouName = match.Groups[1]?.Value?.Trim();
+                string parentPath = match.Groups[2]?.Value?.Trim();
+                ModifyOrganizationUnit( ouName, parentPath, description, isDryRun );
+            }
+            else
+                throw new LdapException( $"Unable To Locate OrgUnit Name In Distinguished Name [{distinguishedName}]." );
+
+        }
+
+        public static void ModifyOrganizationUnit(string orgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false, bool upsert = true)
+        {
+            if ( string.IsNullOrWhiteSpace( orgUnitName ) )
+            {
+                throw new LdapException( "New organization unit is not specified.", LdapStatusType.MissingInput );
+            }
+
+            parentOrgUnitPath = string.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
+            string orgUnitPath = $"OU={orgUnitName},{parentOrgUnitPath}";
+
+            DirectoryEntry ou = GetDirectoryEntry( orgUnitPath );
+            if (ou != null)
+            {
+                ou.Properties["description"].Clear();
+                ou.Properties["description"].Add( description );
+                ou.CommitChanges();
+            }
+            else if ( upsert )
+            {
+                CreateOrganizationUnit( orgUnitName, parentOrgUnitPath, description, isDryRun, false );
+            }
+            else
+            {
+                throw new LdapException( "Organization Unit does not exist.", LdapStatusType.DoesNotExist );
+            }
+
         }
 
         public static void DeleteOrganizationUnit(string name, string path, bool isDryRun = false)
@@ -385,36 +434,12 @@ namespace Synapse.Ldap.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName)
         {
-            string rootName = distinguishedName;
-            if (distinguishedName.StartsWith("LDAP://"))
-                distinguishedName = distinguishedName.Replace( "LDAP://", "" );
+            DirectoryEntry ou = GetDirectoryEntry( distinguishedName );
+
+            if ( ou == null )
+                throw new LdapException( $"Organizational Unit [{distinguishedName}] Not Found.", LdapStatusType.DoesNotExist );
             else
-                rootName = $"LDAP://{rootName}";
-
-            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
-            using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
-            {
-                searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
-                searcher.SearchScope = SearchScope.Base;
-                searcher.PropertiesToLoad.Add( "name" );
-                searcher.PropertiesToLoad.Add( "distinguishedname" );
-                searcher.ReferralChasing = ReferralChasingOption.All;
-
-                DirectoryEntry ou = null;
-                SearchResultCollection results = searcher.FindAll();
-                foreach ( SearchResult result in results )
-                    if ( result.Properties["distinguishedname"][0].ToString().Equals( distinguishedName, StringComparison.OrdinalIgnoreCase ) )
-                        ou = result.GetDirectoryEntry();
-
-                if ( ou == null )
-                    throw new LdapException( $"Organizational Unit [{distinguishedName}] Not Found.", LdapStatusType.DoesNotExist );
-                else
-                    return new OrganizationalUnitObject( ou );
-            }
+                return new OrganizationalUnitObject( ou );
         }
-
-        #region To Be Deleted
-
-        #endregion
     }
 }

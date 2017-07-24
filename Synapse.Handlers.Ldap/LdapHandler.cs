@@ -282,9 +282,9 @@ public class LdapHandler : HandlerRuntimeBase
                 case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );
+                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert );
                     else
-                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description );
+                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( returnObject )
                     {
@@ -363,12 +363,12 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (GroupPrincipalObject)null );
                     break;
-/*                case ObjectClass.OrganizationalUnit:
+                case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );
+                        DirectoryServices.ModifyOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert);
                     else
-                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description );
+                        DirectoryServices.ModifyOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( returnObject )
                     {
@@ -378,7 +378,6 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (OrganizationalUnitObject)null );
                     break;
-*/
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
