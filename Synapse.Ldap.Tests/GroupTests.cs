@@ -513,7 +513,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             DirectoryServices.UpdateGroupAttribute(groupName, attribute, value);
-            GroupPrincipal gp = DirectoryServices.GetGroupPrinciapl(groupName);
+            GroupPrincipal gp = DirectoryServices.GetGroupPrincipal(groupName);
 
             // Assert
             Assert.That(gp.DisplayName, Is.EqualTo(value));
@@ -529,7 +529,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             DirectoryServices.UpdateGroupAttribute(groupName, attribute, value);
-            GroupPrincipal gp = DirectoryServices.GetGroupPrinciapl(groupName);
+            GroupPrincipal gp = DirectoryServices.GetGroupPrincipal(groupName);
 
             // Assert
             Assert.That(gp.Description, Is.Null);

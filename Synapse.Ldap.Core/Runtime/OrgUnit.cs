@@ -289,7 +289,7 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Organization unit cannot be found.", LdapStatusType.DoesNotExist );
             }
 
-            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
             groupPrincipal.GetUnderlyingObject();
             orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using System.Xml;
 using System.DirectoryServices.AccountManagement;
+using YamlDotNet.Serialization;
 
 using Synapse.Ldap.Core;
 
@@ -16,7 +17,8 @@ namespace Synapse.Handlers.Ldap
         public string DistinguishedName { get; set; }
         [XmlElement]
         public string Path { get; set; }
-        [XmlElement]
+        [XmlIgnore]
+        [YamlIgnore]
         public ObjectClass Type { get { return GetLdapType(); } }
         [XmlElement]
         public string Description { get; set; }

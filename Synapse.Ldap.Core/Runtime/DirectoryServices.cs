@@ -54,6 +54,11 @@ namespace Synapse.Ldap.Core
                 return distinguishedName;
         }
 
+        public static PrincipalContext GetPrincipalContext(string ouPath = "")
+        {
+            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, null, ouPath ) : new PrincipalContext( ContextType.Domain );
+            return principalContext;
+        }
 
     }
 }

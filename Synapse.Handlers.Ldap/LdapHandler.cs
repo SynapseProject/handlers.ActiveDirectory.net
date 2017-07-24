@@ -69,8 +69,8 @@ public class LdapHandler : HandlerRuntimeBase
                         ProcessLdapObjects( parameters.Users, ProcessCreate );
                         break;
                     case ActionType.Modify:
-                        //ProcessLdapObjects( parameters.OrganizationalUnits, ProcessModify );
-                        //ProcessLdapObjects( parameters.Groups, ProcessModify );
+                        ProcessLdapObjects( parameters.OrganizationalUnits, ProcessModify );
+                        ProcessLdapObjects( parameters.Groups, ProcessModify );
                         ProcessLdapObjects( parameters.Users, ProcessModify );
                         break;
                     case ActionType.Delete:
@@ -265,9 +265,9 @@ public class LdapHandler : HandlerRuntimeBase
                 case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
                     if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
                     else
-                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
@@ -346,12 +346,12 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (UserPrincipalObject)null );
                     break;
-/*                case ObjectClass.Group:
+                case ObjectClass.Group:
                     LdapGroup group = (LdapGroup)obj;
                     if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                        DirectoryServices.ModifyGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
                     else
-                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun );
+                        DirectoryServices.ModifyGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
@@ -363,7 +363,7 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (GroupPrincipalObject)null );
                     break;
-                case ObjectClass.OrganizationalUnit:
+/*                case ObjectClass.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                         DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description );

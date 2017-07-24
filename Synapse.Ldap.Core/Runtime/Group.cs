@@ -10,7 +10,7 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static GroupPrincipal CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        public static GroupPrincipal CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -18,13 +18,13 @@ namespace Synapse.Ldap.Core
             {
                 String groupName = match.Groups[1]?.Value?.Trim();
                 String parentPath = match.Groups[2]?.Value?.Trim();
-                return CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun );
+                return CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun, upsert );
             }
             else
                 throw new LdapException( $"Unable To Locate Group Name In Distinguished Name [{distinguishedName}]." );
         }
 
-        public static GroupPrincipal CreateGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false)
+        public static GroupPrincipal CreateGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true)
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
@@ -36,47 +36,121 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
             }
 
-            // OU path here cannot have the LDAP prefix.
-            ouPath = ouPath.Replace( "LDAP://", "" );
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
+            if ( groupPrincipal == null )
+            {
+                try
+                {
+                    // OU path here cannot have the LDAP prefix.
+                    ouPath = ouPath.Replace( "LDAP://", "" );
+                    PrincipalContext principalContext = GetPrincipalContext( ouPath );
 
-            GroupPrincipal groupPrincipal = null;
-            try
+                    groupPrincipal = new GroupPrincipal( principalContext, groupName )
+                    {
+                        Description = !String.IsNullOrWhiteSpace( description ) ? description : null, // Description cannot be empty string.
+                        GroupScope = groupScope,
+                        IsSecurityGroup = isSecurityGroup
+                    };
+                    if ( !dryRun )
+                    {
+                        groupPrincipal.Save();
+                    }
+                }
+                catch ( PrincipalServerDownException ex )
+                {
+                    if ( ex.Message.Contains( "The server is not operational." ) )
+                    {
+                        throw new LdapException( "Unable to connect to the domain controller. Check the OU path.", LdapStatusType.ConnectionError );
+                    }
+                    throw;
+                }
+                catch ( PrincipalExistsException ex )
+                {
+                    if ( ex.Message.Contains( "The object already exists." ) )
+                    {
+                        throw new LdapException( "The group already exists.", LdapStatusType.AlreadyExists );
+                    }
+                }
+                catch ( PrincipalOperationException ex )
+                {
+                    if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
+                    {
+                        throw new LdapException( "The OU path is not valid.", LdapStatusType.InvalidPath );
+                    }
+                    throw;
+                }
+            }
+            else if (upsert)
             {
-                PrincipalContext principalContext = GetPrincipalContext( ouPath );
+                ModifyGroup( groupName, ouPath, description, groupScope, isSecurityGroup, false );
+            }
+            else
+            {
+                throw new LdapException( "The group already exists.", LdapStatusType.AlreadyExists );
+            }
 
-                groupPrincipal = new GroupPrincipal( principalContext, groupName )
+            return groupPrincipal;
+        }
+
+        public static GroupPrincipal ModifyGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true )
+        {
+            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+            Match match = regex.Match( distinguishedName );
+            if ( match.Success )
+            {
+                String groupName = match.Groups[1]?.Value?.Trim();
+                String parentPath = match.Groups[2]?.Value?.Trim();
+                return ModifyGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun, upsert );
+            }
+            else
+                throw new LdapException( $"Unable To Locate Group Name In Distinguished Name [{distinguishedName}]." );
+        }
+
+        public static GroupPrincipal ModifyGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true )
+        {
+            if ( String.IsNullOrWhiteSpace( groupName ) )
+            {
+                throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
+            }
+
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
+            if ( groupPrincipal != null )
+            {
+                try
                 {
-                    Description = !String.IsNullOrWhiteSpace( description ) ? description : null, // Description cannot be empty string.
-                    GroupScope = groupScope,
-                    IsSecurityGroup = isSecurityGroup
-                };
-                if ( !dryRun )
+                    groupPrincipal.Description = !String.IsNullOrWhiteSpace( description ) ? description : null;
+                    groupPrincipal.GroupScope = groupScope;
+                    groupPrincipal.IsSecurityGroup = isSecurityGroup;
+
+                    if ( !dryRun )
+                    {
+                        groupPrincipal.Save();
+                    }
+                }
+                catch ( PrincipalServerDownException ex )
                 {
-                    groupPrincipal.Save();
+                    if ( ex.Message.Contains( "The server is not operational." ) )
+                    {
+                        throw new LdapException( "Unable to connect to the domain controller. Check the OU path.", LdapStatusType.ConnectionError );
+                    }
+                    throw;
+                }
+                catch ( PrincipalOperationException ex )
+                {
+                    if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
+                    {
+                        throw new LdapException( "The OU path is not valid.", LdapStatusType.InvalidPath );
+                    }
+                    throw;
                 }
             }
-            catch ( PrincipalServerDownException ex )
+            else if (upsert)
             {
-                if ( ex.Message.Contains( "The server is not operational." ) )
-                {
-                    throw new LdapException( "Unable to connect to the domain controller. Check the OU path.", LdapStatusType.ConnectionError );
-                }
-                throw;
+                CreateGroup( groupName, ouPath, description, groupScope, isSecurityGroup, dryRun, upsert );
             }
-            catch ( PrincipalExistsException ex )
+            else
             {
-                if ( ex.Message.Contains( "The object already exists." ) )
-                {
-                    throw new LdapException( "The group already exists.", LdapStatusType.AlreadyExists );
-                }
-            }
-            catch ( PrincipalOperationException ex )
-            {
-                if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
-                {
-                    throw new LdapException( "The OU path is not valid.", LdapStatusType.InvalidPath );
-                }
-                throw;
+                throw new LdapException( "The group does not exist.", LdapStatusType.DoesNotExist );
             }
 
             return groupPrincipal;
@@ -118,7 +192,7 @@ namespace Synapse.Ldap.Core
 
         public static void UpdateGroupAttribute(string groupName, string attribute, string value, bool dryRun = false)
         {
-            GroupPrincipal gp = GetGroupPrinciapl( groupName );
+            GroupPrincipal gp = GetGroupPrincipal( groupName );
             if ( gp == null )
             {
                 throw new LdapException( "Group does not exist.", LdapStatusType.DoesNotExist );
@@ -216,7 +290,7 @@ namespace Synapse.Ldap.Core
             {
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
             if ( groupPrincipal == null )
             {
                 throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
@@ -251,12 +325,12 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupName );
             if ( childGroupPrincipal == null )
             {
                 throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
                 throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
@@ -305,7 +379,7 @@ namespace Synapse.Ldap.Core
             {
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
             if ( groupPrincipal == null )
             {
                 throw new LdapException( "Group cannot be found.", LdapStatusType.DoesNotExist );
@@ -340,12 +414,12 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "Parent group name is not provided.", LdapStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupName );
             if ( childGroupPrincipal == null )
             {
                 throw new LdapException( "Child group cannot be found.", LdapStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupName );
             if ( parentGroupPrincipal == null )
             {
                 throw new LdapException( "Parent group cannot be found.", LdapStatusType.DoesNotExist );
@@ -367,13 +441,13 @@ namespace Synapse.Ldap.Core
 
         public static bool IsExistingGroup(string groupName)
         {
-            return GetGroupPrinciapl( groupName ) != null;
+            return GetGroupPrincipal( groupName ) != null;
         }
 
         public static bool IsUserGroupMember(string username, string groupName)
         {
             UserPrincipal userPrincipal = GetUser( username );
-            GroupPrincipal groupPrincipal = GetGroupPrinciapl( groupName );
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
 
             if ( userPrincipal != null && groupPrincipal != null )
             {
@@ -384,8 +458,8 @@ namespace Synapse.Ldap.Core
 
         public static bool IsGroupGroupMember(string childGroupName, string parentGroupName)
         {
-            GroupPrincipal childGroupPrincipal = GetGroupPrinciapl( childGroupName );
-            GroupPrincipal parentGroupPrincipal = GetGroupPrinciapl( parentGroupName );
+            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupName );
+            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupName );
 
             if ( childGroupPrincipal != null && parentGroupPrincipal != null )
             {
@@ -395,12 +469,6 @@ namespace Synapse.Ldap.Core
         }
 
         #region Helper Methods
-        public static PrincipalContext GetPrincipalContext(string ouPath = "")
-        {
-            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, null, ouPath ) : new PrincipalContext( ContextType.Domain );
-            return principalContext;
-        }
-
         public static List<String> GetUserGroups(string username)
         {
             List<String> myItems = new List<string>();
@@ -426,7 +494,7 @@ namespace Synapse.Ldap.Core
             return userPrincipal;
         }
 
-        public static GroupPrincipal GetGroupPrinciapl(string groupName)
+        public static GroupPrincipal GetGroupPrincipal(string groupName)
         {
             if ( String.IsNullOrWhiteSpace( groupName ) )
                 return null;
@@ -529,100 +597,6 @@ namespace Synapse.Ldap.Core
                     {
                         throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.InvalidPath );
                     }
-                }
-            }
-        }
-
-        public static void CreateGroupEx(string ouPath, string groupName, bool dryRun = false)
-        {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
-            {
-                throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
-            }
-
-
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new LdapException( "Group name is not specified.", LdapStatusType.MissingInput );
-            }
-
-            ouPath = ouPath.Contains( "LDAP://" ) ? ouPath : $"LDAP://{ouPath}";
-            string groupPath = $"LDAP://CN={groupName},{ouPath.Replace( "LDAP://", "" )}";
-
-            try
-            {
-                if ( !DirectoryEntry.Exists( groupPath ) )
-                {
-                    if ( !dryRun )
-                    {
-                        DirectoryEntry entry = new DirectoryEntry( ouPath );
-                        DirectoryEntry group = entry.Children.Add( "CN=" + groupName, "group" );
-                        // By default if no GroupType property is set, the group is created as a domain security group.
-                        group.Properties["sAmAccountName"].Value = groupName;
-                        group.CommitChanges();
-                    }
-                }
-                else
-                {
-                    throw new LdapException( groupPath + " already exists.", LdapStatusType.AlreadyExists );
-                }
-            }
-            catch ( COMException e )
-            {
-                if ( e.Message.Contains( "Unknown error " ) )
-                {
-                    throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
-                }
-            }
-        }
-
-        public static void DeleteGroupEx(string ouPath, string groupPath, bool dryRun)
-        {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
-            {
-                throw new LdapException( "OU path is not specified.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( groupPath ) )
-            {
-                throw new LdapException( "Group path is not specified.", LdapStatusType.MissingInput );
-            }
-
-            ouPath = $"LDAP://{ouPath.Replace( "LDAP://", "" )}";
-            groupPath = $"LDAP://{groupPath.Replace( "LDAP://", "" )}";
-
-            try
-            {
-                if ( DirectoryEntry.Exists( "LDAP://" + groupPath ) )
-                {
-                    try
-                    {
-                        if ( !dryRun )
-                        {
-                            DirectoryEntry entry = new DirectoryEntry( ouPath );
-                            DirectoryEntry group = new DirectoryEntry( groupPath );
-                            entry.Children.Remove( group );
-                            group.CommitChanges();
-                        }
-                    }
-                    catch ( Exception e )
-                    {
-                        if ( e.Message.Contains( "Unknown error " ) )
-                        {
-                            throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
-                        }
-                    }
-                }
-                else
-                {
-                    throw new LdapException( ouPath + " doesn't exist", LdapStatusType.InvalidPath );
-                }
-            }
-            catch ( COMException e )
-            {
-                if ( e.Message.Contains( "Unknown error " ) )
-                {
-                    throw new LdapException( "OU path is not valid.", LdapStatusType.InvalidPath );
                 }
             }
         }
