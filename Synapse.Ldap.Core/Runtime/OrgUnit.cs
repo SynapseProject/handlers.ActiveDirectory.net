@@ -103,8 +103,11 @@ namespace Synapse.Ldap.Core
             DirectoryEntry ou = GetDirectoryEntry( orgUnitPath );
             if (ou != null)
             {
-                ou.Properties["description"].Clear();
-                ou.Properties["description"].Add( description );
+                if ( description != null )
+                {
+                    ou.Properties["description"].Clear();
+                    ou.Properties["description"].Add( description );
+                }
                 ou.CommitChanges();
             }
             else if ( upsert )
