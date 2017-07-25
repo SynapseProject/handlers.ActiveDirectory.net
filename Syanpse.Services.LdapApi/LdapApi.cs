@@ -106,11 +106,11 @@ public partial class LdapApiController : ApiController
         return pe;
     }
 
-    // Base Envelope for All Actions
-    private StartPlanEnvelope GetPlanEnvelope(string name, bool useDistinguishedName = false)
+    // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users and Groups)
+    private StartPlanEnvelope GetPlanEnvelope(string name)
     {
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) || useDistinguishedName )
+        if ( IsDistinguishedName( name ) )
         {
             String distinguishedname = name;
             pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
@@ -125,6 +125,51 @@ public partial class LdapApiController : ApiController
 
         return pe;
     }
+
+    // Base Envelope For All Objects Retrieved By DistinguishedName (OrgUnits)
+    private StartPlanEnvelope GetPlanEnvelopeByDistinguishedName(string distinguishedname)
+    {
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+        pe.DynamicParameters.Add( "name", String.Empty );
+        pe.DynamicParameters.Add( "path", String.Empty );
+        return pe;
+    }
+
+    // Base Envelope For All Objects Retrieved By Name and Path (OrgUnits)
+    private StartPlanEnvelope GetPlanEnvelopeByNameAndPath(string name, string path)
+    {
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( nameof( name ), name );
+        pe.DynamicParameters.Add( nameof( path ), path );
+        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
+        return pe;
+    }
+
+    // Create and Modify Organizational Unit By DistinguishedName
+    private StartPlanEnvelope GetPlanEnvelope(string distinguishedname, LdapOrganizationalUnit ou)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
+        if ( ou != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
+                pe.DynamicParameters.Add( @"description", ou.Description );
+        }
+        return pe;
+    }
+
+    // Create and Modify Organizational Unit By Name and Path
+    private StartPlanEnvelope GetPlanEnvelope(string name, string path, LdapOrganizationalUnit ou)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
+        if ( ou != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
+                pe.DynamicParameters.Add( @"description", ou.Description );
+        }
+        return pe;
+    }
+
 
     private LdapHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)
     {

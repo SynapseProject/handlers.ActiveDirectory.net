@@ -18,12 +18,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults GetOrgUnit(string distinguishedname)
     {
         string planName = @"QueryOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-        pe.DynamicParameters.Add( "name", String.Empty );
-        pe.DynamicParameters.Add( "path", String.Empty );
-
+        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
         return CallPlan( planName, pe );
     }
 
@@ -32,12 +27,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults GetOrgUnit(string name, string path)
     {
         string planName = @"QueryOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( nameof( path ), path );
-        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
-
+        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
         return CallPlan( planName, pe );
     }
 
@@ -46,12 +36,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults DeleteOrgUnit(string distinguishedname)
     {
         string planName = @"DeleteOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-        pe.DynamicParameters.Add( "name", String.Empty );
-        pe.DynamicParameters.Add( "path", String.Empty );
-
+        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
         return CallPlan( planName, pe );
     }
 
@@ -60,12 +45,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults DeleteOrgUnit(string name, string path)
     {
         string planName = @"DeleteOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( nameof( path ), path );
-        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
-
+        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
         return CallPlan( planName, pe );
     }
 
@@ -74,15 +54,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults CreateOrgUnit(string distinguishedname, LdapOrganizationalUnit ou)
     {
         string planName = @"CreateOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-        pe.DynamicParameters.Add( "name", String.Empty );
-        pe.DynamicParameters.Add( "path", String.Empty );
-
-        if ( !string.IsNullOrWhiteSpace( ou.Description ) )
-            pe.DynamicParameters.Add( @"description", ou.Description );
-
+        StartPlanEnvelope pe = GetPlanEnvelope( distinguishedname, ou );
         return CallPlan( planName, pe );
     }
 
@@ -91,20 +63,26 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults CreateOrgUnit(string name, string path, LdapOrganizationalUnit ou)
     {
         string planName = @"CreateOrgUnit";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( nameof( path ), path );
-        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
-
-        if ( ou != null )
-        {
-            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
-                pe.DynamicParameters.Add( @"description", ou.Description );
-        }
-
+        StartPlanEnvelope pe = GetPlanEnvelope( name, path, ou );
         return CallPlan( planName, pe );
     }
 
+    [HttpPut]
+    [Route( "ou/{distinguishedname}" )]
+    public LdapHandlerResults ModifyOrgUnit(string distinguishedname, LdapOrganizationalUnit ou)
+    {
+        string planName = @"ModifyOrgUnit";
+        StartPlanEnvelope pe = GetPlanEnvelope( distinguishedname, ou );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route( "ou/{name}/{path}" )]
+    public LdapHandlerResults ModifyOrgUnit(string name, string path, LdapOrganizationalUnit ou)
+    {
+        string planName = @"ModifyOrgUnit";
+        StartPlanEnvelope pe = GetPlanEnvelope( name, path, ou );
+        return CallPlan( planName, pe );
+    }
 
 }
