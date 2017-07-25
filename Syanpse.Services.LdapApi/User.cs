@@ -16,22 +16,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults GetUser(string name)
     {
         string planName = @"QueryUser";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        return CallPlan( planName, pe );
+        return RunUserPlan( planName, name );
     }
 
     [HttpDelete]
@@ -39,23 +24,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults DeleteUser(string name)
     {
         string planName = @"DeleteUser";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-
-        return CallPlan( planName, pe );
+        return RunUserPlan( planName, name );
     }
 
     [HttpPost]
@@ -63,33 +32,15 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults CreateUser(string name, LdapUser user)
     {
         string planName = @"CreateUser";
+        return RunUserPlan( planName, name, user );
+    }
 
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        if ( !string.IsNullOrWhiteSpace( user.Path ) )
-            pe.DynamicParameters.Add( @"path", user.Path );
-        if ( !string.IsNullOrWhiteSpace( user.Description ) )
-            pe.DynamicParameters.Add( @"description", user.Description );
-        if ( !string.IsNullOrWhiteSpace( user.Password ) )
-            pe.DynamicParameters.Add( @"password", user.Password );
-        if ( !string.IsNullOrWhiteSpace( user.GivenName ) )
-            pe.DynamicParameters.Add( @"givenname", user.GivenName );
-        if ( !string.IsNullOrWhiteSpace( user.Surname ) )
-            pe.DynamicParameters.Add( @"surname", user.Surname );
-
-        return CallPlan( planName, pe );
+    [HttpPut]
+    [Route( "user/{name}" )]
+    public LdapHandlerResults ModifyUser(string name, LdapUser user)
+    {
+        string planName = @"ModifyUser";
+        return RunUserPlan( planName, name, user );
     }
 
     [HttpPost]
@@ -97,24 +48,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults AddUserToGroup(string name, string group)
     {
         string planName = @"AddUserToGroup";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        pe.DynamicParameters.Add( nameof( group ), group );
-
-        return CallPlan( planName, pe );
+        return RunUserPlan( planName, name, null, group );
     }
 
     [HttpDelete]
@@ -122,7 +56,11 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults RemoveUserFromGroup(string name, string group)
     {
         string planName = @"RemoveUserFromGroup";
+        return RunUserPlan( planName, name, null, group );
+    }
 
+    private LdapHandlerResults RunUserPlan(string planName, string name, LdapUser user = null, string group = null)
+    {
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         if ( IsDistinguishedName( name ) )
         {
@@ -137,10 +75,25 @@ public partial class LdapApiController : ApiController
             pe.DynamicParameters.Add( nameof( name ), name );
         }
 
-        pe.DynamicParameters.Add( nameof( group ), group );
+        if ( user != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( user.Path ) )
+                pe.DynamicParameters.Add( @"path", user.Path );
+            if ( !string.IsNullOrWhiteSpace( user.Description ) )
+                pe.DynamicParameters.Add( @"description", user.Description );
+            if ( !string.IsNullOrWhiteSpace( user.Password ) )
+                pe.DynamicParameters.Add( @"password", user.Password );
+            if ( !string.IsNullOrWhiteSpace( user.GivenName ) )
+                pe.DynamicParameters.Add( @"givenname", user.GivenName );
+            if ( !string.IsNullOrWhiteSpace( user.Surname ) )
+                pe.DynamicParameters.Add( @"surname", user.Surname );
+        }
+
+        if (group != null)
+            pe.DynamicParameters.Add( nameof( group ), group );
+
 
         return CallPlan( planName, pe );
     }
-
 
 }
