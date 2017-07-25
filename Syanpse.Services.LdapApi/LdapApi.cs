@@ -57,6 +57,75 @@ public partial class LdapApiController : ApiController
         return ExtensibilityUtility.GetExecuteControllerInstance( Url, User, this.Request?.Headers?.Authorization );
     }
 
+    // Create and Modify User
+    private StartPlanEnvelope GetPlanEnvelope(string name, LdapUser user)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        if ( user != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( user.Path ) )
+                pe.DynamicParameters.Add( @"path", user.Path );
+            if ( !string.IsNullOrWhiteSpace( user.Description ) )
+                pe.DynamicParameters.Add( @"description", user.Description );
+            if ( !string.IsNullOrWhiteSpace( user.Password ) )
+                pe.DynamicParameters.Add( @"password", user.Password );
+            if ( !string.IsNullOrWhiteSpace( user.GivenName ) )
+                pe.DynamicParameters.Add( @"givenname", user.GivenName );
+            if ( !string.IsNullOrWhiteSpace( user.Surname ) )
+                pe.DynamicParameters.Add( @"surname", user.Surname );
+        }
+
+        return pe;
+    }
+
+    // Create and Modify Group
+    private StartPlanEnvelope GetPlanEnvelope(string name, LdapGroup group)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelope( name );
+
+        if (group != null)
+        {
+            if ( !string.IsNullOrWhiteSpace( group.Path ) )
+                pe.DynamicParameters.Add( @"path", group.Path );
+            if ( !string.IsNullOrWhiteSpace( group.Description ) )
+                pe.DynamicParameters.Add( @"description", group.Description );
+            pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
+            pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
+        }
+
+        return pe;
+    }
+
+    // Add/Remove User or Group to a Group
+    private StartPlanEnvelope GetPlanEnvelope(string name, string group)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        if ( group != null )
+            pe.DynamicParameters.Add( nameof( group ), group );
+
+        return pe;
+    }
+
+    // Base Envelope for All Actions
+    private StartPlanEnvelope GetPlanEnvelope(string name, bool useDistinguishedName = false)
+    {
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        if ( IsDistinguishedName( name ) || useDistinguishedName )
+        {
+            String distinguishedname = name;
+            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+            pe.DynamicParameters.Add( nameof( name ), String.Empty );
+        }
+        else
+        {
+            String distinguishedname = String.Empty;
+            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
+            pe.DynamicParameters.Add( nameof( name ), name );
+        }
+
+        return pe;
+    }
+
     private LdapHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)
     {
         IExecuteController ec = GetExecuteControllerInstance();

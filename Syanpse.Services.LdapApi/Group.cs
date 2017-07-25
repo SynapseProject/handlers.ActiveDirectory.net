@@ -15,21 +15,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults GetGroup(string name)
     {
         string planName = @"QueryGroup";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
+        StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
 
@@ -38,21 +24,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults DeleteGroup(string name)
     {
         string planName = @"DeleteGroup";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
+        StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
 
@@ -61,29 +33,16 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults CreateGroup(string name, LdapGroup group)
     {
         string planName = @"CreateGroup";
+        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        return CallPlan( planName, pe );
+    }
 
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        if ( !string.IsNullOrWhiteSpace( group.Path ) )
-            pe.DynamicParameters.Add( @"path", group.Path );
-        if ( !string.IsNullOrWhiteSpace( group.Description ) )
-            pe.DynamicParameters.Add( @"description", group.Description );
-
-        pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
-        pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
-
+    [HttpPut]
+    [Route( "group/{name}" )]
+    public LdapHandlerResults ModifyGroup(string name, LdapGroup group)
+    {
+        string planName = @"ModifyGroup";
+        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
 
@@ -92,23 +51,7 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults AddGroupToGroup(string name, string group)
     {
         string planName = @"AddGroupToGroup";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        pe.DynamicParameters.Add( nameof( group ), group );
-
+        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
 
@@ -117,25 +60,8 @@ public partial class LdapApiController : ApiController
     public LdapHandlerResults RemoveGroupFromGroup(string name, string group)
     {
         string planName = @"RemoveGroupFromGroup";
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
-
-        pe.DynamicParameters.Add( nameof( group ), group );
-
+        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
-
 
 }
