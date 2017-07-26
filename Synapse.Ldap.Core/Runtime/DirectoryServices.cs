@@ -91,5 +91,14 @@ namespace Synapse.Ldap.Core
             return de;
         }
 
+        public static string GetDomainDistinguishedName()
+        {
+            // connect to "RootDSE" to find default naming context.
+            // "RootDSE" is not a container.
+            DirectoryEntry rootDSE = new DirectoryEntry( "LDAP://RootDSE" );
+
+            // Return the distinguished name for the domain of which this directory server is a member.
+            return rootDSE.Properties["defaultNamingContext"][0].ToString();
+        }
     }
 }

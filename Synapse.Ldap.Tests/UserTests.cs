@@ -57,7 +57,7 @@ namespace Synapse.Ldap.Tests
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.SetUserPassword(username, newPassword));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.SetUserPassword(username, newPassword));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
@@ -68,11 +68,11 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Without_Password_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string newPassword = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.SetUserPassword(username, newPassword));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.SetUserPassword(username, newPassword));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New password is not specified."));
@@ -82,11 +82,11 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.SetUserPassword(username, newPassword));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.SetUserPassword(username, newPassword));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -96,11 +96,11 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.SetUserPassword(username, newPassword, true));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.SetUserPassword(username, newPassword, true));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -110,17 +110,18 @@ namespace Synapse.Ldap.Tests
         public void SetUserPassword_With_Valid_User_And_New_Password_Succeed()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string initialPassword = "3J84Ot2FDj9q4Ig";
             string newPassword = "O4l8e73d0sYyOzh";
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            DirectoryServices.CreateUser("", username, initialPassword, username, username, "Created by Synapse");
+            DirectoryServices.CreateUser(username, ldapRoot, initialPassword, username, username, "Created by Synapse");
 
             // Assert
             Console.WriteLine($"Setting new password for {username}...");
-            Assert.DoesNotThrow(() => DirectoryServices.SetUserPassword(username, newPassword, true));
+            Assert.DoesNotThrow(() => DirectoryServices.SetUserPassword(username, newPassword));
         }
 
         //        [Test]
@@ -195,7 +196,7 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Without_Username_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = "";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string username = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
@@ -203,7 +204,7 @@ namespace Synapse.Ldap.Tests
             string description = "Created by Synapse";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser(username, ldapRoot, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
@@ -213,15 +214,15 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Without_Password_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Password is not specified."));
@@ -231,15 +232,15 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Without_Given_Name_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "";
             string surname = username;
             string description = "Created by Synapse";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Given name is not specified."));
@@ -249,15 +250,15 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Without_Surname_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = "";
             string description = "Created by Synapse";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Surname is not specified."));
@@ -268,14 +269,14 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description);
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingUser(username));
@@ -285,15 +286,15 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_With_Non_Complex_Password_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "XXX";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The password does not meet the password policy requirements."));
@@ -304,14 +305,14 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description, true, true);
+            DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description, true, true);
 
             // Assert
             Assert.IsFalse(DirectoryServices.IsExistingUser(username));
@@ -321,8 +322,8 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Without_OU_Path_Default_To_Member_Of_Users()
         {
             // Arrange 
-            string ldapPath = "";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -330,11 +331,11 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, userPassword, givenName, surname, description);
             UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
 
             // Assert
-            Assert.IsTrue(userPrincipal.DistinguishedName.StartsWith($"CN={username},CN=Users"));
+            Assert.IsTrue(userPrincipal.DistinguishedName.StartsWith($"CN={username},"));
         }
 
         [Test]
@@ -342,7 +343,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -350,7 +351,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description );
             UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
 
             // Assert
@@ -362,7 +363,7 @@ namespace Synapse.Ldap.Tests
         {
             // Arrange 
             string ldapPath = $"OU=XXX,{DirectoryServices.GetDomainDistinguishedName()}";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -370,7 +371,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("OU path specified is not valid."));
@@ -380,8 +381,8 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_With_Given_Name_And_Surname_Generate_Expected_Display_Name()
         {
             // Arrange 
-            string ldapPath = $"";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -389,7 +390,7 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description);
             UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
 
             // Assert
@@ -400,8 +401,8 @@ namespace Synapse.Ldap.Tests
         public void CreateUser_Existing_User_Throw_Exception()
         {
             // Arrange 
-            string ldapPath = $"";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
@@ -409,9 +410,9 @@ namespace Synapse.Ldap.Tests
 
             // Act
             Console.WriteLine($"Creating user {username}...");
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description, false, false);
             Console.WriteLine($"Recreating the same user...");
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description, true, false, false));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The user already exists."));
@@ -424,10 +425,10 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteUser(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DeleteUser(username));
 
             // Assert
-            Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
+            Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
         }
 
         [Test]
@@ -437,7 +438,7 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteUser(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DeleteUser(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
@@ -447,15 +448,15 @@ namespace Synapse.Ldap.Tests
         public void DeleteUser_Existing_User_Succeed()
         {
             // Arrange 
-            string ldapPath = $"";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
             DirectoryServices.DeleteUser(username);
 
             // Assert
@@ -466,15 +467,15 @@ namespace Synapse.Ldap.Tests
         public void DeleteUser_Existing_User_Dry_Run_Not_Removed()
         {
             // Arrange 
-            string ldapPath = $"";
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = "XXX";
             string surname = "YYY";
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
             DirectoryServices.DeleteUser(username, true);
 
             // Assert
@@ -488,7 +489,7 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DisableUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DisableUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not provided."));
@@ -498,10 +499,10 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DisableUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DisableUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -511,10 +512,10 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DisableUserAccount(username, true));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DisableUserAccount(username, true));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -525,7 +526,8 @@ namespace Synapse.Ldap.Tests
         public void DisableUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -533,7 +535,7 @@ namespace Synapse.Ldap.Tests
             string groupName = $"TestGroup-{Utility.GenerateToken(8)}";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.DisableUserAccount(username);
 
             // Assert
@@ -547,7 +549,7 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.EnableUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.EnableUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not provided."));
@@ -557,10 +559,10 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.EnableUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.EnableUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -570,10 +572,10 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.EnableUserAccount(username, true));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.EnableUserAccount(username, true));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -583,14 +585,15 @@ namespace Synapse.Ldap.Tests
         public void EnableUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description, false);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description, false);
             DirectoryServices.EnableUserAccount(username);
 
             // Assert
@@ -604,7 +607,7 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.ExpireUserPassword(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.ExpireUserPassword(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not provided."));
@@ -614,10 +617,10 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.ExpireUserPassword(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.ExpireUserPassword(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -627,10 +630,10 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.ExpireUserPassword(username, true));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.ExpireUserPassword(username, true));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -640,14 +643,15 @@ namespace Synapse.Ldap.Tests
         public void ExpireUserPassword_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.ExpireUserPassword(username);
 
             // Assert
@@ -662,7 +666,7 @@ namespace Synapse.Ldap.Tests
             string username = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UnlockUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.UnlockUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
@@ -672,10 +676,10 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Non_Existent_User_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UnlockUserAccount(username));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.UnlockUserAccount(username));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -685,10 +689,10 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Non_Existent_User_Dry_Run_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UnlockUserAccount(username, true));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.UnlockUserAccount(username, true));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -698,14 +702,15 @@ namespace Synapse.Ldap.Tests
         public void UnlockUserAccount_Existing_User_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
             string description = "Created by Synapse";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
 
             // Act
             DirectoryServices.UnlockUserAccount(username);
@@ -725,7 +730,7 @@ namespace Synapse.Ldap.Tests
             string value = "";
             
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
@@ -735,7 +740,8 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Non_Supported_Attribute_Throw_Exception()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -744,8 +750,8 @@ namespace Synapse.Ldap.Tests
             string value = "";
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.UpdateUserAttribute(username, attribute, value));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Attribute is not supported."));
@@ -755,7 +761,8 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Update_Description_Succeed()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -765,7 +772,7 @@ namespace Synapse.Ldap.Tests
 
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.UpdateUserAttribute(username, attribute, value);
             UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
 
@@ -777,7 +784,8 @@ namespace Synapse.Ldap.Tests
         public void UpdateUserAttribute_Update_Description_Dry_Run_Not_Modified()
         {
             // Arrange
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string ldapRoot = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string givenName = "TestUser";
             string surname = "Synapse";
             string password = "1x034abe5A#1!";
@@ -787,7 +795,7 @@ namespace Synapse.Ldap.Tests
 
 
             // Act
-            DirectoryServices.CreateUser("", username, password, givenName, surname, description);
+            DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.UpdateUserAttribute(username, attribute, value, true);
             UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
 

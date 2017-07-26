@@ -18,7 +18,7 @@ namespace Synapse.Ldap.Tests
             string newOrgUnitName = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, ""));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New organization unit is not specified."));
@@ -33,7 +33,7 @@ namespace Synapse.Ldap.Tests
             string newOrgUnitDn = $"OU={newOrgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "");
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitDn));
@@ -43,11 +43,11 @@ namespace Synapse.Ldap.Tests
         public void CreateOrganizationUnit_Non_Existing_Parent_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string parentOrgUnitDistName = "OU=XXX";
+            string parentOrgUnitDistName = $"OU=xxxxxx,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, ""));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Parent organization unit does not exist."));
@@ -57,12 +57,12 @@ namespace Synapse.Ldap.Tests
         public void CreateOrganizationUnit_New_Organization_Unit_Already_Exist_Throw_Exception()
         {
             // Arrange 
-            string parentOrgUnitDistName = "";
+            string parentOrgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName));
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "" );
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "", upsert: false) );
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New organization unit already exists."));
@@ -72,12 +72,12 @@ namespace Synapse.Ldap.Tests
         public void CreateOrganizationUnit_With_Valid_Details_Succeed()
         {
             // Arrange 
-            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string parentOrgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", upsert: false);
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
@@ -87,12 +87,12 @@ namespace Synapse.Ldap.Tests
         public void CreateOrganizationUnit_With_Valid_Details_Dry_Run_Wont_Save()
         {
             // Arrange 
-            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string parentOrgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName, "", true);
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", true );
 
             // Assert
             Assert.IsFalse(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
@@ -105,7 +105,7 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
@@ -118,7 +118,7 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "OU=XXX";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.DeleteOrganizationUnit(orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
@@ -128,12 +128,12 @@ namespace Synapse.Ldap.Tests
         public void DeleteOrganizationUnit_Existing_Organization_Unit_Succeed()
         {
             // Arrange 
-            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string parentOrgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "");
             DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath);
 
             // Assert
@@ -144,12 +144,12 @@ namespace Synapse.Ldap.Tests
         public void DeleteOrganizationUnit_Existing_Organization_Unit_Dry_Run_Wont_Delete()
         {
             // Arrange 
-            string parentOrgUnitDistName = DirectoryServices.GetDomainDistinguishedName();
+            string parentOrgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(parentOrgUnitDistName, newOrgUnitName);
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "" );
             DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath, true);
 
             // Assert
@@ -164,7 +164,7 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "XXX";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Group is not specified."));
@@ -179,8 +179,8 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "";
 
             // Act
-            DirectoryServices.CreateGroup(ldapPath, groupName);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+            DirectoryServices.CreateGroup(groupName, ldapPath, "");
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
@@ -194,7 +194,7 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(username, orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveGroupToOrganizationUnit(username, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Group cannot be found."));
@@ -209,8 +209,8 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "XXX";
 
             // Act
-            DirectoryServices.CreateGroup(ldapPath, groupName);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
+            DirectoryServices.CreateGroup(groupName, ldapPath, "");
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
@@ -224,15 +224,15 @@ namespace Synapse.Ldap.Tests
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
-            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = $"OU={orgUnitName},{ldapPath}";
 
             // Act
-            DirectoryServices.CreateGroup(ldapPath, groupName);
-            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.CreateGroup(groupName, ldapPath, "");
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
             DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName);
 
             // Assert
-            Assert.That(orgUnitName, Is.EqualTo(DirectoryServices.GetGroupOrganizationUnit(groupName)));
+            Assert.That(orgUnitName, Is.EqualTo(Utility.GetGroupOrganizationUnit(groupName)));
         }
 
 
@@ -244,15 +244,15 @@ namespace Synapse.Ldap.Tests
             string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
-            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = $"OU={orgUnitName},{ldapPath}";
 
             // Act
-            DirectoryServices.CreateGroup(ldapPath, groupName);
-            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
-            DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName);
+            DirectoryServices.CreateGroup(groupName, ldapPath, "");
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
+            DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName, true);
 
             // Assert
-            Assert.AreNotEqual(orgUnitName, DirectoryServices.GetUserOrganizationUnit(groupName));
+            Assert.AreNotEqual(orgUnitName, Utility.GetUserOrganizationUnit(groupName));
         }
 
 
@@ -264,7 +264,7 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "XXX";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User is not specified."));
@@ -274,8 +274,8 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Without_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
-            string ldapPath = "";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
@@ -283,8 +283,8 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit is not specified."));
@@ -294,11 +294,11 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Non_Existent_User_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string orgUnitDistName = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("User cannot be found."));
@@ -308,7 +308,7 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_Non_Existent_Organization_Unit_Throw_Exception()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
             string ldapPath = "";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
@@ -317,8 +317,8 @@ namespace Synapse.Ldap.Tests
             string orgUnitDistName = "XXX";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
-            Exception ex = Assert.Throws<Exception>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
+            Exception ex = Assert.Throws<LdapException>(() => DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Organization unit cannot be found."));
@@ -328,44 +328,44 @@ namespace Synapse.Ldap.Tests
         public void MoveUserToOrganizationUnit_With_Valid_Details_Succeed()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
-            string ldapPath = "";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
             string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
-            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = $"OU={orgUnitName},{ldapPath}";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
-            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
             DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName);
 
             // Assert
-            Assert.That(orgUnitName, Is.EqualTo(DirectoryServices.GetUserOrganizationUnit(username)));
+            Assert.That(orgUnitName, Is.EqualTo( Utility.GetUserOrganizationUnit(username)));
         }
 
         [Test]
         public void MoveUserToOrganizationUnit_With_Valid_Details_Dry_Run_Not_A_Member()
         {
             // Arrange 
-            string username = $"TestUser-{Utility.GenerateToken(8)}";
-            string ldapPath = "";
+            string username = $"TestUser{Utility.GenerateToken(8)}";
+            string ldapPath = $"OU=Synapse,{DirectoryServices.GetDomainDistinguishedName()}";
             string userPassword = "bi@02LL49_VWQ{b";
             string givenName = username;
             string surname = username;
             string description = "Created by Synapse";
             string orgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
-            string orgUnitDistName = $"OU={orgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
+            string orgUnitDistName = $"OU={orgUnitName},{ldapPath}";
 
             // Act
-            DirectoryServices.CreateUser(ldapPath, username, userPassword, givenName, surname, description);
-            DirectoryServices.CreateOrganizationUnit("", orgUnitName);
+            DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
+            DirectoryServices.CreateOrganizationUnit( orgUnitName, ldapPath, "" );
             DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName, true);
 
             // Assert
-            Assert.AreNotEqual(orgUnitName, DirectoryServices.GetUserOrganizationUnit(username));
+            Assert.AreNotEqual(orgUnitName, Utility.GetUserOrganizationUnit(username));
         }
     }
 }

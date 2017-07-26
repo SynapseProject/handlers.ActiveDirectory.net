@@ -205,77 +205,6 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void CreateUserEx(string ldapPath, string username, string password, string givenName = "", string surname = "", string description = "")
-        {
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
-            {
-                // Default location where user will be created.
-                ldapPath = $"CN=Users,{GetDomainDistinguishedName()}";
-            }
-
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new LdapException( "Cannot create user as username is not specified.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( password ) )
-            {
-                throw new LdapException( "Cannot create user as password is not specified.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( givenName ) )
-            {
-                throw new LdapException( "Cannot create user as given name is not specified.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( surname ) )
-            {
-                throw new LdapException( "Cannot create user as surname is not specified.", LdapStatusType.MissingInput );
-            }
-
-            try
-            {
-                string connectionPrefix = "LDAP://" + ldapPath.Replace( "LDAP://", "" );
-                using ( DirectoryEntry dirEntry = new DirectoryEntry( connectionPrefix ) )
-                {
-                    using ( DirectoryEntry newUser = dirEntry.Children.Add( "CN=" + username, "user" ) )
-                    {
-                        newUser.Properties["samAccountName"].Value = username; // Max length of samAccountName is 20
-                        newUser.Properties["givenName"].Value = givenName;
-                        newUser.Properties["sn"].Value = surname;
-                        newUser.Properties["displayName"].Value = $"{surname}, {givenName}";
-                        newUser.Properties["description"].Value = description;
-                        newUser.CommitChanges();
-
-                        newUser.Invoke( "SetPassword", new object[] { password } );
-                        //                        newUser.Properties["LockOutTime"].Value = 0; //unlock account
-                        newUser.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
-                        newUser.CommitChanges();
-                    }
-                }
-            }
-            catch ( TargetInvocationException ex )
-            {
-                if ( ex.InnerException != null && ex.InnerException.Message.Contains( "The password does not meet the password policy requirements." ) )
-                {
-                    throw new LdapException( ex.InnerException.Message, LdapStatusType.PasswordPolicyNotMet );
-                }
-                throw;
-            }
-            catch ( DirectoryServicesCOMException ex )
-            {
-                if ( ex.Message.Contains( "The object already exists." ) )
-                {
-                    throw new LdapException( $"The user already exists.", LdapStatusType.AlreadyExists );
-                }
-                if ( ex.Message.Contains( "There is no such object on the server." ) )
-                {
-                    throw new LdapException( "The LDAP path is not valid.", LdapStatusType.InvalidPath );
-                }
-                throw;
-            }
-        }
-
         public static void SetUserPassword(string username, string newPassword, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -313,45 +242,6 @@ namespace Synapse.Ldap.Core
             }
         }
 
-        public static void ResetPasswordEx(string username, string newPassword)
-        {
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( newPassword ) )
-            {
-                throw new LdapException( "New password is not specified.", LdapStatusType.MissingInput );
-            }
-
-            PrincipalContext context = new PrincipalContext( ContextType.Domain );
-            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
-
-            if ( userDn == null )
-            {
-                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
-            }
-            try
-            {
-                using ( DirectoryEntry user = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
-                {
-                    user.Invoke( "SetPassword", new object[] { newPassword } );
-                    //                    user.Properties["LockOutTime"].Value = 0; //unlock account
-                    user.Properties["pwdlastset"].Value = 0; //Force user to change password at next logon
-                    user.CommitChanges();
-                }
-            }
-            catch ( TargetInvocationException ex )
-            {
-                if ( ex.InnerException != null && ex.InnerException.Message.Contains( "The password does not meet the password policy requirements." ) )
-                {
-                    throw new LdapException( ex.InnerException.Message, LdapStatusType.PasswordPolicyNotMet );
-                }
-                throw;
-            }
-        }
-
         public static void UnlockUserAccount(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -368,35 +258,6 @@ namespace Synapse.Ldap.Core
             else
             {
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
-            }
-        }
-
-        public static void UnlockUserEx(string username)
-        {
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new LdapException( "Username is not specified.", LdapStatusType.MissingInput );
-            }
-
-            PrincipalContext context = new PrincipalContext( ContextType.Domain );
-            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
-
-            if ( userDn == null )
-            {
-                throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
-            }
-
-            try
-            {
-                using ( DirectoryEntry uEntry = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
-                {
-                    uEntry.Properties["LockOutTime"].Value = 0; //unlock account
-                    uEntry.CommitChanges(); //may not be needed but adding it anyways
-                }
-            }
-            catch ( DirectoryServicesCOMException ex )
-            {
-                throw ex;
             }
         }
 
@@ -431,15 +292,6 @@ namespace Synapse.Ldap.Core
 
             return isLocked;
         }
-
-        public static string GenerateToken(Byte length)
-        {
-            var bytes = new byte[length];
-            var rnd = new Random();
-            rnd.NextBytes( bytes );
-            return Convert.ToBase64String( bytes ).Replace( "=", "" ).Replace( "+", "" ).Replace( "/", "" );
-        }
-
 
         public static void DeleteUser(string name, bool isDryRun = false)
         {
@@ -527,7 +379,6 @@ namespace Synapse.Ldap.Core
                 throw new LdapException( "User cannot be found.", LdapStatusType.DoesNotExist );
             }
         }
-
 
         public static void UpdateUserAttribute(string username, string attribute, string value, bool dryRun = false)
         {
@@ -640,35 +491,5 @@ namespace Synapse.Ldap.Core
             }
             return userPrincipal.Enabled;
         }
-
-            #region To Be Deleted
-            public static bool DeleteUserEx(string userName)
-        {
-            bool status = false;
-
-            if ( String.IsNullOrEmpty( userName ) || String.IsNullOrWhiteSpace( userName ) )
-            {
-                Console.WriteLine( "No username is provided." );
-                return status;
-            }
-
-            // find the user you want to delete
-            try
-            {
-                // set up domain context
-                PrincipalContext ctx = new PrincipalContext( ContextType.Domain );
-                UserPrincipal user = UserPrincipal.FindByIdentity( ctx, userName );
-                user?.Delete();
-                status = true;
-            }
-            catch ( Exception ex )
-            {
-                Console.WriteLine( $"Encountered exception while trying to delete user: {ex.Message}" );
-            }
-
-            return status;
-        }
-
-        #endregion
     }
 }

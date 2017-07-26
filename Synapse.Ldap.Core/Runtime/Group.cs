@@ -468,6 +468,24 @@ namespace Synapse.Ldap.Core
             return false;
         }
 
+        public static GroupPrincipalObject GetGroup(string name, bool getGroups)
+        {
+            string groupName = GetCommonName( name );
+
+            GroupPrincipalObject g = null;
+            using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+            {
+                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName );
+                if ( group == null )
+                    throw new LdapException( $"Group [{groupName}] Not Found.", LdapStatusType.DoesNotExist );
+
+                g = new GroupPrincipalObject( group );
+                if ( getGroups )
+                    g.GetGroups();
+            }
+            return g;
+        }
+
         #region Helper Methods
         public static List<String> GetUserGroups(string username)
         {
@@ -521,182 +539,5 @@ namespace Synapse.Ldap.Core
 
         #endregion
 
-        #region To Be Removed
-        public static void AddUserToGroupEx(string username, string groupName, string ldapPath = "")
-        {
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
-            {
-                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
-            }
-            else
-            {
-                ldapPath = $"LDAP://{ldapPath.Replace( "LDAP://", "" )}";
-            }
-
-            using ( DirectoryEntry entry = new DirectoryEntry( ldapPath ) )
-            {
-                try
-                {
-                    string userDn = "";
-                    using ( DirectorySearcher mySearcher = new DirectorySearcher( entry ) { Filter = "(sAMAccountName=" + username + ")" } )
-                    {
-                        SearchResult result = mySearcher.FindOne();
-                        if ( result != null )
-                        {
-                            userDn = result.Path;
-                        }
-                        else
-                        {
-                            throw new LdapException( "Specified user cannot be found.", LdapStatusType.DoesNotExist );
-                        }
-                    }
-
-                    using ( DirectorySearcher mySearcher = new DirectorySearcher( entry ) { Filter = "(sAMAccountName=" + groupName + ")" } )
-                    {
-
-                        SearchResult result = mySearcher.FindOne();
-                        if ( result != null )
-                        {
-                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
-                            if ( !groupEntry.Properties["member"].Contains( userDn ) )
-                            {
-                                groupEntry.Properties["member"].Add( userDn );
-                                groupEntry.CommitChanges();
-                            }
-                            else
-                            {
-                                throw new LdapException( "User is already a member of the group.", LdapStatusType.AlreadyExists );
-                            }
-                        }
-                        else
-                        {
-                            throw new LdapException( "Specified group cannot be found.", LdapStatusType.DoesNotExist );
-                        }
-                    }
-                }
-                catch ( DirectoryServicesCOMException ex )
-                {
-                    if ( ex.Message.Contains( "The server is unwilling to process the request." ) )
-                    {
-                        throw new LdapException( "User's distinguished name is invalid.", LdapStatusType.InvalidName );
-                    }
-                }
-                catch ( COMException ex )
-                {
-                    if ( ex.Message.Contains( "The server is not operational." ) )
-                    {
-                        throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.InvalidPath );
-                    }
-                }
-            }
-        }
-
-        public static void RemoveUserFromGroupEx(string username, string groupName, string ldapPath = "")
-        {
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new LdapException( "Username is not provided.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new LdapException( "Group name is not provided.", LdapStatusType.MissingInput );
-            }
-
-            if ( String.IsNullOrWhiteSpace( ldapPath ) )
-            {
-                ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
-            }
-            else
-            {
-                ldapPath = $"LDAP://{ldapPath.Replace( "LDAP://", "" )}";
-            }
-
-            using ( DirectoryEntry entry = new DirectoryEntry( ldapPath ) )
-            {
-                try
-                {
-                    string userDn = "";
-                    using ( DirectorySearcher mySearcher = new DirectorySearcher( entry ) { Filter = "(sAMAccountName=" + username + ")" } )
-                    {
-                        SearchResult result = mySearcher.FindOne();
-                        if ( result != null )
-                        {
-                            userDn = result.Path;
-                        }
-                        else
-                        {
-                            throw new LdapException( "Specified user cannot be found.", LdapStatusType.DoesNotExist );
-                        }
-                    }
-
-                    using ( DirectorySearcher mySearcher = new DirectorySearcher( entry ) { Filter = "(sAMAccountName=" + groupName + ")" } )
-                    {
-
-                        SearchResult result = mySearcher.FindOne();
-                        if ( result != null )
-                        {
-                            DirectoryEntry groupEntry = result.GetDirectoryEntry();
-                            if ( groupEntry.Properties["member"].Contains( userDn ) )
-                            {
-                                groupEntry.Properties["member"].Remove( userDn );
-                                groupEntry.CommitChanges();
-                            }
-                            else
-                            {
-                                throw new LdapException( "User is not a member of the group.", LdapStatusType.DoesNotExist );
-                            }
-                        }
-                        else
-                        {
-                            throw new LdapException( "Specified group cannot be found.", LdapStatusType.DoesNotExist );
-                        }
-                    }
-                }
-                catch ( DirectoryServicesCOMException ex )
-                {
-                    if ( ex.Message.Contains( "The server is unwilling to process the request." ) )
-                    {
-                        throw new LdapException( "User's distinguished name is invalid.", LdapStatusType.InvalidName );
-                    }
-                }
-                catch ( COMException ex )
-                {
-                    if ( ex.Message.Contains( "The server is not operational." ) )
-                    {
-                        throw new LdapException( "LDAP path specifieid is not valid.", LdapStatusType.InvalidPath );
-                    }
-                }
-            }
-        }
-
-        public static GroupPrincipalObject GetGroup(string name, bool getGroups)
-        {
-            string groupName = GetCommonName( name );
-
-            GroupPrincipalObject g = null;
-            using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
-            {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName );
-                if ( group == null )
-                    throw new LdapException( $"Group [{groupName}] Not Found.", LdapStatusType.DoesNotExist );
-
-                g = new GroupPrincipalObject( group );
-                if ( getGroups )
-                    g.GetGroups();
-            }
-            return g;
-        }
-        #endregion
     }
 }
