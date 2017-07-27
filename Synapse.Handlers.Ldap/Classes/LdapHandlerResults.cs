@@ -14,58 +14,17 @@ namespace Synapse.Handlers.Ldap
 {
     public class LdapHandlerResults
     {
-        [XmlArrayItem( ElementName = "User" )]
-        public List<UserPrincipalObjectWithStatus> Users { get; set; }
-        [XmlArrayItem( ElementName = "Group" )]
-        public List<GroupPrincipalObjectWithStatus> Groups { get; set; }
-        [XmlArrayItem( ElementName = "OrganizationalUnit" )]
-        public List<OrganizationalUnitObjectWithStatus> OrganizationalUnits { get; set; }
+        [XmlArrayItem( ElementName = "Result" )]
+        public List<LdapStatus> Results { get; set; }
 
-        public void Add(LdapStatus status, UserPrincipalObject user)
+        public void Add(LdapStatus status)
         {
-            if ( Users == null )
-                Users = new List<UserPrincipalObjectWithStatus>();
+            if ( Results == null )
+                Results = new List<LdapStatus>();
 
-            UserPrincipalObjectWithStatus obj = new UserPrincipalObjectWithStatus( status )
+            lock (Results)
             {
-                User = user
-            };
-
-            lock ( Users )
-            {
-                Users.Add( obj );
-            }
-        }
-
-        public void Add(LdapStatus status, GroupPrincipalObject group)
-        {
-            if ( Groups == null )
-                Groups = new List<GroupPrincipalObjectWithStatus>();
-
-            GroupPrincipalObjectWithStatus obj = new GroupPrincipalObjectWithStatus( status )
-            {
-                Group = group
-            };
-
-            lock ( Groups )
-            {
-                Groups.Add( obj );
-            }
-        }
-
-        public void Add(LdapStatus status, OrganizationalUnitObject orgUnit)
-        {
-            if ( OrganizationalUnits == null )
-                OrganizationalUnits = new List<OrganizationalUnitObjectWithStatus>();
-
-            OrganizationalUnitObjectWithStatus obj = new OrganizationalUnitObjectWithStatus( status )
-            {
-                OrganizationalUnit = orgUnit
-            };
-
-            lock ( OrganizationalUnits )
-            {
-                OrganizationalUnits.Add( obj );
+                Results.Add( status );
             }
         }
 

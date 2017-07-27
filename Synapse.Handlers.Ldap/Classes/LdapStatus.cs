@@ -26,11 +26,40 @@ namespace Synapse.Handlers.Ldap
         public string Path { get; set; }
         [XmlElement]
         public string DistinguishedName { get; set; }
+        [XmlElement]
+        public UserPrincipalObject User { get; set; }
+        [XmlElement]
+        public GroupPrincipalObject Group { get; set; }
+        [XmlElement]
+        public OrganizationalUnitObject OrganizationalUnit { get; set; }
 
         public LdapStatus() { }
 
 
         public LdapStatus(LdapStatus status)
+        {
+            Init( status );
+        }
+
+        public LdapStatus(LdapStatus status, UserPrincipalObject user)
+        {
+            Init( status );
+            User = user;
+        }
+
+        public LdapStatus(LdapStatus status, GroupPrincipalObject group)
+        {
+            Init( status );
+            Group = group;
+        }
+
+        public LdapStatus(LdapStatus status, OrganizationalUnitObject orgUnit)
+        {
+            Init( status );
+            OrganizationalUnit = orgUnit;
+        }
+
+        private void Init(LdapStatus status)
         {
             Status = status.Status;
             Type = status.Type;
@@ -41,32 +70,5 @@ namespace Synapse.Handlers.Ldap
             DistinguishedName = status.DistinguishedName;
         }
 
-    }
-
-    public class UserPrincipalObjectWithStatus : LdapStatus
-    {
-        [XmlElement]
-        public UserPrincipalObject User { get; set; }
-
-        public UserPrincipalObjectWithStatus() { }
-        public UserPrincipalObjectWithStatus(LdapStatus status) : base( status ) { }
-    }
-
-    public class GroupPrincipalObjectWithStatus : LdapStatus
-    {
-        [XmlElement]
-        public GroupPrincipalObject Group { get; set; }
-
-        public GroupPrincipalObjectWithStatus() { }
-        public GroupPrincipalObjectWithStatus(LdapStatus status) : base( status ) { }
-    }
-
-    public class OrganizationalUnitObjectWithStatus : LdapStatus
-    {
-        [XmlElement]
-        public OrganizationalUnitObject OrganizationalUnit { get; set; }
-
-        public OrganizationalUnitObjectWithStatus() { }
-        public OrganizationalUnitObjectWithStatus(LdapStatus status) : base( status ) { }
     }
 }
