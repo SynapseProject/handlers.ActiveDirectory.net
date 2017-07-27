@@ -19,10 +19,10 @@ namespace Synapse.Handlers.Ldap
         public string Path { get; set; }
         [XmlIgnore]
         [YamlIgnore]
-        public ObjectClass Type { get { return GetLdapType(); } }
+        public LdapObjectType Type { get { return GetLdapType(); } }
         [XmlElement]
         public string Description { get; set; }
 
-        public abstract ObjectClass GetLdapType();
+        public abstract LdapObjectType GetLdapType();
     }
 }

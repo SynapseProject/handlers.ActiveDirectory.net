@@ -17,9 +17,9 @@ namespace Synapse.Handlers.Ldap
         [XmlArrayItem(ElementName = "Group")]
         public List<string> Groups { get; set; }
 
-        public override ObjectClass GetLdapType()
+        public override LdapObjectType GetLdapType()
         {
-            return ObjectClass.Group;
+            return LdapObjectType.Group;
         }
     }
 }

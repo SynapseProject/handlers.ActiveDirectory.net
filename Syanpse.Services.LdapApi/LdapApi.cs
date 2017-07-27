@@ -38,7 +38,7 @@ public partial class LdapApiController : ApiController
 
     [HttpGet]
     [Route( "object/{type}/{name}" )]
-    public async Task<string> GetObject(ObjectClass type, string name)
+    public async Task<string> GetObject(LdapObjectType type, string name)
     {
         IExecuteController ec = GetExecuteControllerInstance();
 

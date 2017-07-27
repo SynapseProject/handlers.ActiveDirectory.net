@@ -9,7 +9,7 @@ namespace Synapse.Ldap.Core
 {
     public partial class DirectoryServices
     {
-        public static string GetObjectDistinguishedName(ObjectClass objectClass, string objectName, string ldapRoot)
+        public static string GetObjectDistinguishedName(LdapObjectType objectClass, string objectName, string ldapRoot)
         {
             string distinguishedName = string.Empty;
 
@@ -18,13 +18,13 @@ namespace Synapse.Ldap.Core
             {
                 switch( objectClass )
                 {
-                    case ObjectClass.User:
+                    case LdapObjectType.User:
                     {
                         searcher.Filter = "(&(objectClass=user)(|(cn=" + objectName + ")(sAMAccountName=" + objectName + ")))";
                         break;
                     }
-                    case ObjectClass.Group:
-                    case ObjectClass.Computer:
+                    case LdapObjectType.Group:
+                    case LdapObjectType.Computer:
                     {
                         searcher.Filter = $"(&(objectClass={objectClass.ToString().ToLower()})(|(cn=" + objectName + ")(dn=" + objectName + ")))";
                         break;

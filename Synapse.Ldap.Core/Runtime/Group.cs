@@ -306,7 +306,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "User already exists in the group.", LdapStatusType.AlreadyExists );
+                throw new LdapException( $"User [{username}] already exists in the group [{groupName}].", LdapStatusType.AlreadyExists );
             }
         }
 
@@ -355,7 +355,7 @@ namespace Synapse.Ldap.Core
             }
             else
             {
-                throw new LdapException( "Child group already exists in the parent group.", LdapStatusType.AlreadyExists );
+                throw new LdapException( $"Child group [{childGroupName}] already exists in the parent group [{parentGroupName}].", LdapStatusType.AlreadyExists );
             }
         }
 

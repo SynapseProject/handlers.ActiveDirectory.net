@@ -146,6 +146,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -158,19 +159,19 @@ public class LdapHandler : HandlerRuntimeBase
             object ldapObject = GetLdapObject( obj );
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     if ( returnObject )
                         results.Add( status, (UserPrincipalObject)ldapObject );
                     else
                         results.Add( status, (UserPrincipalObject)null );
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     if ( returnObject )
                         results.Add( status, (GroupPrincipalObject)ldapObject );
                     else
                         results.Add( status, (GroupPrincipalObject)null );
                     break;
-                case ObjectClass.OrganizationalUnit:
+                case LdapObjectType.OrganizationalUnit:
                     if ( returnObject )
                         results.Add( status, (OrganizationalUnitObject)ldapObject );
                     else
@@ -198,7 +199,7 @@ public class LdapHandler : HandlerRuntimeBase
     {
         switch ( obj.Type )
         {
-            case ObjectClass.User:
+            case LdapObjectType.User:
                 LdapUser user = (LdapUser)obj;
                 UserPrincipalObject upo = null;
                 if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
@@ -206,7 +207,7 @@ public class LdapHandler : HandlerRuntimeBase
                 else
                     upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                 return upo;
-            case ObjectClass.Group:
+            case LdapObjectType.Group:
                 LdapGroup group = (LdapGroup)obj;
                 GroupPrincipalObject gpo = null;
                 if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
@@ -214,7 +215,7 @@ public class LdapHandler : HandlerRuntimeBase
                 else
                     gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                 return gpo;
-            case ObjectClass.OrganizationalUnit:
+            case LdapObjectType.OrganizationalUnit:
                 LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
                 if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
@@ -232,6 +233,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -245,7 +247,7 @@ public class LdapHandler : HandlerRuntimeBase
 
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     LdapUser user = (LdapUser)obj;
                     if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
                         DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
@@ -261,8 +263,9 @@ public class LdapHandler : HandlerRuntimeBase
                     }
                     else
                         results.Add( status, (UserPrincipalObject)null );
+
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
                     if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
                         DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
@@ -278,8 +281,9 @@ public class LdapHandler : HandlerRuntimeBase
                     }
                     else
                         results.Add( status, (GroupPrincipalObject)null );
+
                     break;
-                case ObjectClass.OrganizationalUnit:
+                case LdapObjectType.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                         DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert );
@@ -316,6 +320,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -329,7 +334,7 @@ public class LdapHandler : HandlerRuntimeBase
 
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     LdapUser user = (LdapUser)obj;
                     if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
                         DirectoryServices.ModifyUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
@@ -346,7 +351,7 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (UserPrincipalObject)null );
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
                     if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
                         DirectoryServices.ModifyGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
@@ -363,7 +368,7 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         results.Add( status, (GroupPrincipalObject)null );
                     break;
-                case ObjectClass.OrganizationalUnit:
+                case LdapObjectType.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
                         DirectoryServices.ModifyOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert);
@@ -400,6 +405,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -411,7 +417,7 @@ public class LdapHandler : HandlerRuntimeBase
         {
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     LdapUser user = (LdapUser)obj;
                     if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
                         DirectoryServices.DeleteUser( user.DistinguishedName );
@@ -419,7 +425,7 @@ public class LdapHandler : HandlerRuntimeBase
                         DirectoryServices.DeleteUser( user.Name );
                     results.Add( status, (UserPrincipalObject)null );
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
                     if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
                         DirectoryServices.DeleteGroup( group.DistinguishedName, isDryRun );
@@ -427,7 +433,7 @@ public class LdapHandler : HandlerRuntimeBase
                         DirectoryServices.DeleteGroup( group.Name, isDryRun );
                     results.Add( status, (GroupPrincipalObject)null );
                     break;
-                case ObjectClass.OrganizationalUnit:
+                case LdapObjectType.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
                     if (!string.IsNullOrWhiteSpace(ou.DistinguishedName))
                         DirectoryServices.DeleteOrganizationUnit( ou.DistinguishedName );
@@ -459,7 +465,8 @@ public class LdapHandler : HandlerRuntimeBase
     {
         LdapStatus status = new LdapStatus()
         {
-            Action = config.Action,
+            Action = ActionType.AddToGroup,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -471,28 +478,42 @@ public class LdapHandler : HandlerRuntimeBase
         {
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     LdapUser user = (LdapUser)obj;
                     String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     foreach ( string userGroup in user.Groups )
                     {
-                        DirectoryServices.AddUserToGroup( userName, userGroup, isDryRun );
-                        String userMessage = $"{obj.Type} [{userName}] Added To Group [{userGroup}].";
-                        OnLogMessage( "ProcessGroupAdd", userMessage );
-                        status.Message = userMessage;
-                        results.Add( status, (UserPrincipalObject)null );
+                        try
+                        {
+                            DirectoryServices.AddUserToGroup( userName, userGroup, isDryRun );
+                            String userMessage = $"{obj.Type} [{userName}] Added To Group [{userGroup}].";
+                            OnLogMessage( "ProcessGroupAdd", userMessage );
+                            status.Message = userMessage;
+                            results.Add( status, (UserPrincipalObject)null );
+                        }
+                        catch (LdapException ldeUserEx)
+                        {
+                            ProcessLdapException( ldeUserEx, config.Action, obj );
+                        }
                     }
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
                     String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     foreach ( string groupGroup in group.Groups )
                     {
-                        DirectoryServices.AddGroupToGroup( groupName, groupGroup, isDryRun );
-                        String groupMessage = $"{obj.Type} [{groupName}] Added To Group [{groupGroup}].";
-                        OnLogMessage( "ProcessGroupAdd", groupMessage );
-                        status.Message = groupMessage;
-                        results.Add( status, (GroupPrincipalObject)null );
+                        try
+                        {
+                            DirectoryServices.AddGroupToGroup( groupName, groupGroup, isDryRun );
+                            String groupMessage = $"{obj.Type} [{groupName}] Added To Group [{groupGroup}].";
+                            OnLogMessage( "ProcessGroupAdd", groupMessage );
+                            status.Message = groupMessage;
+                            results.Add( status, (GroupPrincipalObject)null );
+                        }
+                        catch (LdapException ldeGroupEx)
+                        {
+                            ProcessLdapException( ldeGroupEx, config.Action, obj );
+                        }
                     }
                     break;
                 default:
@@ -520,7 +541,8 @@ public class LdapHandler : HandlerRuntimeBase
     {
         LdapStatus status = new LdapStatus()
         {
-            Action = config.Action,
+            Action = ActionType.RemoveFromGroup,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -532,7 +554,7 @@ public class LdapHandler : HandlerRuntimeBase
         {
             switch ( obj.Type )
             {
-                case ObjectClass.User:
+                case LdapObjectType.User:
                     LdapUser user = (LdapUser)obj;
                     String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     foreach ( string userGroup in user.Groups )
@@ -544,7 +566,7 @@ public class LdapHandler : HandlerRuntimeBase
                         results.Add( status, (UserPrincipalObject)null );
                     }
                     break;
-                case ObjectClass.Group:
+                case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
                     String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     foreach ( string groupGroup in group.Groups )
@@ -581,6 +603,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = action,
+            Type = obj.Type,
             Status = ex.Type,
             Message = ex.Message,
             Name = obj.Name,
@@ -590,13 +613,13 @@ public class LdapHandler : HandlerRuntimeBase
 
         switch ( obj.Type )
         {
-            case ObjectClass.User:
+            case LdapObjectType.User:
                 results.Add( status, (UserPrincipalObject)null );
                 break;
-            case ObjectClass.Group:
+            case LdapObjectType.Group:
                 results.Add( status, (GroupPrincipalObject)null );
                 break;
-            case ObjectClass.OrganizationalUnit:
+            case LdapObjectType.OrganizationalUnit:
                 results.Add( status, (OrganizationalUnitObject)null );
                 break;
             default:

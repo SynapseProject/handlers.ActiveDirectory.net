@@ -19,8 +19,9 @@ namespace Synapse.Ldap.Core
         Group,
     }
 
-    public enum ObjectClass
+    public enum LdapObjectType
     {
+        Unknown,
         User,
         Group,
         Computer,

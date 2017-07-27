@@ -105,6 +105,8 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public LdapStatusType Status { get; set; } = LdapStatusType.Success;
         [XmlElement]
+        public LdapObjectType Type { get; set; } 
+        [XmlElement]
         public string Message { get; set; } = "Success";
         [XmlElement]
         public ActionType Action { get; set; }
@@ -117,9 +119,11 @@ namespace Synapse.Handlers.Ldap
 
         public LdapStatus() { }
 
+
         public LdapStatus(LdapStatus status)
         {
             Status = status.Status;
+            Type = status.Type;
             Message = status.Message;
             Action = status.Action;
             Name = status.Name;
