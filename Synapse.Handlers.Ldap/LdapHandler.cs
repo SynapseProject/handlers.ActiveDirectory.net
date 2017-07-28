@@ -457,7 +457,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = ActionType.AddToGroup,
-            Type = LdapObjectType.StatusOnly,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -556,7 +556,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = ActionType.RemoveFromGroup,
-            Type = LdapObjectType.StatusOnly,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -640,7 +640,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = action,
-            Type = LdapObjectType.StatusOnly,
+            Type = obj.Type,
             Status = ex.Type,
             Message = ex.Message,
             Name = obj.Name,

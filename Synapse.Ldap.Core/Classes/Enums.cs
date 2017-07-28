@@ -22,7 +22,6 @@ namespace Synapse.Ldap.Core
     public enum LdapObjectType
     {
         None,
-        StatusOnly,
         User,
         Group,
         Computer,

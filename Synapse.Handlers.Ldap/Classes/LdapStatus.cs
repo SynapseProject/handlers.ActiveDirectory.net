@@ -26,6 +26,7 @@ namespace Synapse.Handlers.Ldap
         public string Path { get; set; }
         [XmlElement]
         public string DistinguishedName { get; set; }
+
         [XmlElement]
         public UserPrincipalObject User { get; set; }
         [XmlElement]
