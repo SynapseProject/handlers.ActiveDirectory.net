@@ -15,16 +15,16 @@ namespace Synapse.Handlers.Ldap
     public class LdapHandlerResults
     {
         [XmlArrayItem( ElementName = "Result" )]
-        public List<LdapStatus> Results { get; set; }
+        public List<LdapObjectResult> Results { get; set; }
 
-        public void Add(LdapStatus status)
+        public void Add(LdapObjectResult result)
         {
             if ( Results == null )
-                Results = new List<LdapStatus>();
+                Results = new List<LdapObjectResult>();
 
             lock (Results)
             {
-                Results.Add( status );
+                Results.Add( result );
             }
         }
 

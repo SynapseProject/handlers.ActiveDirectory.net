@@ -143,15 +143,25 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessQuery(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = config.Action,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
+        };
+
+        DoQuery( result, obj, returnObject );
+        results.Add( result );
+    }
+
+    private void DoQuery(LdapObjectResult result, LdapObject obj, bool returnObject = true)
+    {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
         };
 
         try
@@ -161,18 +171,18 @@ public class LdapHandler : HandlerRuntimeBase
             {
                 case LdapObjectType.User:
                     if ( returnObject )
-                        status.User = (UserPrincipalObject)ldapObject;
-                    results.Add( status );
+                        result.User = (UserPrincipalObject)ldapObject;
+                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.Group:
                     if ( returnObject )
-                        status.Group =  (GroupPrincipalObject)ldapObject;
-                    results.Add( status );
+                        result.Group =  (GroupPrincipalObject)ldapObject;
+                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.OrganizationalUnit:
                     if ( returnObject )
-                        status.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
-                    results.Add( status );
+                        result.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
+                    result.Statuses.Add( status );
                     break;
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
@@ -180,14 +190,14 @@ public class LdapHandler : HandlerRuntimeBase
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessQuery", e.Message );
             OnLogMessage( "ProcessQuery", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
     }
 
@@ -226,15 +236,19 @@ public class LdapHandler : HandlerRuntimeBase
 
     private void ProcessCreate(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = config.Action,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
+        };
+
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
         };
 
         try
@@ -250,15 +264,15 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    result.Statuses.Add( status );
                     if ( user.Groups != null )
-                        ProcessGroupAdd( user, false );
+                        AddToGroup( result, user, false );
 
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.User = (UserPrincipalObject)ldapObject;
+                        result.User = (UserPrincipalObject)ldapObject;
                     }
-                    results.Add( status );
 
                     break;
                 case LdapObjectType.Group:
@@ -268,14 +282,14 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    result.Statuses.Add( status );
                     if ( group.Groups != null )
-                        ProcessGroupAdd( group, false );
+                        AddToGroup( result, group, false );
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.Group = (GroupPrincipalObject)ldapObject;
+                        result.Group = (GroupPrincipalObject)ldapObject;
                     }
-                    results.Add( status );
 
                     break;
                 case LdapObjectType.OrganizationalUnit:
@@ -285,12 +299,12 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    result.Statuses.Add( status );
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
+                        result.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
                     }
-                    results.Add( status );
                     break;
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
@@ -298,28 +312,35 @@ public class LdapHandler : HandlerRuntimeBase
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
+
+        results.Add( result );
+
     }
 
     private void ProcessModify(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = config.Action,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
+        };
+
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
         };
 
         try
@@ -337,12 +358,12 @@ public class LdapHandler : HandlerRuntimeBase
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
+                    result.Statuses.Add( status );
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.User = (UserPrincipalObject)ldapObject;
+                        result.User = (UserPrincipalObject)ldapObject;
                     }
-                    results.Add( status );
                     break;
                 case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
@@ -353,12 +374,12 @@ public class LdapHandler : HandlerRuntimeBase
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
+                    result.Statuses.Add( status );
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.Group = (GroupPrincipalObject)ldapObject;
+                        result.Group = (GroupPrincipalObject)ldapObject;
                     }
-                    results.Add( status );
                     break;
                 case LdapObjectType.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
@@ -367,12 +388,12 @@ public class LdapHandler : HandlerRuntimeBase
                     else
                         DirectoryServices.ModifyOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    result.Statuses.Add( status );
                     if ( returnObject )
                     {
                         ldapObject = GetLdapObject( obj );
-                        status.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
+                        result.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
                     }
-                    results.Add( status );
                     break;
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
@@ -380,28 +401,35 @@ public class LdapHandler : HandlerRuntimeBase
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
+
+        results.Add( result );
+
     }
 
     private void ProcessDelete(LdapObject obj, bool returnObject = false)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = config.Action,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
+        };
+
+        LdapStatus status = new LdapStatus()
+        {
+            Action = config.Action,
+            Status = LdapStatusType.Success,
+            Message = "Success",
         };
 
         try
@@ -414,7 +442,7 @@ public class LdapHandler : HandlerRuntimeBase
                         DirectoryServices.DeleteUser( user.DistinguishedName );
                     else
                         DirectoryServices.DeleteUser( user.Name );
-                    results.Add( status );
+                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.Group:
                     LdapGroup group = (LdapGroup)obj;
@@ -422,7 +450,7 @@ public class LdapHandler : HandlerRuntimeBase
                         DirectoryServices.DeleteGroup( group.DistinguishedName, isDryRun );
                     else
                         DirectoryServices.DeleteGroup( group.Name, isDryRun );
-                    results.Add( status );
+                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.OrganizationalUnit:
                     LdapOrganizationalUnit ou = (LdapOrganizationalUnit)obj;
@@ -430,7 +458,7 @@ public class LdapHandler : HandlerRuntimeBase
                         DirectoryServices.DeleteOrganizationUnit( ou.DistinguishedName );
                     else
                         DirectoryServices.DeleteOrganizationUnit( ou.Name, ou.Path );
-                    results.Add( status );
+                    result.Statuses.Add( status );
                     break;
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
@@ -441,32 +469,42 @@ public class LdapHandler : HandlerRuntimeBase
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessDelete", e.Message );
             OnLogMessage( "ProcessDelete", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
+
+        results.Add( result );
+
     }
 
     private void ProcessGroupAdd(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = ActionType.AddToGroup,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
         };
 
-        object ldapObject = null;
-        int groupCount = 0;
+        AddToGroup( result, obj, returnObject );
+        results.Add( result );
+    }
+
+    private void AddToGroup(LdapObjectResult result, LdapObject obj, bool returnObject = true)
+    {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = ActionType.AddToGroup,
+            Status = LdapStatusType.Success,
+            Message = "Success",
+        };
 
         try
         {
@@ -477,7 +515,6 @@ public class LdapHandler : HandlerRuntimeBase
                     String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     if ( user.Groups != null )
                     {
-                        groupCount = user.Groups.Count;
                         foreach ( string userGroup in user.Groups )
                         {
                             try
@@ -486,17 +523,11 @@ public class LdapHandler : HandlerRuntimeBase
                                 String userMessage = $"{obj.Type} [{userName}] Added To Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", userMessage );
                                 status.Message = userMessage;
-                                if ( returnObject && groupCount == 1 )
-                                {
-                                    ldapObject = GetLdapObject( obj );
-                                    status.Type = obj.Type;
-                                    status.User = (UserPrincipalObject)ldapObject;
-                                }
-                                results.Add( new LdapStatus( status ) );
+                                result.Statuses.Add( new LdapStatus( status ) );
                             }
                             catch ( LdapException ldeUserEx )
                             {
-                                ProcessLdapException( ldeUserEx, config.Action, obj );
+                                ProcessLdapException( result, ldeUserEx, status.Action, obj );
                             }
                         }
                     }
@@ -506,7 +537,6 @@ public class LdapHandler : HandlerRuntimeBase
                     String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     if ( group.Groups != null )
                     {
-                        groupCount = group.Groups.Count;
                         foreach ( string groupGroup in group.Groups )
                         {
                             try
@@ -515,17 +545,11 @@ public class LdapHandler : HandlerRuntimeBase
                                 String groupMessage = $"{obj.Type} [{groupName}] Added To Group [{groupGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", groupMessage );
                                 status.Message = groupMessage;
-                                if ( returnObject && groupCount == 1 )
-                                {
-                                    ldapObject = GetLdapObject( obj );
-                                    status.Type = obj.Type;
-                                    status.Group = (GroupPrincipalObject)ldapObject;
-                                }
-                                results.Add( new LdapStatus( status ) );
+                                result.Statuses.Add( new LdapStatus( status ) );
                             }
                             catch ( LdapException ldeGroupEx )
                             {
-                                ProcessLdapException( ldeGroupEx, config.Action, obj );
+                                ProcessLdapException( result, ldeGroupEx, status.Action, obj );
                             }
                         }
                     }
@@ -534,38 +558,45 @@ public class LdapHandler : HandlerRuntimeBase
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
 
-            if ( returnObject && groupCount != 1)
-                ProcessQuery( obj, true );
+            if ( returnObject )
+                DoQuery( result, obj, true );
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupAdd", e.Message );
             OnLogMessage( "ProcessGroupAdd", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
 
     }
 
     private void ProcessGroupRemove(LdapObject obj, bool returnObject = true)
     {
-        LdapStatus status = new LdapStatus()
+        LdapObjectResult result = new LdapObjectResult()
         {
-            Action = ActionType.RemoveFromGroup,
             Type = obj.Type,
-            Status = LdapStatusType.Success,
-            Message = "Success",
             Name = obj.Name,
             Path = obj.Path,
             DistinguishedName = obj.DistinguishedName
         };
 
-        object ldapObject = null;
-        int groupCount = 0;
+        RemoveFromGroup( result, obj, returnObject );
+        results.Add( result );
+    }
+
+    private void RemoveFromGroup(LdapObjectResult result, LdapObject obj, bool returnObject = true)
+    {
+        LdapStatus status = new LdapStatus()
+        {
+            Action = ActionType.RemoveFromGroup,
+            Status = LdapStatusType.Success,
+            Message = "Success",
+        };
 
         try
         {
@@ -576,20 +607,13 @@ public class LdapHandler : HandlerRuntimeBase
                     String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     if ( user.Groups != null )
                     {
-                        groupCount = user.Groups.Count;
                         foreach ( string userGroup in user.Groups )
                         {
                             DirectoryServices.RemoveUserFromGroup( userName, userGroup, isDryRun );
                             String userMessage = $"{obj.Type} [{userName}] Removed From Group [{userGroup}].";
                             OnLogMessage( "ProcessGroupRemove", userMessage );
                             status.Message = userMessage;
-                            if ( returnObject && groupCount == 1)
-                            {
-                                ldapObject = GetLdapObject( obj );
-                                status.Type = obj.Type;
-                                status.User = (UserPrincipalObject)ldapObject;
-                            }
-                            results.Add( new LdapStatus( status ) );
+                            result.Statuses.Add( new LdapStatus( status ) );
                         }
                     }
                     break;
@@ -598,20 +622,13 @@ public class LdapHandler : HandlerRuntimeBase
                     String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     if ( group.Groups != null )
                     {
-                        groupCount = group.Groups.Count;
                         foreach ( string groupGroup in group.Groups )
                         {
                             DirectoryServices.RemoveGroupFromGroup( groupName, groupGroup, isDryRun );
                             String groupMessage = $"{obj.Type} [{groupName}] Removed From Group [{groupGroup}].";
                             OnLogMessage( "ProcessGroupRemove", groupMessage );
                             status.Message = groupMessage;
-                            if ( returnObject && groupCount == 1 )
-                            {
-                                ldapObject = GetLdapObject( obj );
-                                status.Type = obj.Type;
-                                status.Group = (GroupPrincipalObject)ldapObject;
-                            }
-                            results.Add( new LdapStatus( status ) );
+                            result.Statuses.Add( new LdapStatus( status ) );
                         }
                     }
                     break;
@@ -619,45 +636,41 @@ public class LdapHandler : HandlerRuntimeBase
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
 
-            if ( returnObject && groupCount != 1)
-                ProcessQuery( obj, true );
+            if ( returnObject )
+                DoQuery( result, obj, true );
         }
         catch ( LdapException ex )
         {
-            ProcessLdapException( ex, config.Action, obj );
+            ProcessLdapException( result, ex, status.Action, obj );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupRemove", e.Message );
             OnLogMessage( "ProcessGroupRemove", e.StackTrace );
             LdapException le = new LdapException( e );
-            ProcessLdapException( le, config.Action, obj );
+            ProcessLdapException( result, le, status.Action, obj );
         }
     }
 
-    private void ProcessLdapException(LdapException ex, ActionType action, LdapObject obj)
+    private void ProcessLdapException(LdapObjectResult result, LdapException ex, ActionType action, LdapObject obj)
     {
         LdapStatus status = new LdapStatus()
         {
             Action = action,
-            Type = obj.Type,
             Status = ex.Type,
             Message = ex.Message,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
         };
 
         switch ( obj.Type )
         {
             case LdapObjectType.User:
-                results.Add( status );
+                result.Statuses.Add( status );
                 break;
             case LdapObjectType.Group:
-                results.Add( status );
+                result.Statuses.Add( status );
                 break;
             case LdapObjectType.OrganizationalUnit:
-                results.Add( status );
+                result.Statuses.Add( status );
                 break;
             default:
                 throw ex;
