@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public class OrganizationalUnitObject : DirectoryEntryObject
+    public class OrganizationalUnitObject : DirectoryEntryObject, ICloneable
     {
         public OrganizationalUnitObject() { }
         public OrganizationalUnitObject(DirectoryEntry ou)
@@ -21,6 +21,11 @@ namespace Synapse.Ldap.Core
         public static OrganizationalUnitObject FromOrganizationalUnit(DirectoryEntry ou)
         {
             return new OrganizationalUnitObject( ou );
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
         public void SetPropertiesFromOrganizationalUnit(DirectoryEntry ou)

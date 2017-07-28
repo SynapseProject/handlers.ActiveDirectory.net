@@ -272,7 +272,12 @@ namespace Synapse.Ldap.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string name, string path)
         {
-            string distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            String distinguishedName = null;
+            if ( String.IsNullOrWhiteSpace( path ) )
+                distinguishedName = $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}";
+            else
+                distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+
             return GetOrganizationalUnit( distinguishedName );
         }
 

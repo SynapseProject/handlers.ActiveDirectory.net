@@ -7,12 +7,17 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public class GroupPrincipalObject : PrincipalObject
+    public class GroupPrincipalObject : PrincipalObject, ICloneable
     {
         public GroupPrincipalObject() { }
         public GroupPrincipalObject(GroupPrincipal gp)
         {
             SetPropertiesFromGroupPrincipal( gp );
+        }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
         }
 
 

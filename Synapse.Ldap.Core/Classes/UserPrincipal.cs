@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Synapse.Ldap.Core
 {
-    public class UserPrincipalObject : SecurityPrincipalObject
+    public class UserPrincipalObject : SecurityPrincipalObject, ICloneable
     {
         public UserPrincipalObject() { }
         public UserPrincipalObject(UserPrincipal up)
@@ -15,6 +15,10 @@ namespace Synapse.Ldap.Core
             SetPropertiesFromUserPrincipal( up );
         }
 
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
 
         //
         // Summary:

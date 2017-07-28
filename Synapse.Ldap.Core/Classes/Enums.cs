@@ -21,7 +21,7 @@ namespace Synapse.Ldap.Core
 
     public enum LdapObjectType
     {
-        Unknown,
+        None,
         User,
         Group,
         Computer,

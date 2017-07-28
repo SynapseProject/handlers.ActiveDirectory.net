@@ -15,7 +15,7 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public LdapStatusType Status { get; set; } = LdapStatusType.Success;
         [XmlElement]
-        public LdapObjectType Type { get; set; }
+        public LdapObjectType ObjectType { get; set; } = LdapObjectType.None;
         [XmlElement]
         public string Message { get; set; } = "Success";
         [XmlElement]
@@ -43,31 +43,40 @@ namespace Synapse.Handlers.Ldap
 
         public LdapStatus(LdapStatus status, UserPrincipalObject user)
         {
+            status.User = user;
             Init( status );
-            User = user;
         }
 
         public LdapStatus(LdapStatus status, GroupPrincipalObject group)
         {
+            status.Group = group;
             Init( status );
-            Group = group;
         }
 
         public LdapStatus(LdapStatus status, OrganizationalUnitObject orgUnit)
         {
+            status.OrganizationalUnit = orgUnit;
             Init( status );
-            OrganizationalUnit = orgUnit;
         }
 
         private void Init(LdapStatus status)
         {
             Status = status.Status;
-            Type = status.Type;
+            ObjectType = status.ObjectType;
             Message = status.Message;
             Action = status.Action;
             Name = status.Name;
             Path = status.Path;
             DistinguishedName = status.DistinguishedName;
+
+            if ( status.User != null )
+                User = (UserPrincipalObject)status.User.Clone();
+
+            if ( status.Group != null )
+                Group = (GroupPrincipalObject)status.Group.Clone();
+
+            if ( status.OrganizationalUnit != null )
+                OrganizationalUnit = (OrganizationalUnitObject)status.OrganizationalUnit.Clone();
         }
 
     }
