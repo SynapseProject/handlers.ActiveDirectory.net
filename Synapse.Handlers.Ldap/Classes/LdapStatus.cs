@@ -15,7 +15,7 @@ namespace Synapse.Handlers.Ldap
         [XmlElement]
         public LdapStatusType Status { get; set; } = LdapStatusType.Success;
         [XmlElement]
-        public LdapObjectType ObjectType { get; set; } = LdapObjectType.None;
+        public LdapObjectType Type { get; set; } = LdapObjectType.None;
         [XmlElement]
         public string Message { get; set; } = "Success";
         [XmlElement]
@@ -62,7 +62,7 @@ namespace Synapse.Handlers.Ldap
         private void Init(LdapStatus status)
         {
             Status = status.Status;
-            ObjectType = status.ObjectType;
+            Type = status.Type;
             Message = status.Message;
             Action = status.Action;
             Name = status.Name;

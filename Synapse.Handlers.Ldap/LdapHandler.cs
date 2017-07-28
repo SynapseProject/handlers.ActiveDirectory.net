@@ -146,7 +146,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
-            ObjectType = obj.Type,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -229,7 +229,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
-            ObjectType = obj.Type,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -314,7 +314,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
-            ObjectType = obj.Type,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -396,7 +396,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = config.Action,
-            ObjectType = obj.Type,
+            Type = obj.Type,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -457,7 +457,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = ActionType.AddToGroup,
-            ObjectType = LdapObjectType.None,
+            Type = LdapObjectType.StatusOnly,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -489,7 +489,7 @@ public class LdapHandler : HandlerRuntimeBase
                                 if ( returnObject && groupCount == 1 )
                                 {
                                     ldapObject = GetLdapObject( obj );
-                                    status.ObjectType = obj.Type;
+                                    status.Type = obj.Type;
                                     status.User = (UserPrincipalObject)ldapObject;
                                 }
                                 results.Add( new LdapStatus( status ) );
@@ -518,7 +518,7 @@ public class LdapHandler : HandlerRuntimeBase
                                 if ( returnObject && groupCount == 1 )
                                 {
                                     ldapObject = GetLdapObject( obj );
-                                    status.ObjectType = obj.Type;
+                                    status.Type = obj.Type;
                                     status.Group = (GroupPrincipalObject)ldapObject;
                                 }
                                 results.Add( new LdapStatus( status ) );
@@ -556,7 +556,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = ActionType.RemoveFromGroup,
-            ObjectType = LdapObjectType.None,
+            Type = LdapObjectType.StatusOnly,
             Status = LdapStatusType.Success,
             Message = "Success",
             Name = obj.Name,
@@ -586,7 +586,7 @@ public class LdapHandler : HandlerRuntimeBase
                             if ( returnObject && groupCount == 1)
                             {
                                 ldapObject = GetLdapObject( obj );
-                                status.ObjectType = obj.Type;
+                                status.Type = obj.Type;
                                 status.User = (UserPrincipalObject)ldapObject;
                             }
                             results.Add( new LdapStatus( status ) );
@@ -608,7 +608,7 @@ public class LdapHandler : HandlerRuntimeBase
                             if ( returnObject && groupCount == 1 )
                             {
                                 ldapObject = GetLdapObject( obj );
-                                status.ObjectType = obj.Type;
+                                status.Type = obj.Type;
                                 status.Group = (GroupPrincipalObject)ldapObject;
                             }
                             results.Add( new LdapStatus( status ) );
@@ -640,7 +640,7 @@ public class LdapHandler : HandlerRuntimeBase
         LdapStatus status = new LdapStatus()
         {
             Action = action,
-            ObjectType = LdapObjectType.None,
+            Type = LdapObjectType.StatusOnly,
             Status = ex.Type,
             Message = ex.Message,
             Name = obj.Name,

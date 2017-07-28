@@ -123,7 +123,10 @@ namespace Synapse.Ldap.Core
 
         public static void DeleteOrganizationUnit(string name, string path, bool isDryRun = false)
         {
-            string distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
+            
+            string distinguishedName = string.IsNullOrWhiteSpace(path) ? 
+                $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}": 
+                $"ou={name},{path.Replace( "LDAP://", "" )}";
             DeleteOrganizationUnit( distinguishedName, isDryRun );
         }
 
@@ -272,12 +275,9 @@ namespace Synapse.Ldap.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string name, string path)
         {
-            String distinguishedName = null;
-            if ( String.IsNullOrWhiteSpace( path ) )
-                distinguishedName = $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}";
-            else
-                distinguishedName = $"ou={name},{path.Replace( "LDAP://", "" )}";
-
+            String distinguishedName = String.IsNullOrWhiteSpace( path ) ? 
+                $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}" : 
+                $"ou={name},{path.Replace( "LDAP://", "" )}";
             return GetOrganizationalUnit( distinguishedName );
         }
 
