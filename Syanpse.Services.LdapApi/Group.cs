@@ -14,7 +14,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults GetGroup(string name)
     {
-        string planName = @"QueryGroup";
+        string planName = config.Plans.Group.Query;
         StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
@@ -23,7 +23,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults DeleteGroup(string name)
     {
-        string planName = @"DeleteGroup";
+        string planName = config.Plans.Group.Delete;
         StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
@@ -32,7 +32,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults CreateGroup(string name, LdapGroup group)
     {
-        string planName = @"CreateGroup";
+        string planName = config.Plans.Group.Create;
         StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
@@ -41,7 +41,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}" )]
     public LdapHandlerResults ModifyGroup(string name, LdapGroup group)
     {
-        string planName = @"ModifyGroup";
+        string planName = config.Plans.Group.Modify;
         StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
@@ -50,7 +50,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}/{group}" )]
     public LdapHandlerResults AddGroupToGroup(string name, string group)
     {
-        string planName = @"AddGroupToGroup";
+        string planName = config.Plans.Group.AddToGroup;
         StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
@@ -59,7 +59,7 @@ public partial class LdapApiController : ApiController
     [Route( "group/{name}/{group}" )]
     public LdapHandlerResults RemoveGroupFromGroup(string name, string group)
     {
-        string planName = @"RemoveGroupFromGroup";
+        string planName = config.Plans.Group.RemoveFromGroup;
         StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }

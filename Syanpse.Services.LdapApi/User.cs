@@ -15,7 +15,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults GetUser(string name)
     {
-        string planName = @"QueryUser";
+        string planName = config.Plans.User.Query;
         StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
@@ -24,7 +24,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults DeleteUser(string name)
     {
-        string planName = @"DeleteUser";
+        string planName = config.Plans.User.Delete;
         StartPlanEnvelope pe = GetPlanEnvelope( name );
         return CallPlan( planName, pe );
     }
@@ -33,7 +33,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults CreateUser(string name, LdapUser user)
     {
-        string planName = @"CreateUser";
+        string planName = config.Plans.User.Create;
         StartPlanEnvelope pe = GetPlanEnvelope( name, user );
         return CallPlan( planName, pe );
     }
@@ -42,7 +42,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}" )]
     public LdapHandlerResults ModifyUser(string name, LdapUser user)
     {
-        string planName = @"ModifyUser";
+        string planName = config.Plans.User.Modify;
         StartPlanEnvelope pe = GetPlanEnvelope( name, user );
         return CallPlan( planName, pe );
     }
@@ -51,7 +51,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}/{group}" )]
     public LdapHandlerResults AddUserToGroup(string name, string group)
     {
-        string planName = @"AddUserToGroup";
+        string planName = config.Plans.User.AddToGroup;
         StartPlanEnvelope pe = GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }
@@ -60,7 +60,7 @@ public partial class LdapApiController : ApiController
     [Route( "user/{name}/{group}" )]
     public LdapHandlerResults RemoveUserFromGroup(string name, string group)
     {
-        string planName = @"RemoveUserFromGroup";
+        string planName = config.Plans.User.RemoveFromGroup;
         StartPlanEnvelope pe =  GetPlanEnvelope( name, group );
         return CallPlan( planName, pe );
     }

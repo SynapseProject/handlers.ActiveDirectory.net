@@ -17,6 +17,8 @@ using Synapse.Handlers.Ldap;
 [RoutePrefix( "ad" )]
 public partial class LdapApiController : ApiController
 {
+    LdapApiConfig config = LdapApiConfig.DeserializeOrNew();
+
     [HttpGet]
     [Route( "hello" )]
     public string Hello() { return "Hello from LdapApiController, World!"; }
