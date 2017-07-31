@@ -14,7 +14,7 @@ Actions:
         QueryGroupMembership: true
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: false
+        ReturnObjects: true
         SuppressOutput: false
       Dynamic:
       - Name: showgroups

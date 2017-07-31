@@ -11,10 +11,10 @@ Actions:
         LdapRoot: LDAP://DC=sandbox,DC=local
         Action: Create
         RunSequential: false
-        QueryGroupMembership: false
+        QueryGroupMembership: true
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: false
+        ReturnObjects: true
         UseUpsert: true
         SuppressOutput: false
       Dynamic:

@@ -155,7 +155,7 @@ public class LdapHandler : HandlerRuntimeBase
         results.Add( result );
     }
 
-    private void DoQuery(LdapObjectResult result, LdapObject obj, bool returnObject = true)
+    private void DoQuery(LdapObjectResult result, LdapObject obj, bool returnObject = true, bool returnStatus = true)
     {
         LdapStatus status = new LdapStatus()
         {
@@ -172,21 +172,22 @@ public class LdapHandler : HandlerRuntimeBase
                 case LdapObjectType.User:
                     if ( returnObject )
                         result.User = (UserPrincipalObject)ldapObject;
-                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.Group:
                     if ( returnObject )
                         result.Group =  (GroupPrincipalObject)ldapObject;
-                    result.Statuses.Add( status );
                     break;
                 case LdapObjectType.OrganizationalUnit:
                     if ( returnObject )
                         result.OrganizationalUnit = (OrganizationalUnitObject)ldapObject;
-                    result.Statuses.Add( status );
                     break;
                 default:
                     throw new LdapException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", LdapStatusType.NotSupported );
             }
+
+            if ( returnStatus )
+                result.Statuses.Add( status );
+
         }
         catch ( LdapException ex )
         {
@@ -559,7 +560,7 @@ public class LdapHandler : HandlerRuntimeBase
             }
 
             if ( returnObject )
-                DoQuery( result, obj, true );
+                DoQuery( result, obj, true, false );
         }
         catch ( LdapException ex )
         {
@@ -637,7 +638,7 @@ public class LdapHandler : HandlerRuntimeBase
             }
 
             if ( returnObject )
-                DoQuery( result, obj, true );
+                DoQuery( result, obj, true, false );
         }
         catch ( LdapException ex )
         {
