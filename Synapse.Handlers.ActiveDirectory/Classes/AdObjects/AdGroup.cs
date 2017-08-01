@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+using System.Xml;
+using System.DirectoryServices.AccountManagement;
+
+using Synapse.ActiveDirectory.Core;
+
+namespace Synapse.Handlers.ActiveDirectory
+{
+    public class AdGroup : AdObject
+    {
+        [XmlElement]
+        public GroupScope Scope { get; set; }
+        [XmlElement]
+        public bool IsSecurityGroup { get; set; }
+        [XmlArrayItem(ElementName = "Group")]
+        public List<string> Groups { get; set; }
+
+        public override AdObjectType GetADType()
+        {
+            return AdObjectType.Group;
+        }
+    }
+}

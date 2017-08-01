@@ -1,0 +1,51 @@
+Name: CreateGroupApi
+Description: Create Ldap Group
+IsActive: true
+Actions:
+- Name: CreateGroup
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Modify
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: false
+        UseUpsert: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Name: xxxxxxxx
+        Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
+        Scope: Universal     # Local, Global or Universal
+        Description: xxxxxxxx
+        IsSecurityGroup: true
+    Dynamic:
+    - Name: name
+      Path: Groups[0]:Name
+    - Name: path
+      Path: Groups[0]:Path
+    - Name: distinguishedname
+      Path: Groups[0]:DistinguishedName
+    - Name: scope
+      Path: Groups[0]:Scope
+    - Name: description
+      Path: Groups[0]:Description
+    - Name: securitygroup
+      Path: Groups[0]:IsSecurityGroup

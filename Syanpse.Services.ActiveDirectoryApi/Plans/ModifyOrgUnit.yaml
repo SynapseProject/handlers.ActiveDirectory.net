@@ -1,0 +1,44 @@
+Name: CreateOrgUnitApi
+Description: Create Ldap Organizational Unit
+IsActive: true
+Actions:
+- Name: CreateOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Modify
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Name: xxxxxxxx
+        Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
+        Description: Created by Synapse
+    Dynamic:
+    - Name: name
+      Path: OrganizationalUnits[0]:Name
+    - Name: path
+      Path: OrganizationalUnits[0]:Path
+    - Name: distinguishedname
+      Path: OrganizationalUnits[0]:DistinguishedName
+    - Name: description
+      Path: OrganizationalUnits[0]:Description

@@ -1,0 +1,54 @@
+Name: CreateUserApi
+Description: Create Ldap User
+IsActive: true
+Actions:
+- Name: CreateUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Modify
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: false
+        UseUpsert: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Name: xxxxxxxx
+        Path: xxxxxxxx
+        DistinguishedName: xxxxxxxx
+        Password: xxxxxxxx
+        GivenName: xxxxxxxx
+        Surname: xxxxxxxx
+        Description: xxxxxxxx
+    Dynamic:
+    - Name: name
+      Path: Users[0]:Name
+    - Name: path
+      Path: Users[0]:Path
+    - Name: distinguishedname
+      Path: Users[0]:DistinguishedName
+    - Name: password
+      Path: Users[0]:Password
+    - Name: givenname
+      Path: Users[0]:GivenName
+    - Name: surname
+      Path: Users[0]:Surname
+    - Name: description
+      Path: Users[0]:Description

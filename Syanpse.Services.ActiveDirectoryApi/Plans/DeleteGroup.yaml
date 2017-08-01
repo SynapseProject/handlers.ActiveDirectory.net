@@ -1,0 +1,38 @@
+Name: DeleteGroupApi
+Description: Delete Ldap Group
+IsActive: true
+Actions:
+- Name: DeleteGroup
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        LdapRoot: LDAP://DC=sandbox,DC=local
+        Action: Delete
+        RunSequential: false
+        QueryGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: showgroups
+        Path: QueryGroupMembership
+      - Name: formattype
+        Path: OutputType
+      - Name: prettyprint
+        Path: PrettyPrint
+      - Name: returnobject
+        Path: ReturnObjects
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Name: xxxxxx
+        DistinguishedName: xxxxx
+    Dynamic:
+    - Name: name
+      Path: Groups[0]:Name
+    - Name: distinguishedname
+      Path: Groups[0]:DistinguishedName
