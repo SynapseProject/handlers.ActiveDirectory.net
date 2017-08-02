@@ -9,19 +9,14 @@ using Synapse.ActiveDirectory.Core;
 
 namespace Synapse.Handlers.ActiveDirectory
 {
+    // Base Class Containing Fields To Address Individual Objects In Active Directory
     abstract public class AdObject
     {
-        [XmlElement]
-        public string Name { get; set; }
-        [XmlElement]
-        public string DistinguishedName { get; set; }
-        [XmlElement]
+        public string Name { get; set; } 
+        public string DistinguishedName { get; set; }               
         public string Path { get; set; }
-        [XmlIgnore]
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }
-        [XmlElement]
-        public string Description { get; set; }
 
         public abstract AdObjectType GetADType();
     }

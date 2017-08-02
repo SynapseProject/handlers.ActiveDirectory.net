@@ -260,10 +260,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
-                        DirectoryServices.CreateUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
-                    else
-                        DirectoryServices.CreateUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
+                    UserPrincipal up = user.GetUserPrincipal();
+                    DirectoryServices.CreateUser( up, isDryRun, config.UseUpsert );
+
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
@@ -352,10 +351,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    if ( !string.IsNullOrWhiteSpace( user.DistinguishedName ) )
-                        DirectoryServices.ModifyUser( user.DistinguishedName, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
-                    else
-                        DirectoryServices.ModifyUser( user.Name, user.Path, user.Password, user.GivenName, user.Surname, user.Description, true, isDryRun, config.UseUpsert );
+                    UserPrincipal up = user.GetUserPrincipal();
+                    DirectoryServices.ModifyUser( up, isDryRun, config.UseUpsert );
+
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );

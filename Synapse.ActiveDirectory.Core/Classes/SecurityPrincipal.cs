@@ -42,7 +42,7 @@ namespace Synapse.ActiveDirectory.Core
         // Exceptions:
         //   T:System.InvalidOperationException:
         //     The underlying store does not support this property.
-        public DateTime? AccountLockoutTime { get; }
+        public DateTime? AccountLockoutTime { get; set; }
         //
         // Summary:
         //     Gets or sets a Boolean value that specifies whether reversible password encryption
@@ -66,7 +66,7 @@ namespace Synapse.ActiveDirectory.Core
         // Exceptions:
         //   T:System.InvalidOperationException:
         //     The underlying store does not support this property.
-        public int BadLogonCount { get; }
+        public int BadLogonCount { get; set; }
 
         ////
         //// Summary:
@@ -289,6 +289,8 @@ namespace Synapse.ActiveDirectory.Core
             ScriptPath = ap.ScriptPath;
             SmartcardLogonRequired = ap.SmartcardLogonRequired;
             UserCannotChangePassword = ap.UserCannotChangePassword;
+            BadLogonCount = ap.BadLogonCount;
+            AccountLockoutTime = ap.AccountLockoutTime;
         }
     }
 }

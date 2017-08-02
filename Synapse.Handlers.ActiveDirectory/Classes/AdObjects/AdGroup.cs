@@ -10,10 +10,16 @@ namespace Synapse.Handlers.ActiveDirectory
 {
     public class AdGroup : AdObject
     {
-        [XmlElement]
+        // Settable Principal Fields
+        public string UserPrincipalName { get; set; }
+        public string SamAccountName { get; set; }
+        public string DisplayName { get; set; }
+        public string Description { get; set; }
+
+        // Settable GroupPrincipalFields
         public GroupScope Scope { get; set; }
-        [XmlElement]
         public bool IsSecurityGroup { get; set; }
+
         [XmlArrayItem(ElementName = "Group")]
         public List<string> Groups { get; set; }
 

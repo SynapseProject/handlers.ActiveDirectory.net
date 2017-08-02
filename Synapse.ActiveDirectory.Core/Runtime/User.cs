@@ -29,6 +29,42 @@ namespace Synapse.ActiveDirectory.Core
             return u;
         }
 
+        public static void CreateUser(UserPrincipal user, bool isDryRun = false, bool upsert = true)
+        {
+            if ( !IsExistingUser( user.Name ) )
+            {
+                try
+                {
+                    user.Save();
+                }
+                catch ( PrincipalOperationException ex )
+                {
+                    if ( ex.Message.Contains( "There is no such object on the server." ) )
+                    {
+                        throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
+                    }
+                    throw;
+                }
+                catch ( PasswordException ex )
+                {
+                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
+                    {
+                        throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
+                    }
+                    throw;
+                }
+            }
+            else if ( upsert )
+            {
+                ModifyUser( user, isDryRun, false );
+            }
+            else
+            {
+                throw new AdException( "The user already exists.", AdStatusType.AlreadyExists );
+            }
+
+        }
+
         public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
@@ -117,6 +153,84 @@ namespace Synapse.ActiveDirectory.Core
             {
                 throw new AdException( "The user already exists.", AdStatusType.AlreadyExists );
             }
+        }
+
+        public static void ModifyUser(UserPrincipal user, bool isDryRun = false, bool upsert = true)
+        {
+            if ( IsExistingUser( user.Name ) )
+            {
+                try
+                {
+                    String sAMAccountName = GetCommonName( user.Name );
+
+                    using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+                    {
+                        UserPrincipal currentUser = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                        if ( currentUser == null )
+                            throw new AdException( $"User [{sAMAccountName}] Not Found.", AdStatusType.DoesNotExist );
+                        if ( !isDryRun )
+                        {
+                            // TODO : Only Update Non-Null Fields
+                            // TODO : Can you "modify" UserPrincipalName, SamAccountName and/or Name????
+//                            currentUser.UserPrincipalName = user.UserPrincipalName ?? user.Name;
+//                            currentUser.SamAccountName = user.SamAccountName ?? user.Name;
+                            currentUser.DisplayName = user.DisplayName;
+                            currentUser.Description = user.Description;
+//                            currentUser.Name = user.Name;
+
+                            if ( user.Enabled != null )
+                                currentUser.Enabled = user.Enabled;
+                            currentUser.PermittedLogonTimes = user.PermittedLogonTimes;
+                            currentUser.AccountExpirationDate = user.AccountExpirationDate;
+                            currentUser.SmartcardLogonRequired = user.SmartcardLogonRequired;
+                            currentUser.DelegationPermitted = user.DelegationPermitted;
+                            currentUser.HomeDirectory = user.HomeDirectory;
+                            currentUser.ScriptPath = user.ScriptPath;
+                            currentUser.PasswordNotRequired = user.PasswordNotRequired;
+                            currentUser.PasswordNeverExpires = user.PasswordNeverExpires;
+                            currentUser.UserCannotChangePassword = user.UserCannotChangePassword;
+                            currentUser.AllowReversiblePasswordEncryption = user.AllowReversiblePasswordEncryption;
+                            currentUser.HomeDrive = user.HomeDrive;
+
+                            currentUser.GivenName = user.GivenName;
+                            currentUser.MiddleName = user.MiddleName;
+                            currentUser.Surname = user.Surname;
+                            currentUser.EmailAddress = user.EmailAddress;
+                            currentUser.VoiceTelephoneNumber = user.VoiceTelephoneNumber;
+                            currentUser.EmployeeId = user.EmployeeId;
+                            
+                            //TODO : Set Password On Modify
+//                            currentUser.SetPassword( Password );
+                            currentUser.Save();
+                        }
+                    }
+                }
+                catch ( PrincipalOperationException ex )
+                {
+                    if ( ex.Message.Contains( "There is no such object on the server." ) )
+                    {
+                        throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
+                    }
+                    throw;
+                }
+                catch ( PasswordException ex )
+                {
+                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
+                    {
+                        throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
+                    }
+                    throw;
+                }
+            }
+            else if ( upsert )
+            {
+                CreateUser( user, isDryRun, false );
+            }
+            else
+            {
+                throw new AdException( "The user does not exist.", AdStatusType.DoesNotExist );
+            }
+
         }
 
         public static void ModifyUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)

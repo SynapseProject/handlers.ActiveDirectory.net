@@ -45,12 +45,12 @@ namespace Synapse.Handlers.ActiveDirectory
 
         public string ToYaml()
         {
-            return YamlHelpers.Serialize( this, false, false, false );
+            return YamlHelpers.Serialize( this, false, false, true );
         }
 
         public string ToJson(bool prettyPrint)
         {
-            return YamlHelpers.Serialize( this, true, prettyPrint, false );
+            return YamlHelpers.Serialize( this, true, prettyPrint, true );
         }
 
         public string ToXml(bool prettyPrint)
