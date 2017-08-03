@@ -277,10 +277,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                        DirectoryServices.CreateGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
-                    else
-                        DirectoryServices.CreateGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
+                    GroupPrincipal gp = group.GetGroupPrincipal();
+                    DirectoryServices.CreateGroup( gp, isDryRun, config.UseUpsert );
+
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
@@ -366,10 +365,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                        DirectoryServices.ModifyGroup( group.DistinguishedName, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
-                    else
-                        DirectoryServices.ModifyGroup( group.Name, group.Path, group.Description, group.Scope, group.IsSecurityGroup, isDryRun, config.UseUpsert );
+                    GroupPrincipal gp = group.GetGroupPrincipal();
+                    DirectoryServices.ModifyGroup( gp, isDryRun, config.UseUpsert );
+
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
