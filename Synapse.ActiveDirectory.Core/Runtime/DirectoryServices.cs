@@ -54,9 +54,9 @@ namespace Synapse.ActiveDirectory.Core
                 return distinguishedName;
         }
 
-        public static PrincipalContext GetPrincipalContext(string ouPath = "")
+        public static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
-            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, null, ouPath ) : new PrincipalContext( ContextType.Domain );
+            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, domainName, ouPath ) : new PrincipalContext( ContextType.Domain, domainName );
             return principalContext;
         }
 
