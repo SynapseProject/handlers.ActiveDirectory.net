@@ -209,18 +209,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             case AdObjectType.User:
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
-                if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
-                    upo = DirectoryServices.GetUser( user.DistinguishedName, config.QueryGroupMembership );
-                else
-                    upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
+                upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
                 return upo;
             case AdObjectType.Group:
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
-                if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                    gpo = DirectoryServices.GetGroup( group.DistinguishedName, config.QueryGroupMembership );
-                else
-                    gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
+                gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;

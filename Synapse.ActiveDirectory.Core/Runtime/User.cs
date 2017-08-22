@@ -11,16 +11,14 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static UserPrincipalObject GetUser(string name, bool getGroups)
+        public static UserPrincipalObject GetUser(string identity, bool getGroups)
         {
-            String commonName = GetCommonName( name );
-
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                UserPrincipal user = UserPrincipal.FindByIdentity( context, commonName );
+                UserPrincipal user = UserPrincipal.FindByIdentity( context, identity );
                 if ( user == null )
-                    throw new AdException( $"User [{commonName}] Not Found.", AdStatusType.DoesNotExist );
+                    throw new AdException( $"User [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
                 u = new UserPrincipalObject( user );
                 if ( getGroups )
