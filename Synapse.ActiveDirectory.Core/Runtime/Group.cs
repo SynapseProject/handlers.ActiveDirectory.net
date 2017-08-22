@@ -574,7 +574,7 @@ namespace Synapse.ActiveDirectory.Core
             GroupPrincipalObject g = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName );
+                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, groupName );
                 if ( group == null )
                     throw new AdException( $"Group [{groupName}] Not Found.", AdStatusType.DoesNotExist );
 

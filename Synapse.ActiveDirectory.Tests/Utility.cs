@@ -21,7 +21,7 @@ namespace Synapse.ActiveDirectory.Tests
             {
                 using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                 {
-                    using ( GroupPrincipal user = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName ) )
+                    using ( GroupPrincipal user = GroupPrincipal.FindByIdentity( context, groupName ) )
                     {
                         if ( user != null )
                         {
@@ -53,7 +53,7 @@ namespace Synapse.ActiveDirectory.Tests
             {
                 using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                 {
-                    using ( UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username ) )
+                    using ( UserPrincipal user = UserPrincipal.FindByIdentity( context, username ) )
                     {
                         if ( user != null )
                         {
