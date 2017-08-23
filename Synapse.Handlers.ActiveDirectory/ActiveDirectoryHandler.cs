@@ -146,9 +146,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         DoQuery( result, obj, returnObject );
@@ -209,20 +207,17 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             case AdObjectType.User:
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
-                upo = DirectoryServices.GetUser( user.Name, config.QueryGroupMembership );
+                upo = DirectoryServices.GetUser( user.Identity, config.QueryGroupMembership );
                 return upo;
             case AdObjectType.Group:
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
-                gpo = DirectoryServices.GetGroup( group.Name, config.QueryGroupMembership );
+                gpo = DirectoryServices.GetGroup( group.Identity, config.QueryGroupMembership );
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
-                if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                    ouo = DirectoryServices.GetOrganizationalUnit( ou.DistinguishedName );
-                else
-                    ouo = DirectoryServices.GetOrganizationalUnit( ou.Name, ou.Path );
+                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity );
                 return ouo;
             default:
                 throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
@@ -234,9 +229,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
@@ -254,10 +247,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    UserPrincipal up = user.GetUserPrincipal();
+                    UserPrincipal up = user.CreateUserPrincipal();
                     DirectoryServices.CreateUser( up, isDryRun, config.UseUpsert );
 
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
                         AddToGroup( result, user, false );
@@ -271,10 +264,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    GroupPrincipal gp = group.GetGroupPrincipal();
+                    GroupPrincipal gp = group.CreateGroupPrincipal();
                     DirectoryServices.CreateGroup( gp, isDryRun, config.UseUpsert );
 
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
                         AddToGroup( result, group, false );
@@ -287,11 +280,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                        DirectoryServices.CreateOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert );
-                    else
-                        DirectoryServices.CreateOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Name + "] Created." );
+                    DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, isDryRun, config.UseUpsert );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( returnObject )
                     {
@@ -324,9 +314,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
@@ -344,10 +332,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    UserPrincipal up = user.GetUserPrincipal();
+                    UserPrincipal up = user.CreateUserPrincipal();
                     DirectoryServices.ModifyUser( up, isDryRun, config.UseUpsert );
 
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
                     result.Statuses.Add( status );
@@ -359,10 +347,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    GroupPrincipal gp = group.GetGroupPrincipal();
+                    GroupPrincipal gp = group.CreateGroupPrincipal();
                     DirectoryServices.ModifyGroup( gp, isDryRun, config.UseUpsert );
 
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
                     result.Statuses.Add( status );
@@ -374,11 +362,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    if ( !string.IsNullOrWhiteSpace( ou.DistinguishedName ) )
-                        DirectoryServices.ModifyOrganizationUnit( ou.DistinguishedName, ou.Description, isDryRun, config.UseUpsert);
-                    else
-                        DirectoryServices.ModifyOrganizationUnit( ou.Name, ou.Path, ou.Description, isDryRun, config.UseUpsert );
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Name + "] Modified." );
+                    DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, isDryRun, config.UseUpsert);
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     result.Statuses.Add( status );
                     if ( returnObject )
                     {
@@ -411,9 +396,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
@@ -429,33 +412,24 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    if (!string.IsNullOrWhiteSpace(user.DistinguishedName))
-                        DirectoryServices.DeleteUser( user.DistinguishedName );
-                    else
-                        DirectoryServices.DeleteUser( user.Name );
+                    DirectoryServices.DeleteUser( user.Identity );
                     result.Statuses.Add( status );
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( !String.IsNullOrWhiteSpace( group.DistinguishedName ) )
-                        DirectoryServices.DeleteGroup( group.DistinguishedName, isDryRun );
-                    else
-                        DirectoryServices.DeleteGroup( group.Name, isDryRun );
+                    DirectoryServices.DeleteGroup( group.Identity, isDryRun );
                     result.Statuses.Add( status );
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    if (!string.IsNullOrWhiteSpace(ou.DistinguishedName))
-                        DirectoryServices.DeleteOrganizationUnit( ou.DistinguishedName );
-                    else
-                        DirectoryServices.DeleteOrganizationUnit( ou.Name, ou.Path );
+                    DirectoryServices.DeleteOrganizationUnit( ou.Identity );
                     result.Statuses.Add( status );
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
             }
 
-            String message = $"{obj.Type} [{obj.Name}] Deleted.";
+            String message = $"{obj.Type} [{obj.Identity}] Deleted.";
             OnLogMessage( "ProcessDelete", message );
         }
         catch ( AdException ex )
@@ -479,9 +453,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         AddToGroup( result, obj, returnObject );
@@ -503,15 +475,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     if ( user.Groups != null )
                     {
                         foreach ( string userGroup in user.Groups )
                         {
                             try
                             {
-                                DirectoryServices.AddUserToGroup( userName, userGroup, isDryRun );
-                                String userMessage = $"{obj.Type} [{userName}] Added To Group [{userGroup}].";
+                                DirectoryServices.AddUserToGroup( user.Identity, userGroup, isDryRun );
+                                String userMessage = $"{obj.Type} [{user.Identity}] Added To Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", userMessage );
                                 status.Message = userMessage;
                                 result.Statuses.Add( new ActiveDirectoryStatus( status ) );
@@ -525,15 +496,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     if ( group.Groups != null )
                     {
                         foreach ( string groupGroup in group.Groups )
                         {
                             try
                             {
-                                DirectoryServices.AddGroupToGroup( groupName, groupGroup, isDryRun );
-                                String groupMessage = $"{obj.Type} [{groupName}] Added To Group [{groupGroup}].";
+                                DirectoryServices.AddGroupToGroup( group.Identity, groupGroup, isDryRun );
+                                String groupMessage = $"{obj.Type} [{group.Identity}] Added To Group [{groupGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", groupMessage );
                                 status.Message = groupMessage;
                                 result.Statuses.Add( new ActiveDirectoryStatus( status ) );
@@ -571,9 +541,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = obj.Type,
-            Name = obj.Name,
-            Path = obj.Path,
-            DistinguishedName = obj.DistinguishedName
+            Identity = obj.Identity
         };
 
         RemoveFromGroup( result, obj, returnObject );
@@ -595,13 +563,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    String userName = (String.IsNullOrWhiteSpace( user.DistinguishedName )) ? user.Name : user.DistinguishedName;
                     if ( user.Groups != null )
                     {
                         foreach ( string userGroup in user.Groups )
                         {
-                            DirectoryServices.RemoveUserFromGroup( userName, userGroup, isDryRun );
-                            String userMessage = $"{obj.Type} [{userName}] Removed From Group [{userGroup}].";
+                            DirectoryServices.RemoveUserFromGroup( user.Identity, userGroup, isDryRun );
+                            String userMessage = $"{obj.Type} [{user.Identity}] Removed From Group [{userGroup}].";
                             OnLogMessage( "ProcessGroupRemove", userMessage );
                             status.Message = userMessage;
                             result.Statuses.Add( new ActiveDirectoryStatus( status ) );
@@ -610,13 +577,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    String groupName = (String.IsNullOrWhiteSpace( group.DistinguishedName )) ? group.Name : group.DistinguishedName;
                     if ( group.Groups != null )
                     {
                         foreach ( string groupGroup in group.Groups )
                         {
-                            DirectoryServices.RemoveGroupFromGroup( groupName, groupGroup, isDryRun );
-                            String groupMessage = $"{obj.Type} [{groupName}] Removed From Group [{groupGroup}].";
+                            DirectoryServices.RemoveGroupFromGroup( group.Identity, groupGroup, isDryRun );
+                            String groupMessage = $"{obj.Type} [{group.Identity}] Removed From Group [{groupGroup}].";
                             OnLogMessage( "ProcessGroupRemove", groupMessage );
                             status.Message = groupMessage;
                             result.Statuses.Add( new ActiveDirectoryStatus( status ) );

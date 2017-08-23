@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.DirectoryServices;
 using System.Text.RegularExpressions;
 using System.DirectoryServices.AccountManagement;
+using System.Text;
 
 
 namespace Synapse.ActiveDirectory.Core
@@ -60,32 +61,38 @@ namespace Synapse.ActiveDirectory.Core
             return principalContext;
         }
 
-        public static DirectoryEntry GetDirectoryEntry(string distinguishedName)
+        public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = "organizationalUnit")
         {
-            string rootName = distinguishedName;
-            if ( distinguishedName.StartsWith( "LDAP://" ) )
-                distinguishedName = distinguishedName.Replace( "LDAP://", "" );
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+            string searchString = null;
+
+            if ( IsDistinguishedName( identity ) )
+                searchString = $"(distinguishedName={identity})";
+            else if ( IsGuid( identity ) )
+                searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
             else
-                rootName = $"LDAP://{rootName}";
+                searchString = $"(name={identity})";
+
 
             DirectoryEntry de = null;
-            if ( DirectoryEntry.Exists( rootName ) )
+            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
-                using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
-                using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
-                {
-                    searcher.Filter = $"(&(objectClass=organizationalUnit))"; //(name={name})
-                    searcher.SearchScope = SearchScope.Base;
-                    searcher.PropertiesToLoad.Add( "name" );
-                    searcher.PropertiesToLoad.Add( "distinguishedname" );
-                    searcher.ReferralChasing = ReferralChasingOption.All;
+                searcher.Filter = $"(&(objectClass={objectClass}){searchString})";
+                searcher.SearchScope = SearchScope.Subtree;
+                searcher.PropertiesToLoad.Add( "name" );
+                searcher.PropertiesToLoad.Add( "distinguishedname" );
+                searcher.PropertiesToLoad.Add( "objectGuid" );
+                searcher.ReferralChasing = ReferralChasingOption.All;
 
-                    SearchResultCollection results = searcher.FindAll();
-                    foreach ( SearchResult result in results )
-                        if ( result.Properties["distinguishedname"][0].ToString().Equals( distinguishedName, StringComparison.OrdinalIgnoreCase ) )
-                            de = result.GetDirectoryEntry();
+                SearchResultCollection results = searcher.FindAll();
+                if ( results.Count > 1 )
+                    throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
+                else if ( results.Count == 1 )
+                    de = results[0].GetDirectoryEntry();
 
-                }
             }
 
             return de;
@@ -100,5 +107,36 @@ namespace Synapse.ActiveDirectory.Core
             // Return the distinguished name for the domain of which this directory server is a member.
             return rootDSE.Properties["defaultNamingContext"][0].ToString();
         }
+
+        public static bool IsDistinguishedName(String identity)
+        {
+            if ( identity.StartsWith( "LDAP://" ) )
+                identity = identity.Replace( "LDAP://", "" );
+            return Regex.IsMatch( identity, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
+        }
+
+        public static bool IsGuid(String identity)
+        {
+            bool rc = false;
+            try
+            {
+                Guid.Parse( identity );
+                rc = true;
+            }
+            catch ( Exception ) { }
+
+            return rc;
+        }
+
+        public static string GetGuidSearchBytes(string identity)
+        {
+            Guid guid = Guid.Parse( identity );
+            byte[] bytes = guid.ToByteArray();
+            String str = BitConverter.ToString( bytes );
+            str = str.Replace( '-', '\\' );
+
+            return @"\" + str;
+        }
+
     }
 }

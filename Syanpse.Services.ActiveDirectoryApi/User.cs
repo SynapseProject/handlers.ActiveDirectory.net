@@ -31,19 +31,19 @@ public partial class ActiveDirectoryApiController : ApiController
 
     [HttpPost]
     [Route( "user/{name}" )]
-    public ActiveDirectoryHandlerResults CreateUser(string name, AdUser user)
+    public ActiveDirectoryHandlerResults CreateUser(string identity, AdUser user)
     {
         string planName = config.Plans.User.Create;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, user );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, user );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
     [Route( "user/{name}" )]
-    public ActiveDirectoryHandlerResults ModifyUser(string name, AdUser user)
+    public ActiveDirectoryHandlerResults ModifyUser(string identity, AdUser user)
     {
         string planName = config.Plans.User.Modify;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, user );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, user );
         return CallPlan( planName, pe );
     }
 

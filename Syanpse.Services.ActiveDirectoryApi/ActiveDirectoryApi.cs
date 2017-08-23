@@ -60,13 +60,13 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     // Create and Modify User
-    private StartPlanEnvelope GetPlanEnvelope(string name, AdUser user)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, AdUser user)
     {
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         if ( user != null )
         {
-            if ( !string.IsNullOrWhiteSpace( user.Path ) )
-                pe.DynamicParameters.Add( @"path", user.Path );
+//            if ( !string.IsNullOrWhiteSpace( user.Path ) )
+//                pe.DynamicParameters.Add( @"path", user.Path );
             if ( !string.IsNullOrWhiteSpace( user.Description ) )
                 pe.DynamicParameters.Add( @"description", user.Description );
             if ( !string.IsNullOrWhiteSpace( user.Password ) )
@@ -81,14 +81,14 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     // Create and Modify Group
-    private StartPlanEnvelope GetPlanEnvelope(string name, AdGroup group)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, AdGroup group)
     {
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
 
         if (group != null)
         {
-            if ( !string.IsNullOrWhiteSpace( group.Path ) )
-                pe.DynamicParameters.Add( @"path", group.Path );
+//            if ( !string.IsNullOrWhiteSpace( group.Path ) )
+//                pe.DynamicParameters.Add( @"path", group.Path );
             if ( !string.IsNullOrWhiteSpace( group.Description ) )
                 pe.DynamicParameters.Add( @"description", group.Description );
             pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );

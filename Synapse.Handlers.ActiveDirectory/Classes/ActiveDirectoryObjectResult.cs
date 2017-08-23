@@ -18,11 +18,11 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         public AdObjectType Type { get; set; } = AdObjectType.None;
         [XmlElement]
-        public string Name { get; set; }
-        [XmlElement]
-        public string Path { get; set; }
-        [XmlElement]
-        public string DistinguishedName { get; set; }
+        public string Identity { get; set; }
+//        [XmlElement]
+//        public string Path { get; set; }
+//        [XmlElement]
+//        public string DistinguishedName { get; set; }
 
         [XmlElement]
         public UserPrincipalObject User { get; set; }

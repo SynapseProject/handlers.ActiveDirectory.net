@@ -49,28 +49,31 @@ namespace Synapse.Handlers.ActiveDirectory
             return AdObjectType.User;
         }
 
-        public UserPrincipal GetUserPrincipal()
+        public UserPrincipal CreateUserPrincipal()
         {
-            if ( !String.IsNullOrWhiteSpace( this.DistinguishedName ) )
+            String name = String.Empty;
+            String path = String.Empty;
+
+            if ( !String.IsNullOrWhiteSpace( this.Identity ) )
             {
                 Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-                Match match = regex.Match( this.DistinguishedName );
+                Match match = regex.Match( this.Identity );
                 if ( match.Success )
                 {
-                    this.Name = match.Groups[1]?.Value?.Trim();
-                    this.Path = match.Groups[2]?.Value?.Trim();
+                    name = match.Groups[1]?.Value?.Trim();
+                    path = match.Groups[2]?.Value?.Trim();
                 }
             }
 
-            this.Path = Path.Replace( "LDAP://", "" );
-            PrincipalContext context = DirectoryServices.GetPrincipalContext( this.Path );
+            path = path.Replace( "LDAP://", "" );
+            PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
             UserPrincipal user = new UserPrincipal( context );
 
-            user.UserPrincipalName = this.UserPrincipalName ?? this.Name;
-            user.SamAccountName = this.SamAccountName ?? this.Name;
+            user.UserPrincipalName = this.UserPrincipalName ?? name;
+            user.SamAccountName = this.SamAccountName ?? name;
             user.DisplayName = this.DisplayName;
             user.Description = this.Description;
-            user.Name = this.Name;
+            user.Name = name;
 
             if (this.Enabled != null)
                 user.Enabled = this.Enabled;

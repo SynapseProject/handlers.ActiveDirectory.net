@@ -572,13 +572,21 @@ namespace Synapse.ActiveDirectory.Core
             GroupPrincipalObject g = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, identity );
-                if ( group == null )
-                    throw new AdException( $"Group [{identity}] Not Found.", AdStatusType.DoesNotExist );
+                try
+                {
+                    GroupPrincipal group = GroupPrincipal.FindByIdentity( context, identity );
+                    if ( group == null )
+                        throw new AdException( $"Group [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
-                g = new GroupPrincipalObject( group );
-                if ( getGroups )
-                    g.GetGroups();
+                    g = new GroupPrincipalObject( group );
+                    if ( getGroups )
+                        g.GetGroups();
+                }
+                catch ( MultipleMatchesException mme )
+                {
+                    throw new AdException( $"Multiple Groups Contain The Identity [{identity}].", mme, AdStatusType.MultipleMatches );
+                }
+
             }
             return g;
         }

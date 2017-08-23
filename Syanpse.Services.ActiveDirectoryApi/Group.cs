@@ -30,19 +30,19 @@ public partial class ActiveDirectoryApiController : ApiController
 
     [HttpPost]
     [Route( "group/{name}" )]
-    public ActiveDirectoryHandlerResults CreateGroup(string name, AdGroup group)
+    public ActiveDirectoryHandlerResults CreateGroup(string identity, AdGroup group)
     {
         string planName = config.Plans.Group.Create;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, group );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
     [Route( "group/{name}" )]
-    public ActiveDirectoryHandlerResults ModifyGroup(string name, AdGroup group)
+    public ActiveDirectoryHandlerResults ModifyGroup(string identity, AdGroup group)
     {
         string planName = config.Plans.Group.Modify;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, group );
         return CallPlan( planName, pe );
     }
 

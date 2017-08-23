@@ -54,7 +54,8 @@ namespace Synapse.ActiveDirectory.Core
         InvalidAttribute,
         ConnectionError,
         InvalidName,
-        InvalidContainer
+        InvalidContainer,
+        MultipleMatches
     }
 
 }

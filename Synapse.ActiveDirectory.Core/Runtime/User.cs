@@ -16,13 +16,20 @@ namespace Synapse.ActiveDirectory.Core
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                UserPrincipal user = UserPrincipal.FindByIdentity( context, identity );
-                if ( user == null )
-                    throw new AdException( $"User [{identity}] Not Found.", AdStatusType.DoesNotExist );
+                try
+                {
+                    UserPrincipal user = UserPrincipal.FindByIdentity( context, identity );
+                    if ( user == null )
+                        throw new AdException( $"User [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
-                u = new UserPrincipalObject( user );
-                if ( getGroups )
-                    u.GetGroups();
+                    u = new UserPrincipalObject( user );
+                    if ( getGroups )
+                        u.GetGroups();
+                }
+                catch (MultipleMatchesException mme)
+                {
+                    throw new AdException( $"Multiple Users Contain The Identity [{identity}].", mme, AdStatusType.MultipleMatches );
+                }
             }
             return u;
         }
@@ -63,6 +70,7 @@ namespace Synapse.ActiveDirectory.Core
 
         }
 
+/*
         public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
@@ -76,7 +84,7 @@ namespace Synapse.ActiveDirectory.Core
             else
                 throw new AdException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
         }
-
+*/
         public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
@@ -230,7 +238,7 @@ namespace Synapse.ActiveDirectory.Core
             }
 
         }
-
+/*
         public static void ModifyUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
@@ -244,7 +252,7 @@ namespace Synapse.ActiveDirectory.Core
             else
                 throw new AdException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
         }
-
+*/
         public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
         {
             if ( String.IsNullOrWhiteSpace( username ) )

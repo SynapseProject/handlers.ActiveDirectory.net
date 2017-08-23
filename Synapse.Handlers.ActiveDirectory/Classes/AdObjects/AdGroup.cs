@@ -30,28 +30,29 @@ namespace Synapse.Handlers.ActiveDirectory
         }
 
 
-        public GroupPrincipal GetGroupPrincipal()
+        public GroupPrincipal CreateGroupPrincipal()
         {
-            if ( !String.IsNullOrWhiteSpace( this.DistinguishedName ) )
+            String name = String.Empty;
+            String path = String.Empty;
+
+            if ( !String.IsNullOrWhiteSpace( this.Identity ) )
             {
                 Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-                Match match = regex.Match( this.DistinguishedName );
+                Match match = regex.Match( this.Identity );
                 if ( match.Success )
                 {
-                    this.Name = match.Groups[1]?.Value?.Trim();
-                    this.Path = match.Groups[2]?.Value?.Trim();
+                    name = match.Groups[1]?.Value?.Trim();
+                    path = match.Groups[2]?.Value?.Trim();
                 }
             }
 
-            this.Path = Path.Replace( "LDAP://", "" );
-            PrincipalContext context = DirectoryServices.GetPrincipalContext( this.Path );
+            path = path.Replace( "LDAP://", "" );
+            PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
             GroupPrincipal group = new GroupPrincipal( context );
 
-//            group.UserPrincipalName = this.UserPrincipalName ?? this.Name;
-            group.SamAccountName = this.SamAccountName ?? this.Name;
-//            group.DisplayName = this.DisplayName;
+            group.SamAccountName = this.SamAccountName ?? name;
             group.Description = this.Description;
-            group.Name = this.Name;
+            group.Name = name;
 
             if (this.IsSecurityGroup != null)
                 group.IsSecurityGroup = this.IsSecurityGroup;
