@@ -130,35 +130,30 @@ namespace Synapse.ActiveDirectory.Core
             DeleteOrganizationUnit( distinguishedName, isDryRun );
         }
 
-        public static void DeleteOrganizationUnit(string distinguishedName, bool isDryRun = false)
+        public static void DeleteOrganizationUnit(string identity, bool isDryRun = false)
         {
             // Exact distinguished name of the organization unit is expected.
-            if ( string.IsNullOrWhiteSpace( distinguishedName ) )
+            if ( string.IsNullOrWhiteSpace( identity ) )
             {
                 throw new AdException( "Organization unit is not specified.", AdStatusType.MissingInput );
             }
 
-            distinguishedName = distinguishedName.Replace( "LDAP://", "" );
+            identity = identity.Replace( "LDAP://", "" );
 
-            if ( IsExistingOrganizationUnit( distinguishedName ) )
+            DirectoryEntry orgUnitForDelete = GetDirectoryEntry( identity );
+
+            if ( orgUnitForDelete != null )
             {
-                using ( DirectoryEntry orgUnitForDeletion = new DirectoryEntry(
-                    $"LDAP://{distinguishedName}",
-                    null, // Username
-                    null, // Password
-                    AuthenticationTypes.Secure ) )
+                if ( !isDryRun )
                 {
-                    if ( !isDryRun )
+                    try
                     {
-                        try
-                        {
-                            orgUnitForDeletion.DeleteTree();
-                            orgUnitForDeletion.CommitChanges();
-                        }
-                        catch ( InvalidOperationException )
-                        {
-                            throw new AdException( "Organization unit specified is not a container.", AdStatusType.InvalidContainer );
-                        }
+                        orgUnitForDelete.DeleteTree();
+                        orgUnitForDelete.CommitChanges();
+                    }
+                    catch ( InvalidOperationException )
+                    {
+                        throw new AdException( "Organization unit specified is not a container.", AdStatusType.InvalidContainer );
                     }
                 }
             }
@@ -203,7 +198,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Organization unit cannot be found.", AdStatusType.DoesNotExist );
             }
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             userPrincipal.GetUnderlyingObject();
             orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
 

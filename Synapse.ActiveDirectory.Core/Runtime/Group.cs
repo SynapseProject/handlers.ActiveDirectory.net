@@ -255,27 +255,21 @@ namespace Synapse.ActiveDirectory.Core
             return groupPrincipal;
         }
 
-        public static void DeleteGroup(string name, bool dryRun = false)
+        public static void DeleteGroup(string identity, bool dryRun = false)
         {
-            string groupName = GetCommonName( name );
-
-            if ( String.IsNullOrWhiteSpace( groupName ) )
+            if ( String.IsNullOrWhiteSpace( identity ) )
             {
-                throw new AdException( "Group name is not specified.", AdStatusType.MissingInput );
+                throw new AdException( "Group identity is not specified.", AdStatusType.MissingInput );
             }
 
             try
             {
-                PrincipalContext ctx = GetPrincipalContext();
-                GroupPrincipal groupPrincipal = new GroupPrincipal( ctx ) { Name = groupName };
-                PrincipalSearcher searcher = new PrincipalSearcher( groupPrincipal );
-
-                Principal foundGroup = searcher.FindOne();
-                if ( foundGroup != null )
+                GroupPrincipal groupPrincipal = GetGroupPrincipal( identity );
+                if ( groupPrincipal != null )
                 {
                     if ( !dryRun )
                     {
-                        foundGroup.Delete();
+                        groupPrincipal.Delete();
                     }
                 }
                 else
@@ -384,7 +378,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Group name is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username, domainName );
+            UserPrincipal userPrincipal = GetUserPrincipal( username, domainName );
             if ( userPrincipal == null )
             {
                 throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
@@ -473,7 +467,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Group name is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username, domainName );
+            UserPrincipal userPrincipal = GetUserPrincipal( username, domainName );
             if ( userPrincipal == null )
             {
                 throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
@@ -545,7 +539,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsUserGroupMember(string username, string groupName, string domainName = null)
         {
-            UserPrincipal userPrincipal = GetUser( username, domainName );
+            UserPrincipal userPrincipal = GetUserPrincipal( username, domainName );
             GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName, domainName );
 
             if ( userPrincipal != null && groupPrincipal != null )
@@ -595,7 +589,7 @@ namespace Synapse.ActiveDirectory.Core
         public static List<String> GetUserGroups(string username, string domainName = null)
         {
             List<String> myItems = new List<string>();
-            UserPrincipal userPrincipal = GetUser( username, domainName );
+            UserPrincipal userPrincipal = GetUserPrincipal( username, domainName );
 
             PrincipalSearchResult<Principal> searchResult = userPrincipal.GetGroups();
 
@@ -606,25 +600,14 @@ namespace Synapse.ActiveDirectory.Core
             return myItems;
         }
 
-        public static UserPrincipal GetUser(string username, string domainName = null)
+        public static GroupPrincipal GetGroupPrincipal(string identity, string domainName = null)
         {
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
             PrincipalContext principalContext = GetPrincipalContext( "", domainName );
 
-            UserPrincipal userPrincipal = UserPrincipal.FindByIdentity( principalContext, username );
-            return userPrincipal;
-        }
-
-        public static GroupPrincipal GetGroupPrincipal(string groupName, string domainName = null)
-        {
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-                return null;
-
-            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
-
-            GroupPrincipal groupPrincipal = GroupPrincipal.FindByIdentity( principalContext, groupName );
+            GroupPrincipal groupPrincipal = GroupPrincipal.FindByIdentity( principalContext, identity );
             return groupPrincipal;
         }
 

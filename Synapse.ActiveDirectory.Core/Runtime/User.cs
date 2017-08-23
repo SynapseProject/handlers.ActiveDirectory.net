@@ -339,7 +339,7 @@ namespace Synapse.ActiveDirectory.Core
 
             try
             {
-                UserPrincipal userPrincipal = GetUser( username );
+                UserPrincipal userPrincipal = GetUserPrincipal( username );
                 if ( userPrincipal != null )
                 {
                     if ( !isDryRun )
@@ -369,7 +369,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Username is not specified.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             if ( userPrincipal != null )
             {
                 userPrincipal.UnlockAccount();
@@ -414,16 +414,14 @@ namespace Synapse.ActiveDirectory.Core
             return isLocked;
         }
 */
-        public static void DeleteUser(string name, bool isDryRun = false)
+        public static void DeleteUser(string identity, bool isDryRun = false)
         {
-            String username = GetCommonName( name );
-
-            if ( String.IsNullOrWhiteSpace( username ) )
+            if ( String.IsNullOrWhiteSpace( identity ) )
             {
-                throw new AdException( "Username is not specified.", AdStatusType.MissingInput );
+                throw new AdException( "Identity is not specified.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( identity );
             if ( userPrincipal != null )
             {
                 if ( !isDryRun )
@@ -433,8 +431,19 @@ namespace Synapse.ActiveDirectory.Core
             }
             else
             {
-                throw new AdException( $"User [{name}]cannot be found.", AdStatusType.DoesNotExist );
+                throw new AdException( $"User [{identity}]cannot be found.", AdStatusType.DoesNotExist );
             }
+        }
+
+        public static UserPrincipal GetUserPrincipal(string identity, string domainName = null)
+        {
+            if ( String.IsNullOrWhiteSpace( identity ) )
+                return null;
+
+            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
+
+            UserPrincipal userPrincipal = UserPrincipal.FindByIdentity( principalContext, identity );
+            return userPrincipal;
         }
 
         public static void EnableUserAccount(string username, bool isDryRun = false)
@@ -444,7 +453,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Username is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             if ( userPrincipal != null )
             {
                 if ( !isDryRun )
@@ -466,7 +475,7 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Username is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             if ( userPrincipal != null )
             {
                 if ( !isDryRun )
@@ -489,7 +498,7 @@ namespace Synapse.ActiveDirectory.Core
             }
 
 
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             if ( userPrincipal != null )
             {
                 userPrincipal.Enabled = false;
@@ -600,12 +609,12 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsExistingUser(string username)
         {
-            return GetUser( username ) != null;
+            return GetUserPrincipal( username ) != null;
         }
 
         public static bool? IsUserEnabled(string username)
         {
-            UserPrincipal userPrincipal = GetUser( username );
+            UserPrincipal userPrincipal = GetUserPrincipal( username );
             if ( userPrincipal == null )
             {
                 throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );

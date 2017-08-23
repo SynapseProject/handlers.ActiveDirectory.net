@@ -332,7 +332,7 @@ namespace Synapse.ActiveDirectory.Tests
             // Act
             Console.WriteLine($"Creating user {username}...");
             DirectoryServices.CreateUser(username, ldapRoot, userPassword, givenName, surname, description);
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
 
             // Assert
             Assert.IsTrue(userPrincipal.DistinguishedName.StartsWith($"CN={username},"));
@@ -352,7 +352,7 @@ namespace Synapse.ActiveDirectory.Tests
             // Act
             Console.WriteLine($"Creating user {username}...");
             DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description );
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
 
             // Assert
             Assert.IsTrue(userPrincipal.DistinguishedName.StartsWith($"CN={username},OU=Synapse"));
@@ -391,7 +391,7 @@ namespace Synapse.ActiveDirectory.Tests
             // Act
             Console.WriteLine($"Creating user {username}...");
             DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description);
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
 
             // Assert
             Assert.That(userPrincipal.DisplayName, Is.EqualTo($"{surname}, {givenName}"));
@@ -655,7 +655,7 @@ namespace Synapse.ActiveDirectory.Tests
             DirectoryServices.ExpireUserPassword(username);
 
             // Assert
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
             Assert.IsNull(userPrincipal.LastPasswordSet);
         }
 
@@ -716,7 +716,7 @@ namespace Synapse.ActiveDirectory.Tests
             DirectoryServices.UnlockUserAccount(username);
 
             // Assert
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
             Assert.IsFalse(userPrincipal.IsAccountLockedOut());
         }
 
@@ -774,7 +774,7 @@ namespace Synapse.ActiveDirectory.Tests
             // Act
             DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.UpdateUserAttribute(username, attribute, value);
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
 
             // Assert
             Assert.That(userPrincipal.Description, Is.EqualTo(value));
@@ -797,7 +797,7 @@ namespace Synapse.ActiveDirectory.Tests
             // Act
             DirectoryServices.CreateUser(username, ldapRoot, password, givenName, surname, description);
             DirectoryServices.UpdateUserAttribute(username, attribute, value, true);
-            UserPrincipal userPrincipal = DirectoryServices.GetUser(username);
+            UserPrincipal userPrincipal = DirectoryServices.GetUserPrincipal(username);
 
             // Assert
             Assert.That(userPrincipal.Description, Is.EqualTo(description));
