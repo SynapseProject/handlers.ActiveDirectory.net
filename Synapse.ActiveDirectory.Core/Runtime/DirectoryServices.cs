@@ -9,7 +9,7 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static string GetObjectDistinguishedName(AdObjectType objectClass, string objectName, string ldapRoot)
+/*        public static string GetObjectDistinguishedName(AdObjectType objectClass, string objectName, string ldapRoot)
         {
             string distinguishedName = string.Empty;
 
@@ -43,7 +43,7 @@ namespace Synapse.ActiveDirectory.Core
 
             return distinguishedName;
         }
-
+*/
         private static string GetCommonName(String distinguishedName)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );

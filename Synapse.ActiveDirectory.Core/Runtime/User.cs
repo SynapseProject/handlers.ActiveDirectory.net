@@ -11,16 +11,14 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static UserPrincipalObject GetUser(string name, bool getGroups)
+        public static UserPrincipalObject GetUser(string identity, bool getGroups)
         {
-            String sAMAccountName = GetCommonName( name );
-
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                UserPrincipal user = UserPrincipal.FindByIdentity( context, identity );
                 if ( user == null )
-                    throw new AdException( $"User [{sAMAccountName}] Not Found.", AdStatusType.DoesNotExist );
+                    throw new AdException( $"User [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
                 u = new UserPrincipalObject( user );
                 if ( getGroups )
@@ -161,13 +159,13 @@ namespace Synapse.ActiveDirectory.Core
             {
                 try
                 {
-                    String sAMAccountName = GetCommonName( user.Name );
+                    String commonName = GetCommonName( user.Name );
 
                     using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                     {
-                        UserPrincipal currentUser = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                        UserPrincipal currentUser = UserPrincipal.FindByIdentity( context, commonName );
                         if ( currentUser == null )
-                            throw new AdException( $"User [{sAMAccountName}] Not Found.", AdStatusType.DoesNotExist );
+                            throw new AdException( $"User [{commonName}] Not Found.", AdStatusType.DoesNotExist );
                         if ( !isDryRun )
                         {
                             // TODO : Only Update Non-Null Fields
@@ -273,13 +271,13 @@ namespace Synapse.ActiveDirectory.Core
             {
                 try
                 {
-                    String sAMAccountName = GetCommonName( username );
+                    String commonName = GetCommonName( username );
 
                     using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
                     {
-                        UserPrincipal user = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, sAMAccountName );
+                        UserPrincipal user = UserPrincipal.FindByIdentity( context, commonName );
                         if ( user == null )
-                            throw new AdException( $"User [{sAMAccountName}] Not Found.", AdStatusType.DoesNotExist );
+                            throw new AdException( $"User [{commonName}] Not Found.", AdStatusType.DoesNotExist );
 
                         user.GivenName = givenName;
                         user.Surname = surname;
@@ -375,6 +373,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+/*
         public static bool IsUserLocked(string username)
         {
             bool isLocked = false;
@@ -406,7 +405,7 @@ namespace Synapse.ActiveDirectory.Core
 
             return isLocked;
         }
-
+*/
         public static void DeleteUser(string name, bool isDryRun = false)
         {
             String username = GetCommonName( name );

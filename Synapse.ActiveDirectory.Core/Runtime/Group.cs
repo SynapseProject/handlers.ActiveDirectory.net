@@ -567,16 +567,14 @@ namespace Synapse.ActiveDirectory.Core
             return false;
         }
 
-        public static GroupPrincipalObject GetGroup(string name, bool getGroups)
+        public static GroupPrincipalObject GetGroup(string identity, bool getGroups)
         {
-            string groupName = GetCommonName( name );
-
             GroupPrincipalObject g = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
             {
-                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, IdentityType.SamAccountName, groupName );
+                GroupPrincipal group = GroupPrincipal.FindByIdentity( context, identity );
                 if ( group == null )
-                    throw new AdException( $"Group [{groupName}] Not Found.", AdStatusType.DoesNotExist );
+                    throw new AdException( $"Group [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
                 g = new GroupPrincipalObject( group );
                 if ( getGroups )
