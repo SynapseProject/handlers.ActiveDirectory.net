@@ -10,12 +10,6 @@ public class GroupMembershipHandler : HandlerRuntimeBase
 {
     private GroupMembershipHandlerConfig _config;
     private bool _encounteredFailure = false;
-    private int _addSectionCount = 0;
-    private int _addGroupCount = 0;
-    private int _addUserCount = 0;
-    private int _deleteSectionCount = 0;
-    private int _deleteGroupCount = 0;
-    private int _deleteUserCount = 0;
     private int _sequenceNumber = 0;
     private string _context = "Execute";
     private string _mainProgressMsg = "";
@@ -116,7 +110,7 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         {
             message = "Deserializing incoming request...";
             UpdateProgress( message, StatusType.Initializing );
-            string inputParameters = RemoveParameterSingleQuote(startInfo.Parameters);
+            string inputParameters = RemoveParameterSingleQuote( startInfo.Parameters );
             GroupMembershipRequest parms = DeserializeOrNew<GroupMembershipRequest>( inputParameters );
 
             message = "Processing individual child request...";
@@ -124,7 +118,7 @@ public class GroupMembershipHandler : HandlerRuntimeBase
             ProcessAddRequests( parms, startInfo.IsDryRun );
             ProcessDeleteRequests( parms, startInfo.IsDryRun );
 
-            message = "Request has been processed" + (_encounteredFailure ? " with error" : "") + ".";
+            message = "Request has been processed" + (_encounteredFailure ? " with error found" : "") + ".";
             UpdateProgress( message, _encounteredFailure ? StatusType.CompletedWithErrors : StatusType.Success );
 
             _response.Status = message;
@@ -135,22 +129,22 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         catch ( Exception ex )
         {
             message = $"Execution has been aborted due to: {ex.Message}";
-            UpdateProgress( message, StatusType.Failed, 0 );
+            UpdateProgress( message, StatusType.Failed );
         }
 
         message = startInfo.IsDryRun ? "Dry run execution is completed." : "Execution is completed.";
-        UpdateProgress( message, StatusType.Any, 0 );
+        UpdateProgress( message, StatusType.Any, true );
         return _result;
     }
 
-    private void UpdateProgress(string message, StatusType status = StatusType.Any, int seqNum = -1)
+    private void UpdateProgress(string message, StatusType status = StatusType.Any, bool isLastStep = false)
     {
         _mainProgressMsg = _mainProgressMsg + Environment.NewLine + message;
         if ( status != StatusType.Any )
         {
             _result.Status = status;
         }
-        if ( seqNum == 0 )
+        if ( isLastStep )
         {
             _sequenceNumber = int.MaxValue;
         }
@@ -163,22 +157,26 @@ public class GroupMembershipHandler : HandlerRuntimeBase
 
     private void ProcessAddRequests(GroupMembershipRequest parms, bool isDryRun)
     {
+        string message;
+        int addSectionCount = 0;
+        int addGroupCount = 0;
+        int addUserCount = 0;
         if ( parms?.AddSection != null )
         {
             foreach ( AddSection addsection in parms.AddSection )
             {
-                _addSectionCount++;
+                addSectionCount++;
                 foreach ( string group in addsection.Groups )
                 {
-                    _addGroupCount++;
+                    addGroupCount++;
                     foreach ( string user in addsection.Users )
                     {
-                        _addUserCount++;
+                        addUserCount++;
                         try
                         {
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                + $"Executing add request [{_addSectionCount}/{_addGroupCount}/{_addUserCount}]"
+                            message = $"Executing add request [{addSectionCount}/{addGroupCount}/{addUserCount}]"
                                 + (isDryRun ? " in dry run mode..." : "...");
+                            UpdateProgress( message );
                             DirectoryServices.AddUserToGroup( user, group, isDryRun, addsection.Domain );
                             Result r = new Result()
                             {
@@ -189,13 +187,13 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                 Note = isDryRun ? "Dry run has been completed." : "User has been successfully added to the group."
                             };
                             _response.Results.Add( r );
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                + $"Processed add request [{_addSectionCount}/{_addGroupCount}/{_addUserCount}].";
+                            message = $"Processed add request [{addSectionCount}/{addGroupCount}/{addUserCount}].";
+                            UpdateProgress( message );
                         }
                         catch ( Exception ex )
                         {
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                + $"Encountered error while processing add request [{_addSectionCount}/{_addGroupCount}/{_addUserCount}].";
+                            message = $"Encountered error while processing add request [{addSectionCount}/{addGroupCount}/{addUserCount}].";
+                            UpdateProgress( message );
                             Result r = new Result()
                             {
                                 User = user,
@@ -208,37 +206,40 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                             _encounteredFailure = true;
                         }
                     }
-                    _addUserCount = 0;
+                    addUserCount = 0;
                 }
-                _addGroupCount = 0;
+                addGroupCount = 0;
             }
         }
         else
         {
-            _mainProgressMsg = _mainProgressMsg + Environment.NewLine + "No add section is found from the incoming request.";
-            ++_sequenceNumber;
-            OnProgress( _context, _mainProgressMsg, _result.Status, _sequenceNumber );
+            message = "No add section is found from the incoming request.";
+            UpdateProgress( message );
         }
     }
 
     private void ProcessDeleteRequests(GroupMembershipRequest parms, bool isDryRun)
     {
+        string message;
+        int deleteSectionCount = 0;
+        int deleteGroupCount = 0;
+        int deleteUserCount = 0;
         if ( parms?.DeleteSection != null )
         {
             foreach ( DeleteSection deleteSection in parms.DeleteSection )
             {
-                _deleteSectionCount++;
+                deleteSectionCount++;
                 foreach ( string group in deleteSection.Groups )
                 {
-                    _deleteGroupCount++;
+                    deleteGroupCount++;
                     foreach ( string user in deleteSection.Users )
                     {
-                        _deleteUserCount++;
+                        deleteUserCount++;
                         try
                         {
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                               + $"Executing delete request [{_deleteSectionCount}/{_deleteGroupCount}/{_deleteUserCount}]"
+                            message = $"Executing delete request [{deleteSectionCount}/{deleteGroupCount}/{deleteUserCount}]"
                                                + (isDryRun ? " in dry run mode..." : "...");
+                            UpdateProgress( message );
                             DirectoryServices.RemoveUserFromGroup( user, group, isDryRun, deleteSection.Domain );
                             Result r = new Result()
                             {
@@ -249,13 +250,13 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                                 Note = isDryRun ? "Dry run has been completed." : "User has been successfully removed from the group."
                             };
                             _response.Results.Add( r );
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                               + $"Processed delete request [{_deleteSectionCount}/{_deleteGroupCount}/{_deleteUserCount}].";
+                            message = $"Processed delete request [{deleteSectionCount}/{deleteGroupCount}/{deleteUserCount}].";
+                            UpdateProgress( message );
                         }
                         catch ( Exception ex )
                         {
-                            _mainProgressMsg = _mainProgressMsg + Environment.NewLine
-                                               + $"Encountered error while processing delete request [{_deleteSectionCount}/{_deleteGroupCount}/{_deleteUserCount}].";
+                            message = $"Encountered error while processing delete request [{deleteSectionCount}/{deleteGroupCount}/{deleteUserCount}].";
+                            UpdateProgress( message );
                             Result r = new Result()
                             {
                                 User = user,
@@ -268,15 +269,15 @@ public class GroupMembershipHandler : HandlerRuntimeBase
                             _encounteredFailure = true;
                         }
                     }
-                    _deleteUserCount = 0;
+                    deleteUserCount = 0;
                 }
-                _deleteGroupCount = 0;
+                deleteGroupCount = 0;
             }
         }
         else
         {
-            _mainProgressMsg = _mainProgressMsg + Environment.NewLine + "No delete section is found from the incoming request.";
-            OnLogMessage( _context, _mainProgressMsg, LogLevel.Error );
+            message = "No delete section is found from the incoming request.";
+            UpdateProgress( message );
         }
     }
 
@@ -285,8 +286,9 @@ public class GroupMembershipHandler : HandlerRuntimeBase
         string output = "";
         if ( !string.IsNullOrWhiteSpace( input ) )
         {
-            Regex pattern = new Regex( "'(\r\n|\r|\n|$)" );
-            output = input.Replace( ": '", ": " );
+            Regex pattern = new Regex( ":\\s*'" );
+            output = pattern.Replace( input, ": " );
+            pattern = new Regex( "'\\s*(\r\n|\r|\n|$)" );
             output = pattern.Replace( output, Environment.NewLine );
         }
         return output;
