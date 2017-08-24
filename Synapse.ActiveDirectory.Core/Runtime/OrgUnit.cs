@@ -11,10 +11,10 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false )
+        public static void CreateOrganizationUnit(string identity, string description, bool isDryRun = false )
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
+            Match match = regex.Match( identity );
             if ( match.Success )
             {
                 string ouName = match.Groups[1]?.Value?.Trim();
@@ -22,7 +22,7 @@ namespace Synapse.ActiveDirectory.Core
                 CreateOrganizationUnit( ouName, parentPath, description, isDryRun );
             }
             else
-                throw new AdException( $"Unable To Locate OrgUnit Name In Distinguished Name [{distinguishedName}]." );
+                throw new AdException( $"Unable To Locate OrgUnit Name In Distinguished Name [{identity}]." );
 
         }
 
@@ -71,55 +71,21 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void ModifyOrganizationUnit(string distinguishedName, string description, bool isDryRun = false)
+        public static void ModifyOrganizationUnit(string identity, string description, bool isDryRun = false)
         {
-            Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-            {
-                string ouName = match.Groups[1]?.Value?.Trim();
-                string parentPath = match.Groups[2]?.Value?.Trim();
-                ModifyOrganizationUnit( ouName, parentPath, description, isDryRun );
-            }
-            else
-                throw new AdException( $"Unable To Locate OrgUnit Name In Distinguished Name [{distinguishedName}]." );
-
-        }
-
-        public static void ModifyOrganizationUnit(string orgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
-        {
-            if ( string.IsNullOrWhiteSpace( orgUnitName ) )
-            {
-                throw new AdException( "New organization unit is not specified.", AdStatusType.MissingInput );
-            }
-
-            parentOrgUnitPath = string.IsNullOrWhiteSpace( parentOrgUnitPath ) ? GetDomainDistinguishedName() : parentOrgUnitPath.Replace( "LDAP://", "" );
-            string orgUnitPath = $"OU={orgUnitName},{parentOrgUnitPath}";
-
-            DirectoryEntry ou = GetDirectoryEntry( orgUnitPath );
-            if (ou != null)
+            DirectoryEntry orgUnit = GetDirectoryEntry( identity );
+            if ( orgUnit != null )
             {
                 if ( description != null )
                 {
-                    ou.Properties["description"].Clear();
-                    ou.Properties["description"].Add( description );
+                    orgUnit.Properties["description"].Clear();
+                    orgUnit.Properties["description"].Add( description );
                 }
-                ou.CommitChanges();
+                
+                orgUnit.CommitChanges();
             }
             else
-            {
-                throw new AdException( "Organization Unit does not exist.", AdStatusType.DoesNotExist );
-            }
-
-        }
-
-        public static void DeleteOrganizationUnit(string name, string path, bool isDryRun = false)
-        {
-            
-            string distinguishedName = string.IsNullOrWhiteSpace(path) ? 
-                $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}": 
-                $"ou={name},{path.Replace( "LDAP://", "" )}";
-            DeleteOrganizationUnit( distinguishedName, isDryRun );
+                throw new AdException( $"Organizational Unit [{identity}] Not Found." );
         }
 
         public static void DeleteOrganizationUnit(string identity, bool isDryRun = false)
@@ -153,6 +119,11 @@ namespace Synapse.ActiveDirectory.Core
             {
                 throw new AdException( "Organization unit cannot be found.", AdStatusType.DoesNotExist );
             }
+        }
+
+        public static bool IsExistingDirectoryEntry(string identity, string objectClass = "organizationalUnit")
+        {
+            return GetDirectoryEntry( identity, objectClass ) != null;
         }
 
         public static bool IsExistingOrganizationUnit(string ouPath)

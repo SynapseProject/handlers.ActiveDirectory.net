@@ -62,7 +62,7 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Act
             DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "" );
-            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "", upsert: false) );
+            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "") );
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New organization unit already exists."));
@@ -77,7 +77,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", upsert: false);
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "");
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
