@@ -11,7 +11,7 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false, bool upsert = true )
+        public static void CreateOrganizationUnit(string distinguishedName, string description, bool isDryRun = false )
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -26,7 +26,7 @@ namespace Synapse.ActiveDirectory.Core
 
         }
 
-        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false, bool upsert = true)
+        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
         {
             if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
@@ -60,10 +60,6 @@ namespace Synapse.ActiveDirectory.Core
                             }
                         }
                     }
-                    else if ( upsert )
-                    {
-                        ModifyOrganizationUnit( newOrgUnitName, parentOrgUnitPath, description, isDryRun, false );
-                    }
                     else
                         throw new AdException( "New organization unit already exists.", AdStatusType.AlreadyExists );
 
@@ -75,7 +71,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void ModifyOrganizationUnit(string distinguishedName, string description, bool isDryRun = false, bool upsert = true)
+        public static void ModifyOrganizationUnit(string distinguishedName, string description, bool isDryRun = false)
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( distinguishedName );
@@ -90,7 +86,7 @@ namespace Synapse.ActiveDirectory.Core
 
         }
 
-        public static void ModifyOrganizationUnit(string orgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false, bool upsert = true)
+        public static void ModifyOrganizationUnit(string orgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
         {
             if ( string.IsNullOrWhiteSpace( orgUnitName ) )
             {
@@ -109,10 +105,6 @@ namespace Synapse.ActiveDirectory.Core
                     ou.Properties["description"].Add( description );
                 }
                 ou.CommitChanges();
-            }
-            else if ( upsert )
-            {
-                CreateOrganizationUnit( orgUnitName, parentOrgUnitPath, description, isDryRun, false );
             }
             else
             {

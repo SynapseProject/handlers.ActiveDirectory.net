@@ -51,10 +51,10 @@ namespace Synapse.Handlers.ActiveDirectory
 
         public UserPrincipal CreateUserPrincipal()
         {
-            String name = String.Empty;
-            String path = String.Empty;
+            String name = this.Identity;
+            String path = DirectoryServices.GetDomainDistinguishedName();
 
-            if ( !String.IsNullOrWhiteSpace( this.Identity ) )
+            if ( DirectoryServices.IsDistinguishedName(this.Identity) )
             {
                 Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
                 Match match = regex.Match( this.Identity );
@@ -64,6 +64,8 @@ namespace Synapse.Handlers.ActiveDirectory
                     path = match.Groups[2]?.Value?.Trim();
                 }
             }
+            else if ( String.IsNullOrWhiteSpace( this.Identity ) )
+                throw new AdException( "Unable To Create User Principal From Given Input.", AdStatusType.MissingInput );
 
             path = path.Replace( "LDAP://", "" );
             PrincipalContext context = DirectoryServices.GetPrincipalContext( path );

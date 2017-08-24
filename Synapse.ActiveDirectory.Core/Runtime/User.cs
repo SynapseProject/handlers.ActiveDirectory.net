@@ -34,7 +34,7 @@ namespace Synapse.ActiveDirectory.Core
             return u;
         }
 
-        public static void CreateUser(UserPrincipal user, bool isDryRun = false, bool upsert = true)
+        public static void CreateUser( UserPrincipal user, bool isDryRun = false )
         {
             if ( !IsExistingUser( user.Name ) )
             {
@@ -59,10 +59,6 @@ namespace Synapse.ActiveDirectory.Core
                     throw;
                 }
             }
-            else if ( upsert )
-            {
-                ModifyUser( user, isDryRun, false );
-            }
             else
             {
                 throw new AdException( "The user already exists.", AdStatusType.AlreadyExists );
@@ -70,22 +66,8 @@ namespace Synapse.ActiveDirectory.Core
 
         }
 
-/*
-        public static void CreateUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-            {
-                String username = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
-                CreateUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun, upsert );
-            }
-            else
-                throw new AdException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
-        }
-*/
-        public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
+        // TODO : Delete Me.  Only Used In Tests
+        public static void CreateUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false )
         {
             if ( String.IsNullOrWhiteSpace( ouPath ) )
             {
@@ -151,109 +133,76 @@ namespace Synapse.ActiveDirectory.Core
                     throw;
                 }
             }
-            else if (upsert)
-            {
-                ModifyUser( username, ouPath, password, givenName, surname, description, isEnabled, isDryRun, false );
-            }
             else
             {
                 throw new AdException( "The user already exists.", AdStatusType.AlreadyExists );
             }
         }
 
-        public static void ModifyUser(UserPrincipal user, bool isDryRun = false, bool upsert = true)
+        public static void ModifyUser( UserPrincipal user, bool isDryRun = false )
         {
-            if ( IsExistingUser( user.Name ) )
+            try
             {
-                try
+                UserPrincipal currentUser = GetUserPrincipal( user.Name );
+                if ( currentUser == null )
+                    throw new AdException( $"User [{user.Name}] Not Found.", AdStatusType.DoesNotExist );
+                if ( !isDryRun )
                 {
-                    String commonName = GetCommonName( user.Name );
+                    // TODO : Only Update Non-Null Fields
+                    // TODO : Can you "modify" UserPrincipalName, SamAccountName and/or Name????
+                    currentUser.UserPrincipalName = user.UserPrincipalName ?? user.Name;
+                    currentUser.SamAccountName = user.SamAccountName ?? user.Name;
+                    currentUser.DisplayName = user.DisplayName;
+                    currentUser.Description = user.Description;
+                    //                            currentUser.Name = user.Name;
 
-                    using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
-                    {
-                        UserPrincipal currentUser = UserPrincipal.FindByIdentity( context, commonName );
-                        if ( currentUser == null )
-                            throw new AdException( $"User [{commonName}] Not Found.", AdStatusType.DoesNotExist );
-                        if ( !isDryRun )
-                        {
-                            // TODO : Only Update Non-Null Fields
-                            // TODO : Can you "modify" UserPrincipalName, SamAccountName and/or Name????
-//                            currentUser.UserPrincipalName = user.UserPrincipalName ?? user.Name;
-//                            currentUser.SamAccountName = user.SamAccountName ?? user.Name;
-                            currentUser.DisplayName = user.DisplayName;
-                            currentUser.Description = user.Description;
-//                            currentUser.Name = user.Name;
+                    if ( user.Enabled != null )
+                        currentUser.Enabled = user.Enabled;
+                    currentUser.PermittedLogonTimes = user.PermittedLogonTimes;
+                    currentUser.AccountExpirationDate = user.AccountExpirationDate;
+                    currentUser.SmartcardLogonRequired = user.SmartcardLogonRequired;
+                    currentUser.DelegationPermitted = user.DelegationPermitted;
+                    currentUser.HomeDirectory = user.HomeDirectory;
+                    currentUser.ScriptPath = user.ScriptPath;
+                    currentUser.PasswordNotRequired = user.PasswordNotRequired;
+                    currentUser.PasswordNeverExpires = user.PasswordNeverExpires;
+                    currentUser.UserCannotChangePassword = user.UserCannotChangePassword;
+                    currentUser.AllowReversiblePasswordEncryption = user.AllowReversiblePasswordEncryption;
+                    currentUser.HomeDrive = user.HomeDrive;
 
-                            if ( user.Enabled != null )
-                                currentUser.Enabled = user.Enabled;
-                            currentUser.PermittedLogonTimes = user.PermittedLogonTimes;
-                            currentUser.AccountExpirationDate = user.AccountExpirationDate;
-                            currentUser.SmartcardLogonRequired = user.SmartcardLogonRequired;
-                            currentUser.DelegationPermitted = user.DelegationPermitted;
-                            currentUser.HomeDirectory = user.HomeDirectory;
-                            currentUser.ScriptPath = user.ScriptPath;
-                            currentUser.PasswordNotRequired = user.PasswordNotRequired;
-                            currentUser.PasswordNeverExpires = user.PasswordNeverExpires;
-                            currentUser.UserCannotChangePassword = user.UserCannotChangePassword;
-                            currentUser.AllowReversiblePasswordEncryption = user.AllowReversiblePasswordEncryption;
-                            currentUser.HomeDrive = user.HomeDrive;
+                    currentUser.GivenName = user.GivenName;
+                    currentUser.MiddleName = user.MiddleName;
+                    currentUser.Surname = user.Surname;
+                    currentUser.EmailAddress = user.EmailAddress;
+                    currentUser.VoiceTelephoneNumber = user.VoiceTelephoneNumber;
+                    currentUser.EmployeeId = user.EmployeeId;
 
-                            currentUser.GivenName = user.GivenName;
-                            currentUser.MiddleName = user.MiddleName;
-                            currentUser.Surname = user.Surname;
-                            currentUser.EmailAddress = user.EmailAddress;
-                            currentUser.VoiceTelephoneNumber = user.VoiceTelephoneNumber;
-                            currentUser.EmployeeId = user.EmployeeId;
-                            
-                            //TODO : Set Password On Modify
-//                            currentUser.SetPassword( Password );
-                            currentUser.Save();
-                        }
-                    }
-                }
-                catch ( PrincipalOperationException ex )
-                {
-                    if ( ex.Message.Contains( "There is no such object on the server." ) )
-                    {
-                        throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
-                    }
-                    throw;
-                }
-                catch ( PasswordException ex )
-                {
-                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
-                    {
-                        throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
-                    }
-                    throw;
+                    //TODO : Set Password On Modify
+                    // currentUser.SetPassword( Password );
+                    currentUser.Save();
                 }
             }
-            else if ( upsert )
+            catch ( PrincipalOperationException ex )
             {
-                CreateUser( user, isDryRun, false );
+                if ( ex.Message.Contains( "There is no such object on the server." ) )
+                {
+                    throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
+                }
+                throw;
             }
-            else
+            catch ( PasswordException ex )
             {
-                throw new AdException( "The user does not exist.", AdStatusType.DoesNotExist );
+                if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
+                {
+                    throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
+                }
+                throw;
             }
 
         }
-/*
-        public static void ModifyUser(string distinguishedName, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-            {
-                String username = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
-                ModifyUser( username, parentPath, password, givenName, surname, description, isEnabled, isDryRun );
-            }
-            else
-                throw new AdException( $"Unable To Locate User Name In Distinguished Name [{distinguishedName}]." );
-        }
-*/
-        public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false, bool upsert = true)
+
+        // TODO : Delete Me.  Only used in Create Method marked for deletion.
+        public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
             {
@@ -314,10 +263,6 @@ namespace Synapse.ActiveDirectory.Core
                     }
                     throw;
                 }
-            }
-            else if (upsert)
-            {
-                CreateUser( username, ouPath, password, givenName, surname, description, isEnabled, isDryRun, false );
             }
             else
             {
@@ -596,9 +541,9 @@ namespace Synapse.ActiveDirectory.Core
             return attributes.ContainsKey( attribute );
         }
 
-        public static bool IsExistingUser(string username)
+        public static bool IsExistingUser(string identity)
         {
-            return GetUserPrincipal( username ) != null;
+            return GetUserPrincipal( identity ) != null;
         }
 
         public static bool? IsUserEnabled(string username)

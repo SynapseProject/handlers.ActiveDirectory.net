@@ -412,7 +412,7 @@ namespace Synapse.ActiveDirectory.Tests
             Console.WriteLine($"Creating user {username}...");
             DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description, false, false);
             Console.WriteLine($"Recreating the same user...");
-            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description, true, false, false));
+            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateUser( username, ldapPath, userPassword, givenName, surname, description, true, false));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("The user already exists."));

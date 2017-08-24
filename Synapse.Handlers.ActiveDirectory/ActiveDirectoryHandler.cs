@@ -248,7 +248,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
                     UserPrincipal up = user.CreateUserPrincipal();
-                    DirectoryServices.CreateUser( up, isDryRun, config.UseUpsert );
+                    if ( config.UseUpsert && DirectoryServices.IsExistingUser( obj.Identity ) )
+                        DirectoryServices.ModifyUser( up, isDryRun );
+                    else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        DirectoryServices.CreateUser( up, isDryRun );
+                    else
+                        throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
 
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
@@ -265,7 +270,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = group.CreateGroupPrincipal();
-                    DirectoryServices.CreateGroup( gp, isDryRun, config.UseUpsert );
+                    if ( config.UseUpsert && DirectoryServices.IsExistingGroup( obj.Identity ) )
+                        DirectoryServices.ModifyGroup( gp, isDryRun );
+                    else if (DirectoryServices.IsDistinguishedName(obj.Identity))
+                        DirectoryServices.CreateGroup( gp, isDryRun );
+                    else
+                        throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
 
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
@@ -280,7 +290,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, isDryRun, config.UseUpsert );
+                    DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( returnObject )
@@ -333,7 +343,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
                     UserPrincipal up = user.CreateUserPrincipal();
-                    DirectoryServices.ModifyUser( up, isDryRun, config.UseUpsert );
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingUser( obj.Identity ) )
+                    {
+                        if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                            DirectoryServices.CreateUser( up, isDryRun );
+                        else
+                            throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
+                    }
+                    else
+                        DirectoryServices.ModifyUser( up, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( user.Groups != null )
@@ -348,7 +366,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = group.CreateGroupPrincipal();
-                    DirectoryServices.ModifyGroup( gp, isDryRun, config.UseUpsert );
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( obj.Identity ) )
+                    {
+                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
+                            DirectoryServices.CreateGroup( gp, isDryRun );
+                        else
+                            throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
+                    }
+                    else
+                        DirectoryServices.ModifyGroup( gp, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( group.Groups != null )
@@ -362,7 +388,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, isDryRun, config.UseUpsert);
+                    DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, isDryRun );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     result.Statuses.Add( status );
                     if ( returnObject )
