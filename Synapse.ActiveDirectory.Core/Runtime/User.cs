@@ -435,17 +435,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static UserPrincipal GetUserPrincipal(string identity, string domainName = null)
-        {
-            if ( String.IsNullOrWhiteSpace( identity ) )
-                return null;
-
-            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
-
-            UserPrincipal userPrincipal = UserPrincipal.FindByIdentity( principalContext, identity );
-            return userPrincipal;
-        }
-
         public static void EnableUserAccount(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
