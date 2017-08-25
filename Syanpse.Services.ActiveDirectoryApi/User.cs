@@ -12,25 +12,25 @@ using Synapse.Handlers.ActiveDirectory;
 public partial class ActiveDirectoryApiController : ApiController
 {
     [HttpGet]
-    [Route( "user/{name}" )]
-    public ActiveDirectoryHandlerResults GetUser(string name)
+    [Route( "user/{identity}" )]
+    public ActiveDirectoryHandlerResults GetUser(string identity)
     {
         string planName = config.Plans.User.Query;
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "user/{name}" )]
-    public ActiveDirectoryHandlerResults DeleteUser(string name)
+    [Route( "user/{identity}" )]
+    public ActiveDirectoryHandlerResults DeleteUser(string identity)
     {
         string planName = config.Plans.User.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 
     [HttpPost]
-    [Route( "user/{name}" )]
+    [Route( "user/{identity}" )]
     public ActiveDirectoryHandlerResults CreateUser(string identity, AdUser user)
     {
         string planName = config.Plans.User.Create;
@@ -39,7 +39,7 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPut]
-    [Route( "user/{name}" )]
+    [Route( "user/{identity}" )]
     public ActiveDirectoryHandlerResults ModifyUser(string identity, AdUser user)
     {
         string planName = config.Plans.User.Modify;
@@ -48,11 +48,11 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPost]
-    [Route( "user/{name}/{group}" )]
-    public ActiveDirectoryHandlerResults AddUserToGroup(string name, string group)
+    [Route( "user/{identity}/{groupidentity}" )]
+    public ActiveDirectoryHandlerResults AddUserToGroup(string identity, string groupidentity)
     {
         string planName = config.Plans.User.AddToGroup;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupidentity );
         return CallPlan( planName, pe );
     }
 

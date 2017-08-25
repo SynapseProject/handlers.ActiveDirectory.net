@@ -65,16 +65,56 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         if ( user != null )
         {
-//            if ( !string.IsNullOrWhiteSpace( user.Path ) )
-//                pe.DynamicParameters.Add( @"path", user.Path );
+            // Set Principal Fields
             if ( !string.IsNullOrWhiteSpace( user.Description ) )
                 pe.DynamicParameters.Add( @"description", user.Description );
+            if ( !string.IsNullOrWhiteSpace( user.UserPrincipalName ) )
+                pe.DynamicParameters.Add( @"userprincipalname", user.UserPrincipalName );
+            if ( !string.IsNullOrWhiteSpace( user.SamAccountName ) )
+                pe.DynamicParameters.Add( @"samaccountname", user.SamAccountName );
+            if ( !string.IsNullOrWhiteSpace( user.DisplayName ) )
+                pe.DynamicParameters.Add( @"displayname", user.DisplayName );
+
+            // Set AuthenticationPrincipal Fields
+            if ( user.Enabled != null )
+                pe.DynamicParameters.Add( @"enabled", user.Enabled.ToString() );
+            if (user.PermittedLogonTimes != null)
+                pe.DynamicParameters.Add( @"permittedlogontimes", user.PermittedLogonTimes.ToString() );
+            if ( user.AccountExpirationDate != null  )
+                pe.DynamicParameters.Add( @"accountexpirationdate", user.AccountExpirationDate.ToString() );
+            if ( user.SmartcardLogonRequired != null  )
+                pe.DynamicParameters.Add( @"smartcardlogonrequired", user.SmartcardLogonRequired.ToString() );
+            if ( user.DelegationPermitted != null )
+                pe.DynamicParameters.Add( @"delegationpermitted", user.DelegationPermitted.ToString() );
+            if ( !string.IsNullOrWhiteSpace( user.HomeDirectory ) )
+                pe.DynamicParameters.Add( @"homedirectory", user.HomeDirectory );
+            if ( !string.IsNullOrWhiteSpace( user.ScriptPath ) )
+                pe.DynamicParameters.Add( @"scriptpath", user.ScriptPath );
+            if ( user.PasswordNotRequired != null )
+                pe.DynamicParameters.Add( @"passwordnotrequired", user.PasswordNotRequired.ToString() );
+            if ( user.PasswordNeverExpires != null )
+                pe.DynamicParameters.Add( @"passwordneverexpires", user.PasswordNeverExpires.ToString() );
+            if ( user.UserCannotChangePassword != null )
+                pe.DynamicParameters.Add( @"usercannotchangepassword", user.UserCannotChangePassword.ToString() );
+            if ( user.AllowReversiblePasswordEncryption != null )
+                pe.DynamicParameters.Add( @"allowreversiblepasswordencryption", user.AllowReversiblePasswordEncryption.ToString() );
+            if ( !string.IsNullOrWhiteSpace( user.HomeDrive ) )
+                pe.DynamicParameters.Add( @"homedrive", user.HomeDrive );
+
+            // Set UserPrincipalFields
             if ( !string.IsNullOrWhiteSpace( user.Password ) )
                 pe.DynamicParameters.Add( @"password", user.Password );
             if ( !string.IsNullOrWhiteSpace( user.GivenName ) )
                 pe.DynamicParameters.Add( @"givenname", user.GivenName );
             if ( !string.IsNullOrWhiteSpace( user.Surname ) )
                 pe.DynamicParameters.Add( @"surname", user.Surname );
+            if ( !string.IsNullOrWhiteSpace( user.EmailAddress ) )
+                pe.DynamicParameters.Add( @"emailaddress", user.EmailAddress );
+            if ( !string.IsNullOrWhiteSpace( user.VoiceTelephoneNumber ) )
+                pe.DynamicParameters.Add( @"voicetelephonenumber", user.VoiceTelephoneNumber );
+            if ( !string.IsNullOrWhiteSpace( user.EmployeeId ) )
+                pe.DynamicParameters.Add( @"employeeid", user.EmployeeId );
+
         }
 
         return pe;
@@ -87,8 +127,6 @@ public partial class ActiveDirectoryApiController : ApiController
 
         if (group != null)
         {
-//            if ( !string.IsNullOrWhiteSpace( group.Path ) )
-//                pe.DynamicParameters.Add( @"path", group.Path );
             if ( !string.IsNullOrWhiteSpace( group.Description ) )
                 pe.DynamicParameters.Add( @"description", group.Description );
             pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
@@ -99,31 +137,20 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     // Add/Remove User or Group to a Group
-    private StartPlanEnvelope GetPlanEnvelope(string name, string group)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, string groupidentity)
     {
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
-        if ( group != null )
-            pe.DynamicParameters.Add( nameof( group ), group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        if ( groupidentity != null )
+            pe.DynamicParameters.Add( nameof( groupidentity ), groupidentity );
 
         return pe;
     }
 
     // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users and Groups)
-    private StartPlanEnvelope GetPlanEnvelope(string name)
+    private StartPlanEnvelope GetPlanEnvelope(string identity)
     {
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        if ( IsDistinguishedName( name ) )
-        {
-            String distinguishedname = name;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), String.Empty );
-        }
-        else
-        {
-            String distinguishedname = String.Empty;
-            pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-            pe.DynamicParameters.Add( nameof( name ), name );
-        }
+        pe.DynamicParameters.Add( nameof( identity ), identity );
 
         return pe;
     }

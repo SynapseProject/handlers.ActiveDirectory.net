@@ -14,7 +14,6 @@ namespace Synapse.Handlers.ActiveDirectory
         // Settable Principal Fields
         public string UserPrincipalName { get; set; }
         public string SamAccountName { get; set; }
-//        public string DisplayName { get; set; }       // Does Not Seem To Work On Groups
         public string Description { get; set; }
 
         // Settable GroupPrincipalFields

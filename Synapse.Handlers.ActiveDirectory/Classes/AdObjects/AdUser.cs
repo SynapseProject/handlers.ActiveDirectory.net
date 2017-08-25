@@ -21,14 +21,14 @@ namespace Synapse.Handlers.ActiveDirectory
         public bool? Enabled { get; set; }
         public byte[] PermittedLogonTimes { get; set; }
         public DateTime? AccountExpirationDate { get; set; }
-        public bool SmartcardLogonRequired { get; set; }
-        public bool DelegationPermitted { get; set; }
+        public bool? SmartcardLogonRequired { get; set; }
+        public bool? DelegationPermitted { get; set; }
         public string HomeDirectory { get; set; }
         public string ScriptPath { get; set; }
-        public bool PasswordNotRequired { get; set; }
-        public bool PasswordNeverExpires { get; set; }
-        public bool UserCannotChangePassword { get; set; }
-        public bool AllowReversiblePasswordEncryption { get; set; }
+        public bool? PasswordNotRequired { get; set; }
+        public bool? PasswordNeverExpires { get; set; }
+        public bool? UserCannotChangePassword { get; set; }
+        public bool? AllowReversiblePasswordEncryption { get; set; }
         public string HomeDrive { get; set; }
 
         // Settable UserPrincipal Fields
@@ -81,14 +81,14 @@ namespace Synapse.Handlers.ActiveDirectory
                 user.Enabled = this.Enabled;
             user.PermittedLogonTimes = this.PermittedLogonTimes;
             user.AccountExpirationDate = this.AccountExpirationDate;
-            user.SmartcardLogonRequired = this.SmartcardLogonRequired;
-            user.DelegationPermitted = this.DelegationPermitted;
+            user.SmartcardLogonRequired = this.SmartcardLogonRequired ?? false;
+            user.DelegationPermitted = this.DelegationPermitted ?? false;
             user.HomeDirectory = this.HomeDirectory;
             user.ScriptPath = this.ScriptPath;
-            user.PasswordNotRequired = this.PasswordNotRequired;
-            user.PasswordNeverExpires = this.PasswordNeverExpires;
-            user.UserCannotChangePassword = this.UserCannotChangePassword;
-            user.AllowReversiblePasswordEncryption = this.AllowReversiblePasswordEncryption;
+            user.PasswordNotRequired = this.PasswordNotRequired ?? false;
+            user.PasswordNeverExpires = this.PasswordNeverExpires ?? false;
+            user.UserCannotChangePassword = this.UserCannotChangePassword ?? false;
+            user.AllowReversiblePasswordEncryption = this.AllowReversiblePasswordEncryption ?? false;
             user.HomeDrive = this.HomeDrive;
 
             user.GivenName = this.GivenName;
