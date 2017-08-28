@@ -12,7 +12,6 @@ namespace Synapse.Handlers.ActiveDirectory
     public class AdGroup : AdObject
     {
         // Settable Principal Fields
-        public string UserPrincipalName { get; set; }
         public string SamAccountName { get; set; }
         public string Description { get; set; }
 

@@ -20,16 +20,16 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpDelete]
-    [Route( "group/{name}" )]
-    public ActiveDirectoryHandlerResults DeleteGroup(string name)
+    [Route( "group/{identity}" )]
+    public ActiveDirectoryHandlerResults DeleteGroup(string identity)
     {
         string planName = config.Plans.Group.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 
     [HttpPost]
-    [Route( "group/{name}" )]
+    [Route( "group/{identity}" )]
     public ActiveDirectoryHandlerResults CreateGroup(string identity, AdGroup group)
     {
         string planName = config.Plans.Group.Create;
@@ -38,7 +38,7 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPut]
-    [Route( "group/{name}" )]
+    [Route( "group/{identity}" )]
     public ActiveDirectoryHandlerResults ModifyGroup(string identity, AdGroup group)
     {
         string planName = config.Plans.Group.Modify;
@@ -47,20 +47,20 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPost]
-    [Route( "group/{name}/{group}" )]
-    public ActiveDirectoryHandlerResults AddGroupToGroup(string name, string group)
+    [Route( "group/{identity}/{groupidentity}" )]
+    public ActiveDirectoryHandlerResults AddGroupToGroup(string identity, string groupIdentity)
     {
         string planName = config.Plans.Group.AddToGroup;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupIdentity );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "group/{name}/{group}" )]
-    public ActiveDirectoryHandlerResults RemoveGroupFromGroup(string name, string group)
+    [Route( "group/{identity}/{groupidentity}" )]
+    public ActiveDirectoryHandlerResults RemoveGroupFromGroup(string identity, string groupIdentity)
     {
         string planName = config.Plans.Group.RemoveFromGroup;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupIdentity );
         return CallPlan( planName, pe );
     }
 

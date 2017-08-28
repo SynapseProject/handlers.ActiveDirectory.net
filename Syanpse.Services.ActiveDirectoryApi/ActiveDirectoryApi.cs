@@ -129,8 +129,12 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             if ( !string.IsNullOrWhiteSpace( group.Description ) )
                 pe.DynamicParameters.Add( @"description", group.Description );
-            pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
-            pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
+            if ( !string.IsNullOrWhiteSpace( group.SamAccountName ) )
+                pe.DynamicParameters.Add( @"samaccountname", group.SamAccountName );
+            if ( group.Scope != null)  
+                pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
+            if (group.IsSecurityGroup != null)
+                pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
         }
 
         return pe;

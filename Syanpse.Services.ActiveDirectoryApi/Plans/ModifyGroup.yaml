@@ -11,10 +11,10 @@ Actions:
         LdapRoot: LDAP://DC=sandbox,DC=local
         Action: Modify
         RunSequential: false
-        QueryGroupMembership: false
+        QueryGroupMembership: true
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: false
+        ReturnObjects: true
         UseUpsert: true
         SuppressOutput: false
       Dynamic:
@@ -30,22 +30,19 @@ Actions:
     Type: Yaml
     Values:
       Groups:
-      - Name: xxxxxxxx
-        Path: xxxxxxxx
-        DistinguishedName: xxxxxxxx
+      - Identity: xxxxxxxx
         Scope: Universal     # Local, Global or Universal
         Description: xxxxxxxx
         IsSecurityGroup: true
+        SamAccountName: xxxxxxxx
     Dynamic:
-    - Name: name
-      Path: Groups[0]:Name
-    - Name: path
-      Path: Groups[0]:Path
-    - Name: distinguishedname
-      Path: Groups[0]:DistinguishedName
+    - Name: identity
+      Path: Groups[0]:Identity
     - Name: scope
       Path: Groups[0]:Scope
     - Name: description
       Path: Groups[0]:Description
     - Name: securitygroup
       Path: Groups[0]:IsSecurityGroup
+    - Name: samaccountname
+      Path: Groups[0]:SamAccountName
