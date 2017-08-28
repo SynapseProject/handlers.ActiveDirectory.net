@@ -14,74 +14,38 @@ using Synapse.Handlers.ActiveDirectory;
 public partial class ActiveDirectoryApiController : ApiController
 {
     [HttpGet]
-    [Route( "ou/{distinguishedname}" )]
-    public ActiveDirectoryHandlerResults GetOrgUnit(string distinguishedname)
+    [Route( "ou/{identity}" )]
+    public ActiveDirectoryHandlerResults GetOrgUnit(string identity)
     {
         string planName = config.Plans.OrganizationalUnit.Query;
-        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
-        return CallPlan( planName, pe );
-    }
-
-    [HttpGet]
-    [Route( "ou/{name}/{path}" )]
-    public ActiveDirectoryHandlerResults GetOrgUnit(string name, string path)
-    {
-        string planName = config.Plans.OrganizationalUnit.Query;
-        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "ou/{distinguishedname}" )]
-    public ActiveDirectoryHandlerResults DeleteOrgUnit(string distinguishedname)
+    [Route( "ou/{identity}" )]
+    public ActiveDirectoryHandlerResults DeleteOrgUnit(string identity)
     {
         string planName = config.Plans.OrganizationalUnit.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
-        return CallPlan( planName, pe );
-    }
-
-    [HttpDelete]
-    [Route( "ou/{name}/{path}" )]
-    public ActiveDirectoryHandlerResults DeleteOrgUnit(string name, string path)
-    {
-        string planName = config.Plans.OrganizationalUnit.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 
     [HttpPost]
-    [Route( "ou/{distinguishedname}" )]
-    public ActiveDirectoryHandlerResults CreateOrgUnit(string distinguishedname, AdOrganizationalUnit ou)
+    [Route( "ou/{identity}" )]
+    public ActiveDirectoryHandlerResults CreateOrgUnit(string identity, AdOrganizationalUnit ou)
     {
         string planName = config.Plans.OrganizationalUnit.Create;
-        StartPlanEnvelope pe = GetPlanEnvelope( distinguishedname, ou );
-        return CallPlan( planName, pe );
-    }
-
-    [HttpPost]
-    [Route( "ou/{name}/{path}" )]
-    public ActiveDirectoryHandlerResults CreateOrgUnit(string name, string path, AdOrganizationalUnit ou)
-    {
-        string planName = config.Plans.OrganizationalUnit.Create;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, path, ou );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, ou );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
-    [Route( "ou/{distinguishedname}" )]
-    public ActiveDirectoryHandlerResults ModifyOrgUnit(string distinguishedname, AdOrganizationalUnit ou)
+    [Route( "ou/{identity}" )]
+    public ActiveDirectoryHandlerResults ModifyOrgUnit(string identity, AdOrganizationalUnit ou)
     {
         string planName = config.Plans.OrganizationalUnit.Modify;
-        StartPlanEnvelope pe = GetPlanEnvelope( distinguishedname, ou );
-        return CallPlan( planName, pe );
-    }
-
-    [HttpPut]
-    [Route( "ou/{name}/{path}" )]
-    public ActiveDirectoryHandlerResults ModifyOrgUnit(string name, string path, AdOrganizationalUnit ou)
-    {
-        string planName = config.Plans.OrganizationalUnit.Modify;
-        StartPlanEnvelope pe = GetPlanEnvelope( name, path, ou );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, ou );
         return CallPlan( planName, pe );
     }
 

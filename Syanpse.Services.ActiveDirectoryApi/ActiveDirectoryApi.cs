@@ -150,7 +150,7 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
-    // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users and Groups)
+    // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users, Groups and OrgUnits)
     private StartPlanEnvelope GetPlanEnvelope(string identity)
     {
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
@@ -159,30 +159,10 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
-    // Base Envelope For All Objects Retrieved By DistinguishedName (OrgUnits)
-    private StartPlanEnvelope GetPlanEnvelopeByDistinguishedName(string distinguishedname)
-    {
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( distinguishedname ), distinguishedname );
-        pe.DynamicParameters.Add( "name", String.Empty );
-        pe.DynamicParameters.Add( "path", String.Empty );
-        return pe;
-    }
-
-    // Base Envelope For All Objects Retrieved By Name and Path (OrgUnits)
-    private StartPlanEnvelope GetPlanEnvelopeByNameAndPath(string name, string path)
-    {
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( nameof( path ), path );
-        pe.DynamicParameters.Add( "distinguishedname", String.Empty );
-        return pe;
-    }
-
     // Create and Modify Organizational Unit By DistinguishedName
-    private StartPlanEnvelope GetPlanEnvelope(string distinguishedname, AdOrganizationalUnit ou)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, AdOrganizationalUnit ou)
     {
-        StartPlanEnvelope pe = GetPlanEnvelopeByDistinguishedName( distinguishedname );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         if ( ou != null )
         {
             if ( !string.IsNullOrWhiteSpace( ou.Description ) )
@@ -190,19 +170,6 @@ public partial class ActiveDirectoryApiController : ApiController
         }
         return pe;
     }
-
-    // Create and Modify Organizational Unit By Name and Path
-    private StartPlanEnvelope GetPlanEnvelope(string name, string path, AdOrganizationalUnit ou)
-    {
-        StartPlanEnvelope pe = GetPlanEnvelopeByNameAndPath( name, path );
-        if ( ou != null )
-        {
-            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
-                pe.DynamicParameters.Add( @"description", ou.Description );
-        }
-        return pe;
-    }
-
 
     private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)
     {

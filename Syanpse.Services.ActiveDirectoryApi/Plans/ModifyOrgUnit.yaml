@@ -11,10 +11,10 @@ Actions:
         LdapRoot: LDAP://DC=sandbox,DC=local
         Action: Modify
         RunSequential: false
-        QueryGroupMembership: false
+        QueryGroupMembership: true
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: false
+        ReturnObjects: true
         SuppressOutput: false
       Dynamic:
       - Name: showgroups
@@ -29,16 +29,10 @@ Actions:
     Type: Yaml
     Values:
       OrganizationalUnits:
-      - Name: xxxxxxxx
-        Path: xxxxxxxx
-        DistinguishedName: xxxxxxxx
+      - Identity: 
         Description: Created by Synapse
     Dynamic:
-    - Name: name
-      Path: OrganizationalUnits[0]:Name
-    - Name: path
-      Path: OrganizationalUnits[0]:Path
-    - Name: distinguishedname
-      Path: OrganizationalUnits[0]:DistinguishedName
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity
     - Name: description
       Path: OrganizationalUnits[0]:Description

@@ -29,13 +29,7 @@ Actions:
     Type: Yaml
     Values:
       OrganizationalUnits:
-      - Name: xxxxxx
-        Path: xxxxxx
-        DistinguishedName: xxxxx
+      - Identity: xxxxxx
     Dynamic:
-    - Name: name
-      Path: OrganizationalUnits[0]:Name
-    - Name: path
-      Path: OrganizationalUnits[0]:Path
-    - Name: distinguishedname
-      Path: OrganizationalUnits[0]:DistinguishedName
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity
