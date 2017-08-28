@@ -149,7 +149,6 @@ namespace Synapse.ActiveDirectory.Core
                 if ( !isDryRun )
                 {
                     // TODO : Only Update Non-Null Fields
-                    // TODO : Can you "modify" UserPrincipalName, SamAccountName and/or Name????
                     currentUser.UserPrincipalName = user.UserPrincipalName ?? user.Name;
                     currentUser.SamAccountName = user.SamAccountName ?? user.Name;
                     currentUser.DisplayName = user.DisplayName;

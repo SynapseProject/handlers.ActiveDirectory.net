@@ -53,9 +53,9 @@ Actions:
         GivenName: 
         MiddleName: 
         Surname: 
-        EmailAddress: xxxxxxxx
-        VoiceTelephoneNumber: xxxxxxxx
-        EmployeeId: xxxxxxxx
+        EmailAddress: 
+        VoiceTelephoneNumber: 
+        EmployeeId: 
 #       Other Fields
         Password: 
     Dynamic:

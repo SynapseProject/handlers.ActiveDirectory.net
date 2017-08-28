@@ -11,11 +11,11 @@ using Synapse.Handlers.ActiveDirectory;
 public partial class ActiveDirectoryApiController : ApiController
 {
     [HttpGet]
-    [Route( "group/{name}" )]
-    public ActiveDirectoryHandlerResults GetGroup(string name)
+    [Route( "group/{identity}" )]
+    public ActiveDirectoryHandlerResults GetGroup(string identity)
     {
         string planName = config.Plans.Group.Query;
-        StartPlanEnvelope pe = GetPlanEnvelope( name );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }
 

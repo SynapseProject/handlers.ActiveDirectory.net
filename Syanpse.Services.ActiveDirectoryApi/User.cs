@@ -57,11 +57,11 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpDelete]
-    [Route( "user/{name}/{group}" )]
-    public ActiveDirectoryHandlerResults RemoveUserFromGroup(string name, string group)
+    [Route( "user/{identity}/{groupidentity}" )]
+    public ActiveDirectoryHandlerResults RemoveUserFromGroup(string identity, string groupIdentity)
     {
         string planName = config.Plans.User.RemoveFromGroup;
-        StartPlanEnvelope pe =  GetPlanEnvelope( name, group );
+        StartPlanEnvelope pe =  GetPlanEnvelope( identity, groupIdentity );
         return CallPlan( planName, pe );
     }
 }
