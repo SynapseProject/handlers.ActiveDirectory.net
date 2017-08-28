@@ -30,7 +30,7 @@ Actions:
     Values:
       OrganizationalUnits:
       - Identity: 
-        Description: Created by Synapse
+        Description: Modified by Synapse
     Dynamic:
     - Name: identity
       Path: OrganizationalUnits[0]:Identity

@@ -29,7 +29,7 @@ Actions:
     Type: Yaml
     Values:
       OrganizationalUnits:
-      - Identity: xxxxxx
+      - Identity: 
     Dynamic:
     - Name: identity
       Path: OrganizationalUnits[0]:Identity

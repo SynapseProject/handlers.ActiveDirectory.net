@@ -30,11 +30,11 @@ Actions:
     Type: Yaml
     Values:
       Groups:
-      - Identity: xxxxxxxx
+      - Identity: 
         Scope: Universal     # Local, Global or Universal
-        Description: xxxxxxxx
+        Description: 
         IsSecurityGroup: true
-        SamAccountName: xxxxxxxx
+        SamAccountName: 
     Dynamic:
     - Name: identity
       Path: Groups[0]:Identity

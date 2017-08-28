@@ -29,9 +29,9 @@ Actions:
     Type: Yaml
     Values:
       Users:
-      - Identity: xxxxxxxx
+      - Identity: 
         Groups:
-        - xxxxxxxx
+        - 
     Dynamic:
     - Name: identity
       Path: Users[0]:Identity
