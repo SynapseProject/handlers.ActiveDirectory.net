@@ -34,34 +34,27 @@ namespace Synapse.ActiveDirectory.Core
             return u;
         }
 
-        public static void CreateUser( UserPrincipal user, bool isDryRun = false )
+        public static void SaveUser( UserPrincipal user, bool isDryRun = false )
         {
-            if ( !IsExistingUser( user.Name ) )
+            try
             {
-                try
-                {
-                    user.Save();
-                }
-                catch ( PrincipalOperationException ex )
-                {
-                    if ( ex.Message.Contains( "There is no such object on the server." ) )
-                    {
-                        throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
-                    }
-                    throw;
-                }
-                catch ( PasswordException ex )
-                {
-                    if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
-                    {
-                        throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
-                    }
-                    throw;
-                }
+                user.Save();
             }
-            else
+            catch ( PrincipalOperationException ex )
             {
-                throw new AdException( "The user already exists.", AdStatusType.AlreadyExists );
+                if ( ex.Message.Contains( "There is no such object on the server." ) )
+                {
+                    throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
+                }
+                throw;
+            }
+            catch ( PasswordException ex )
+            {
+                if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
+                {
+                    throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
+                }
+                throw;
             }
 
         }
@@ -139,46 +132,16 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+/*
         public static void ModifyUser( UserPrincipal user, bool isDryRun = false )
         {
             try
             {
-                UserPrincipal currentUser = GetUserPrincipal( user.Name );
-                if ( currentUser == null )
+                if ( user == null )
                     throw new AdException( $"User [{user.Name}] Not Found.", AdStatusType.DoesNotExist );
                 if ( !isDryRun )
                 {
-                    // TODO : Only Update Non-Null Fields
-                    currentUser.UserPrincipalName = user.UserPrincipalName ?? user.Name;
-                    currentUser.SamAccountName = user.SamAccountName ?? user.Name;
-                    currentUser.DisplayName = user.DisplayName;
-                    currentUser.Description = user.Description;
-                    //                            currentUser.Name = user.Name;
-
-                    if ( user.Enabled != null )
-                        currentUser.Enabled = user.Enabled;
-                    currentUser.PermittedLogonTimes = user.PermittedLogonTimes;
-                    currentUser.AccountExpirationDate = user.AccountExpirationDate;
-                    currentUser.SmartcardLogonRequired = user.SmartcardLogonRequired;
-                    currentUser.DelegationPermitted = user.DelegationPermitted;
-                    currentUser.HomeDirectory = user.HomeDirectory;
-                    currentUser.ScriptPath = user.ScriptPath;
-                    currentUser.PasswordNotRequired = user.PasswordNotRequired;
-                    currentUser.PasswordNeverExpires = user.PasswordNeverExpires;
-                    currentUser.UserCannotChangePassword = user.UserCannotChangePassword;
-                    currentUser.AllowReversiblePasswordEncryption = user.AllowReversiblePasswordEncryption;
-                    currentUser.HomeDrive = user.HomeDrive;
-
-                    currentUser.GivenName = user.GivenName;
-                    currentUser.MiddleName = user.MiddleName;
-                    currentUser.Surname = user.Surname;
-                    currentUser.EmailAddress = user.EmailAddress;
-                    currentUser.VoiceTelephoneNumber = user.VoiceTelephoneNumber;
-                    currentUser.EmployeeId = user.EmployeeId;
-
-                    //TODO : Set Password On Modify
-                    // currentUser.SetPassword( Password );
-                    currentUser.Save();
+                    user.Save();
                 }
             }
             catch ( PrincipalOperationException ex )
@@ -199,7 +162,7 @@ namespace Synapse.ActiveDirectory.Core
             }
 
         }
-
+*/
         // TODO : Delete Me.  Only used in Create Method marked for deletion.
         public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
         {

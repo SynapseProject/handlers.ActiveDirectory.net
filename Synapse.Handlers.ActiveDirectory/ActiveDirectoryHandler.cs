@@ -247,14 +247,22 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    UserPrincipal up = user.CreateUserPrincipal();
+                    UserPrincipal up = null;
                     if ( config.UseUpsert && DirectoryServices.IsExistingUser( obj.Identity ) )
-                        DirectoryServices.ModifyUser( up, isDryRun );
+                    {
+                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        if ( up == null )
+                            throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
+                        user.UpdateUserPrincipal( up );
+                    }
                     else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
-                        DirectoryServices.CreateUser( up, isDryRun );
+                    {
+                        up = user.CreateUserPrincipal();
+                    }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
 
+                    DirectoryServices.SaveUser( up, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
@@ -348,16 +356,23 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    UserPrincipal up = user.CreateUserPrincipal();
+                    UserPrincipal up = null;
                     if ( config.UseUpsert && !DirectoryServices.IsExistingUser( obj.Identity ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
-                            DirectoryServices.CreateUser( up, isDryRun );
+                            up = user.CreateUserPrincipal();
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
                     }
                     else
-                        DirectoryServices.ModifyUser( up, isDryRun );
+                    {
+                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        if ( up == null )
+                            throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
+                        user.UpdateUserPrincipal( up );
+                    }
+
+                    DirectoryServices.SaveUser( up, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( user.Groups != null )

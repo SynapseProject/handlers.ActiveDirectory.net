@@ -71,36 +71,66 @@ namespace Synapse.Handlers.ActiveDirectory
             PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
             UserPrincipal user = new UserPrincipal( context );
 
-            user.UserPrincipalName = this.UserPrincipalName ?? name;
-            user.SamAccountName = this.SamAccountName ?? name;
-            user.DisplayName = this.DisplayName;
-            user.Description = this.Description;
             user.Name = name;
+            this.UserPrincipalName = this.UserPrincipalName ?? name;
+            this.SamAccountName = this.SamAccountName ?? name;
 
-            if (this.Enabled != null)
-                user.Enabled = this.Enabled;
-            user.PermittedLogonTimes = this.PermittedLogonTimes;
-            user.AccountExpirationDate = this.AccountExpirationDate;
-            user.SmartcardLogonRequired = this.SmartcardLogonRequired ?? false;
-            user.DelegationPermitted = this.DelegationPermitted ?? false;
-            user.HomeDirectory = this.HomeDirectory;
-            user.ScriptPath = this.ScriptPath;
-            user.PasswordNotRequired = this.PasswordNotRequired ?? false;
-            user.PasswordNeverExpires = this.PasswordNeverExpires ?? false;
-            user.UserCannotChangePassword = this.UserCannotChangePassword ?? false;
-            user.AllowReversiblePasswordEncryption = this.AllowReversiblePasswordEncryption ?? false;
-            user.HomeDrive = this.HomeDrive;
-
-            user.GivenName = this.GivenName;
-            user.MiddleName = this.MiddleName;
-            user.Surname = this.Surname;
-            user.EmailAddress = this.EmailAddress;
-            user.VoiceTelephoneNumber = this.VoiceTelephoneNumber;
-            user.EmployeeId = this.EmployeeId;
-
-            user.SetPassword( Password );
+            UpdateUserPrincipal( user );
 
             return user;
+        }
+
+        public void UpdateUserPrincipal( UserPrincipal user )
+        {
+            if ( this.UserPrincipalName != null )
+                user.UserPrincipalName = SetValueOrNull( this.UserPrincipalName );
+            if ( this.SamAccountName != null )
+                user.SamAccountName = SetValueOrNull( this.SamAccountName );
+            if ( this.DisplayName != null )
+                user.DisplayName = SetValueOrNull( this.DisplayName );
+            if ( this.Description != null )
+                user.Description = SetValueOrNull( this.Description );
+
+            if ( this.Enabled != null )
+                user.Enabled = this.Enabled;
+            if ( this.PermittedLogonTimes != null )
+                user.PermittedLogonTimes = this.PermittedLogonTimes;
+            if ( this.AccountExpirationDate != null )
+                user.AccountExpirationDate = this.AccountExpirationDate;
+            if ( this.SmartcardLogonRequired.HasValue)
+                user.SmartcardLogonRequired = this.SmartcardLogonRequired.Value;
+            if (this.DelegationPermitted.HasValue)
+                user.DelegationPermitted = this.DelegationPermitted.Value;
+            if ( this.HomeDirectory != null )
+                user.HomeDirectory = SetValueOrNull( this.HomeDirectory );
+            if ( this.ScriptPath != null )
+                user.ScriptPath = SetValueOrNull( this.ScriptPath );
+            if ( this.PasswordNotRequired.HasValue )
+                user.PasswordNotRequired = this.PasswordNotRequired.Value;
+            if ( this.PasswordNeverExpires.HasValue )
+                user.PasswordNeverExpires = this.PasswordNeverExpires.Value;
+            if ( this.UserCannotChangePassword.HasValue )
+                user.UserCannotChangePassword = this.UserCannotChangePassword.Value;
+            if ( this.AllowReversiblePasswordEncryption.HasValue )
+                user.AllowReversiblePasswordEncryption = this.AllowReversiblePasswordEncryption.Value;
+            if ( this.HomeDrive != null )
+                user.HomeDrive = SetValueOrNull( this.HomeDrive );
+
+            if ( this.GivenName != null )
+                user.GivenName = SetValueOrNull( this.GivenName );
+            if ( this.MiddleName != null )
+                user.MiddleName = SetValueOrNull( this.MiddleName );
+            if ( this.Surname != null )
+                user.Surname = (this.Surname == "") ? null : this.Surname;
+            if ( this.EmailAddress != null )
+                user.EmailAddress = SetValueOrNull(  this.EmailAddress );
+            if ( this.VoiceTelephoneNumber != null )
+                user.VoiceTelephoneNumber = SetValueOrNull( this.VoiceTelephoneNumber );
+            if ( this.EmployeeId != null )
+                user.EmployeeId = SetValueOrNull( this.EmployeeId );
+
+            if ( this.Password != null )
+                user.SetPassword( Password );
         }
 
     }

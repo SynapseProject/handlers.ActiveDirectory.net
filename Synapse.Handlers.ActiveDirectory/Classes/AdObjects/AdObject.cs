@@ -12,12 +12,20 @@ namespace Synapse.Handlers.ActiveDirectory
     // Base Class Containing Fields To Address Individual Objects In Active Directory
     abstract public class AdObject
     {
+        protected string NULL = "~null~";
+
         public string Identity { get; set; } 
-//        public string DistinguishedName { get; set; }               
-//        public string Path { get; set; }
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }
 
         public abstract AdObjectType GetADType();
+
+        public string SetValueOrNull(string value)
+        {
+            if ( value.Equals( NULL, StringComparison.OrdinalIgnoreCase ) )
+                return null;
+            else
+                return value;
+        }
     }
 }
