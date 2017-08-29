@@ -51,19 +51,28 @@ namespace Synapse.Handlers.ActiveDirectory
             PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
             GroupPrincipal group = new GroupPrincipal( context );
 
-            group.SamAccountName = this.SamAccountName ?? name;
-            group.Description = this.Description;
             group.Name = name;
+            this.SamAccountName = this.SamAccountName ?? name;
 
-            if (this.IsSecurityGroup != null)
+            UpdateGroupPrincipal( group );
+
+            return group;
+        }
+
+        public void UpdateGroupPrincipal(GroupPrincipal group)
+        {
+            if ( this.SamAccountName != null )
+                group.SamAccountName = SetValueOrNull( this.SamAccountName );
+            if ( this.Description != null )
+                group.Description = SetValueOrNull( this.Description );
+
+            if ( this.IsSecurityGroup != null )
                 group.IsSecurityGroup = this.IsSecurityGroup;
 
             if ( this.Scope != null )
                 group.GroupScope = this.Scope;
 
-            return group;
         }
-
 
     }
 }

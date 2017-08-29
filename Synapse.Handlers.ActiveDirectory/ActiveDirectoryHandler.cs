@@ -277,14 +277,22 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    GroupPrincipal gp = group.CreateGroupPrincipal();
+                    GroupPrincipal gp = null;
                     if ( config.UseUpsert && DirectoryServices.IsExistingGroup( obj.Identity ) )
-                        DirectoryServices.ModifyGroup( gp, isDryRun );
-                    else if (DirectoryServices.IsDistinguishedName(obj.Identity))
-                        DirectoryServices.CreateGroup( gp, isDryRun );
+                    {
+                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        if ( gp == null )
+                            throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
+                        group.UpdateGroupPrincipal( gp );
+                    }
+                    else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                    {
+                        gp = group.CreateGroupPrincipal();
+                    }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
 
+                    DirectoryServices.SaveGroup( gp, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
@@ -386,17 +394,23 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    GroupPrincipal gp = group.CreateGroupPrincipal();
+                    GroupPrincipal gp = null;
                     if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( obj.Identity ) )
                     {
-                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
-                            DirectoryServices.CreateGroup( gp, isDryRun );
+                        if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                            gp = group.CreateGroupPrincipal();
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
                     }
                     else
-                        DirectoryServices.ModifyGroup( gp, isDryRun );
+                    {
+                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        if ( gp == null )
+                            throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
+                        group.UpdateGroupPrincipal( gp );
+                    }
 
+                    DirectoryServices.SaveGroup( gp, isDryRun );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );

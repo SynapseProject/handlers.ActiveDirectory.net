@@ -11,44 +11,37 @@ namespace Synapse.ActiveDirectory.Core
     public partial class DirectoryServices
     {
 
-        public static void CreateGroup(GroupPrincipal group, bool dryRun = false)
+        public static void SaveGroup(GroupPrincipal group, bool dryRun = false)
         {
-            if ( !IsExistingGroup( group.Name ) )
+            try
             {
-                try
+                if ( !dryRun )
                 {
-                    if ( !dryRun )
-                    {
-                        group.Save();
-                    }
-                }
-                catch ( PrincipalServerDownException ex )
-                {
-                    if ( ex.Message.Contains( "The server is not operational." ) )
-                    {
-                        throw new AdException( "Unable to connect to the domain controller. Check the OU path.", AdStatusType.ConnectionError );
-                    }
-                    throw;
-                }
-                catch ( PrincipalExistsException ex )
-                {
-                    if ( ex.Message.Contains( "The object already exists." ) )
-                    {
-                        throw new AdException( "The group already exists.", AdStatusType.AlreadyExists );
-                    }
-                }
-                catch ( PrincipalOperationException ex )
-                {
-                    if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
-                    {
-                        throw new AdException( "The OU path is not valid.", AdStatusType.InvalidPath );
-                    }
-                    throw;
+                    group.Save();
                 }
             }
-            else
+            catch ( PrincipalServerDownException ex )
             {
-                throw new AdException( "The group already exists.", AdStatusType.AlreadyExists );
+                if ( ex.Message.Contains( "The server is not operational." ) )
+                {
+                    throw new AdException( "Unable to connect to the domain controller. Check the OU path.", AdStatusType.ConnectionError );
+                }
+                throw;
+            }
+            catch ( PrincipalExistsException ex )
+            {
+                if ( ex.Message.Contains( "The object already exists." ) )
+                {
+                    throw new AdException( "The group already exists.", AdStatusType.AlreadyExists );
+                }
+            }
+            catch ( PrincipalOperationException ex )
+            {
+                if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
+                {
+                    throw new AdException( "The OU path is not valid.", AdStatusType.InvalidPath );
+                }
+                throw;
             }
         }
 
@@ -132,62 +125,6 @@ namespace Synapse.ActiveDirectory.Core
             }
 
             return groupPrincipal;
-        }
-
-        public static void ModifyGroup(GroupPrincipal group, bool dryRun = false, string domainName = null)
-        {
-            GroupPrincipal currentGroup = GetGroupPrincipal( group.Name, domainName );
-            if ( group == null )
-                throw new AdException( $"Group [{group.Name}] Not Found.", AdStatusType.DoesNotExist );
-            try
-            {
-                currentGroup.Description = group.Description ?? null;
-                if ( group.GroupScope != null )
-                    currentGroup.GroupScope = group.GroupScope;
-
-                if ( group.IsSecurityGroup != null )
-                    currentGroup.IsSecurityGroup = group.IsSecurityGroup;
-
-                // TODO : Only Update Non-Null Fields
-                currentGroup.SamAccountName = group.SamAccountName ?? group.Name;
-                currentGroup.DisplayName = group.DisplayName;
-                currentGroup.Description = group.Description;
-
-                if ( !dryRun )
-                {
-                    currentGroup.Save();
-                }
-            }
-            catch ( PrincipalServerDownException ex )
-            {
-                if ( ex.Message.Contains( "The server is not operational." ) )
-                {
-                    throw new AdException( "Unable to connect to the domain controller. Check the OU path.", AdStatusType.ConnectionError );
-                }
-                throw;
-            }
-            catch ( PrincipalOperationException ex )
-            {
-                if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
-                {
-                    throw new AdException( "The OU path is not valid.", AdStatusType.InvalidPath );
-                }
-                throw;
-            }
-        }
-
-        public static GroupPrincipal ModifyGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-            {
-                String groupName = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
-                return ModifyGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun, upsert );
-            }
-            else
-                throw new AdException( $"Unable To Locate Group Name In Distinguished Name [{distinguishedName}]." );
         }
 
         public static GroupPrincipal ModifyGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true, string domainName = null)
