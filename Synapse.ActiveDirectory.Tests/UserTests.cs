@@ -428,7 +428,7 @@ namespace Synapse.ActiveDirectory.Tests
             Exception ex = Assert.Throws<AdException>(() => DirectoryServices.DeleteUser(username));
 
             // Assert
-            Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
+            Assert.That(ex.Message, Is.EqualTo("Identity is not specified."));
         }
 
         [Test]
@@ -441,7 +441,7 @@ namespace Synapse.ActiveDirectory.Tests
             Exception ex = Assert.Throws<AdException>(() => DirectoryServices.DeleteUser(username));
 
             // Assert
-            Assert.That(ex.Message, Is.EqualTo("Username is not specified."));
+            Assert.That(ex.Message, Is.EqualTo("Identity is not specified."));
         }
 
         [Test]

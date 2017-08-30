@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.DirectoryServices;
-using System.Text.RegularExpressions;
 using System.DirectoryServices.AccountManagement;
-using System.Text;
+using System.Text.RegularExpressions;
 
 
 namespace Synapse.ActiveDirectory.Core
