@@ -57,12 +57,26 @@ namespace Synapse.ActiveDirectory.Core
 
         public static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
+            if (String.IsNullOrWhiteSpace(domainName))
+            {
+                // If null, principal context defaults to a domain controller for the domain of the user principal
+                // under which the thread is running.
+                domainName = null;
+            }
+
             PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, domainName, ouPath ) : new PrincipalContext( ContextType.Domain, domainName );
             return principalContext;
         }
 
         public static UserPrincipal GetUserPrincipal(string identity, string domainName = null)
         {
+            if ( String.IsNullOrWhiteSpace( domainName ) )
+            {
+                // If null, principal context defaults to a domain controller for the domain of the user principal
+                // under which the thread is running.
+                domainName = null;
+            }
+
             if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
@@ -74,6 +88,13 @@ namespace Synapse.ActiveDirectory.Core
 
         public static GroupPrincipal GetGroupPrincipal(string identity, string domainName = null)
         {
+            if ( String.IsNullOrWhiteSpace( domainName ) )
+            {
+                // If null, principal context defaults to a domain controller for the domain of the user principal
+                // under which the thread is running.
+                domainName = null;
+            }
+
             if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
