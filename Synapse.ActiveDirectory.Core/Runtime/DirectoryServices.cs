@@ -68,13 +68,6 @@ namespace Synapse.ActiveDirectory.Core
 
         public static UserPrincipal GetUserPrincipal(string identity, string domainName = null)
         {
-            if ( String.IsNullOrWhiteSpace( domainName ) )
-            {
-                // If null, principal context defaults to a domain controller for the domain of the user principal
-                // under which the thread is running.
-                domainName = null;
-            }
-
             if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
@@ -86,13 +79,6 @@ namespace Synapse.ActiveDirectory.Core
 
         public static GroupPrincipal GetGroupPrincipal(string identity, string domainName = null)
         {
-            if ( String.IsNullOrWhiteSpace( domainName ) )
-            {
-                // If null, principal context defaults to a domain controller for the domain of the user principal
-                // under which the thread is running.
-                domainName = null;
-            }
-
             if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
