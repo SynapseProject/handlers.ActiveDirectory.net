@@ -14,7 +14,8 @@ namespace Synapse.Handlers.ActiveDirectory
     {
         protected string NULL = "~null~";
 
-        public string Identity { get; set; } 
+        public string Identity { get; set; }
+        public List<PropertyType> Properties { get; set; } = new List<PropertyType>();
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }
 

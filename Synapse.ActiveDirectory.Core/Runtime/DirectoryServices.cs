@@ -2,6 +2,8 @@
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
+using System.Text;
 
 
 namespace Synapse.ActiveDirectory.Core
@@ -163,6 +165,27 @@ namespace Synapse.ActiveDirectory.Core
             str = str.Replace( '-', '\\' );
 
             return @"\" + str;
+        }
+
+        public static void SetProperties(DirectoryEntry de, List<PropertyType> properties)
+        {
+            if ( properties != null )
+            {
+                foreach ( PropertyType property in properties )
+                {
+                    try
+                    {
+                        de.Properties[property.Name].Clear();
+                        foreach ( String value in property.Values )
+                            de.Properties[property.Name].Add( value );
+                        de.CommitChanges();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new AdException( $"Property [{property.Name}] Failed To Update With Error [{e.Message}].", e, AdStatusType.InvalidAttribute );
+                    }
+                }
+            }
         }
 
     }

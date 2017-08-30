@@ -307,9 +307,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                     if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, isDryRun );
+                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                     else if (DirectoryServices.IsDistinguishedName(ou.Identity))
-                        DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, isDryRun );
+                        DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
 
@@ -426,12 +426,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
-                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Description, isDryRun );
+                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Description, ou.Properties, isDryRun );
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
                     }
                     else
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, isDryRun );
+                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
                     result.Statuses.Add( status );
                     if ( returnObject )

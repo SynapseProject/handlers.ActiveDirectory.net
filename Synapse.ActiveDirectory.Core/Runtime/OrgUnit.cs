@@ -11,7 +11,7 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string identity, string description, bool isDryRun = false )
+        public static void CreateOrganizationUnit(string identity, string description, List<PropertyType> properties, bool isDryRun = false )
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( identity );
@@ -19,7 +19,7 @@ namespace Synapse.ActiveDirectory.Core
             {
                 string ouName = match.Groups[1]?.Value?.Trim();
                 string parentPath = match.Groups[2]?.Value?.Trim();
-                CreateOrganizationUnit( ouName, parentPath, description, isDryRun );
+                CreateOrganizationUnit( ouName, parentPath, description, properties, isDryRun );
             }
             else
                 throw new AdException( $"Unable To Locate OrgUnit Name In Distinguished Name [{identity}]." );
@@ -27,7 +27,7 @@ namespace Synapse.ActiveDirectory.Core
         }
 
         // TODO : Make "private" after removed from all the OrgUnit Tests.
-        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, bool isDryRun = false)
+        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, List<PropertyType> properties, bool isDryRun = false)
         {
             if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
@@ -58,6 +58,7 @@ namespace Synapse.ActiveDirectory.Core
                                 }
 
                                 newOrgUnit.CommitChanges();
+                                SetProperties( newOrgUnit, properties );
                             }
                         }
                     }
@@ -72,7 +73,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void ModifyOrganizationUnit(string identity, string description, bool isDryRun = false)
+        public static void ModifyOrganizationUnit(string identity, string description, List<PropertyType> properties, bool isDryRun = false)
         {
             DirectoryEntry orgUnit = GetDirectoryEntry( identity );
             if ( orgUnit != null )
@@ -82,7 +83,9 @@ namespace Synapse.ActiveDirectory.Core
                     orgUnit.Properties["description"].Clear();
                     orgUnit.Properties["description"].Add( description );
                 }
-                
+
+                SetProperties( orgUnit, properties );
+
                 orgUnit.CommitChanges();
             }
             else

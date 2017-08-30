@@ -18,7 +18,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitName = "";
 
             // Act
-            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, ""));
+            Exception ex = Assert.Throws<AdException>( () => DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null ));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New organization unit is not specified."));
@@ -33,7 +33,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitDn = $"OU={newOrgUnitName},{DirectoryServices.GetDomainDistinguishedName()}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "");
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null);
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitDn));
@@ -47,7 +47,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
-            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, ""));
+            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "", null));
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("Parent organization unit does not exist."));
@@ -61,8 +61,8 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitName = $"TestOU-{Utility.GenerateToken(8)}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "" );
-            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "") );
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null );
+            Exception ex = Assert.Throws<AdException>(() => DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "", null) );
 
             // Assert
             Assert.That(ex.Message, Is.EqualTo("New organization unit already exists."));
@@ -77,7 +77,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "");
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null);
 
             // Assert
             Assert.IsTrue(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
@@ -92,7 +92,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", true );
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null, true );
 
             // Assert
             Assert.IsFalse(DirectoryServices.IsExistingOrganizationUnit(newOrgUnitPath));
@@ -133,7 +133,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "");
+            DirectoryServices.CreateOrganizationUnit(newOrgUnitName, parentOrgUnitDistName, "", null);
             DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath);
 
             // Assert
@@ -149,7 +149,7 @@ namespace Synapse.ActiveDirectory.Tests
             string newOrgUnitPath = $"OU={newOrgUnitName},{parentOrgUnitDistName}";
 
             // Act
-            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "" );
+            DirectoryServices.CreateOrganizationUnit( newOrgUnitName, parentOrgUnitDistName, "", null );
             DirectoryServices.DeleteOrganizationUnit(newOrgUnitPath, true);
 
             // Assert
@@ -228,7 +228,7 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Act
             DirectoryServices.CreateGroup(groupName, ldapPath, "");
-            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "", null );
             DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName);
 
             // Assert
@@ -248,7 +248,7 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Act
             DirectoryServices.CreateGroup(groupName, ldapPath, "");
-            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "", null );
             DirectoryServices.MoveGroupToOrganizationUnit(groupName, orgUnitDistName, true);
 
             // Assert
@@ -339,7 +339,7 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Act
             DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
-            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "");
+            DirectoryServices.CreateOrganizationUnit(orgUnitName, ldapPath, "", null );
             DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName);
 
             // Assert
@@ -361,7 +361,7 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Act
             DirectoryServices.CreateUser(username, ldapPath, userPassword, givenName, surname, description);
-            DirectoryServices.CreateOrganizationUnit( orgUnitName, ldapPath, "" );
+            DirectoryServices.CreateOrganizationUnit( orgUnitName, ldapPath, "", null );
             DirectoryServices.MoveUserToOrganizationUnit(username, orgUnitDistName, true);
 
             // Assert

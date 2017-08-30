@@ -48,6 +48,7 @@
     <Compile Include="Classes\OrgUnit.cs" />
     <Compile Include="Classes\GroupPrincipal.cs" />
     <Compile Include="Classes\Principal.cs" />
+    <Compile Include="Classes\PropertyType.cs" />
     <Compile Include="Classes\UserPrincipal.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />

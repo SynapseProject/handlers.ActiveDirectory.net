@@ -213,12 +213,4 @@ namespace Synapse.ActiveDirectory.Core
         }
 
     }
-
-    public class PropertyType
-    {
-        [XmlElement]
-        public string Name { get; set; }
-        [XmlArrayItem( ElementName = "Value" )]
-        public List<string> Values { get; set; } = new List<string>();
-    }
 }
