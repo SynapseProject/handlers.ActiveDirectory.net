@@ -9,7 +9,7 @@ Actions:
       Type: Yaml
       Values:
         LdapRoot: LDAP://DC=sandbox,DC=local
-        Action: Create
+        Action: Modify
         RunSequential: false
         QueryGroupMembership: true
         OutputType: Json

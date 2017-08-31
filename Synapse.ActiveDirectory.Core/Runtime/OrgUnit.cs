@@ -52,13 +52,11 @@ namespace Synapse.ActiveDirectory.Core
                         {
                             if ( !isDryRun )
                             {
-                                if ( !string.IsNullOrWhiteSpace( description ) )
-                                {
-                                    newOrgUnit.Properties["Description"].Value = description;
-                                }
+                                if ( !String.IsNullOrWhiteSpace(description) )
+                                    SetProperty( newOrgUnit, "description", description );
 
-                                newOrgUnit.CommitChanges();
                                 SetProperties( newOrgUnit, properties );
+                                newOrgUnit.CommitChanges();
                             }
                         }
                     }
@@ -79,13 +77,9 @@ namespace Synapse.ActiveDirectory.Core
             if ( orgUnit != null )
             {
                 if ( description != null )
-                {
-                    orgUnit.Properties["description"].Clear();
-                    orgUnit.Properties["description"].Add( description );
-                }
+                    SetProperty( orgUnit, "description", description );
 
                 SetProperties( orgUnit, properties );
-
                 orgUnit.CommitChanges();
             }
             else

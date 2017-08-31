@@ -167,24 +167,36 @@ namespace Synapse.ActiveDirectory.Core
             return @"\" + str;
         }
 
-        public static void SetProperties(DirectoryEntry de, List<PropertyType> properties)
+        public static void SetProperties(DirectoryEntry de, List<PropertyType> properties, bool commitChanges = false)
         {
             if ( properties != null )
             {
                 foreach ( PropertyType property in properties )
-                {
-                    try
-                    {
-                        de.Properties[property.Name].Clear();
-                        foreach ( String value in property.Values )
-                            de.Properties[property.Name].Add( value );
-                        de.CommitChanges();
-                    }
-                    catch (Exception e)
-                    {
-                        throw new AdException( $"Property [{property.Name}] Failed To Update With Error [{e.Message}].", e, AdStatusType.InvalidAttribute );
-                    }
-                }
+                    SetProperty( de, property.Name, property.Values );
+            }
+        }
+
+        public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        {
+            List<String> values = new List<string>();
+            values.Add( value );
+            SetProperty( de, name, values, commitChanges );
+        }
+
+        public static void SetProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        {
+            try
+            {
+                if ( de.Properties[name]?.Value != null )
+                    de.Properties[name].Clear();
+                foreach ( String value in values )
+                    de.Properties[name].Add( value );
+                if (commitChanges)
+                    de.CommitChanges();
+            }
+            catch ( Exception e )
+            {
+                throw new AdException( $"Property [{name}] Failed To Update With Error [{e.Message}].", e, AdStatusType.InvalidAttribute );
             }
         }
 
