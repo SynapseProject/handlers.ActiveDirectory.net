@@ -167,6 +167,8 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             if ( !string.IsNullOrWhiteSpace( ou.Description ) )
                 pe.DynamicParameters.Add( @"description", ou.Description );
+
+            AddPropertiesToPlan( pe, ou.Properties );
         }
         return pe;
     }
@@ -185,6 +187,22 @@ public partial class ActiveDirectoryApiController : ApiController
 
         string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false );
         return YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( reply );
+    }
+
+    private void AddPropertiesToPlan(StartPlanEnvelope pe, List<PropertyType> properties)
+    {
+        if ( properties != null )
+        {
+            foreach ( PropertyType property in properties )
+            {
+                if ( property.Values?.Count > 0 && !(String.IsNullOrWhiteSpace(property.Name)) )
+                {
+                    String pName = property.Name.ToLower();
+                    String pValue = property.Values[0];     // TODO : Figure Out How To Pass Multiple Values
+                    pe.DynamicParameters.Add( pName, pValue );
+                }
+            }
+        }
     }
 
     private bool IsDistinguishedName(String name)

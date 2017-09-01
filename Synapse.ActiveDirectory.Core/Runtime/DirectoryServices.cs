@@ -187,16 +187,53 @@ namespace Synapse.ActiveDirectory.Core
         {
             try
             {
-                if ( de.Properties[name]?.Value != null )
-                    de.Properties[name].Clear();
-                foreach ( String value in values )
-                    de.Properties[name].Add( value );
+                if (values != null)
+                {
+                    List<String> addValues = new List<string>();
+                    bool clearValue = false;
+
+                    // Ensure at least one value in the list is non-null
+                    foreach ( String v in values)
+                    {
+                        if ( v != null )
+                        {
+                            // If ANY value in the list is "~null~", then clear the existing value only.
+                            if ( v.Equals( "~null~", StringComparison.OrdinalIgnoreCase ) )
+                            {
+                                clearValue = true;
+                                break;
+                            }
+                            else
+                                addValues.Add( v );
+                        }
+                    }
+
+
+                    // Clear Out Existing Value
+                    if ( clearValue )
+                    {
+                        if ( de.Properties[name].Value != null )
+                            de.Properties[name].Clear();
+                    }
+                    else if ( addValues.Count > 0 )
+                    {
+                        // Replace Existing Value(s) 
+                        if ( de.Properties[name].Value != null )
+                            de.Properties[name].Clear();
+
+                        foreach ( String value in addValues )
+                            if ( value != null )
+                                de.Properties[name].Add( value );
+                    }
+                }
+
+
                 if (commitChanges)
                     de.CommitChanges();
             }
             catch ( Exception e )
             {
-                throw new AdException( $"Property [{name}] Failed To Update With Error [{e.Message}].", e, AdStatusType.InvalidAttribute );
+                throw new AdException( $"Property [{name}] Failed To Update With Error [{e.Message?.Trim()}].", e, AdStatusType.InvalidAttribute );
             }
         }
 

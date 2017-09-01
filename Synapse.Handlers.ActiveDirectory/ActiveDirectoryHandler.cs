@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.DirectoryServices.AccountManagement;
+using System.Text.RegularExpressions;
 
 using Synapse.Core;
 using Synapse.ActiveDirectory.Core;

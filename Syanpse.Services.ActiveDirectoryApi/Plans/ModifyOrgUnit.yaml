@@ -30,9 +30,58 @@ Actions:
     Values:
       OrganizationalUnits:
       - Identity: 
-        Description: Modified by Synapse
+        Description: 
+        Properties:
+        # Managed By
+        - Name: managedBy
+          Values:
+          - 
+        # City
+        - Name: l
+          Values:
+          - 
+        # Country (ISO Standard 3166)
+        - Name: c
+          Values:
+          - 
+        # State
+        - Name: st
+          Values:
+          - 
+        # Street
+        - Name: street
+          Values:
+          - 
+        # Postal Code
+        - Name: postalCode
+          Values:
+          - 
+        # Country (Human Readable)
+        - Name: co
+          Values:
+          - 
+        # Country Code (ISO Standard 3166)
+        - Name: countryCode
+          Values:
+          - 
     Dynamic:
     - Name: identity
       Path: OrganizationalUnits[0]:Identity
     - Name: description
       Path: OrganizationalUnits[0]:Description
+    - Name: managedby
+      Path: OrganizationalUnits[0]:Properties[0]:Values[0]:Value
+    - Name: l
+      Path: OrganizationalUnits[0]:Properties[1]:Values[0]:Value
+    - Name: c
+      Path: OrganizationalUnits[0]:Properties[2]:Values[0]:Value
+    - Name: st
+      Path: OrganizationalUnits[0]:Properties[3]:Values[0]:Value
+    - Name: street
+      Path: OrganizationalUnits[0]:Properties[4]:Values[0]:Value
+    - Name: postalcode
+      Path: OrganizationalUnits[0]:Properties[5]:Values[0]:Value
+    - Name: co
+      Path: OrganizationalUnits[0]:Properties[6]:Values[0]:Value
+    - Name: countrycode
+      Path: OrganizationalUnits[0]:Properties[7]:Values[0]:Value
