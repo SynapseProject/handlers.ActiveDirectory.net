@@ -167,12 +167,12 @@ namespace Synapse.ActiveDirectory.Core
             return @"\" + str;
         }
 
-        public static void SetProperties(DirectoryEntry de, List<PropertyType> properties, bool commitChanges = false)
+        public static void SetProperties(DirectoryEntry de, Dictionary<String, List<String>> properties, bool commitChanges = false)
         {
             if ( properties != null )
             {
-                foreach ( PropertyType property in properties )
-                    SetProperty( de, property.Name, property.Values );
+                foreach ( KeyValuePair<string, List<string>> property in properties )
+                    SetProperty( de, property.Key, property.Value );
             }
         }
 

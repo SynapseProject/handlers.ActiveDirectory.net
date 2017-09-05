@@ -189,16 +189,16 @@ public partial class ActiveDirectoryApiController : ApiController
         return YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( reply );
     }
 
-    private void AddPropertiesToPlan(StartPlanEnvelope pe, List<PropertyType> properties)
+    private void AddPropertiesToPlan(StartPlanEnvelope pe, Dictionary<String, List<String>> properties)
     {
         if ( properties != null )
         {
-            foreach ( PropertyType property in properties )
+            foreach ( KeyValuePair<string, List<string>> property in properties )
             {
-                if ( property.Values?.Count > 0 && !(String.IsNullOrWhiteSpace(property.Name)) )
+                if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace(property.Key)) )
                 {
-                    String pName = property.Name.ToLower();
-                    String pValue = property.Values[0];     // TODO : Figure Out How To Pass Multiple Values
+                    String pName = property.Key.ToLower();
+                    String pValue = property.Value[0];     // TODO : Figure Out How To Pass Multiple Values
                     pe.DynamicParameters.Add( pName, pValue );
                 }
             }

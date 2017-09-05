@@ -11,7 +11,7 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string identity, string description, List<PropertyType> properties, bool isDryRun = false )
+        public static void CreateOrganizationUnit(string identity, string description, Dictionary<String, List<String>> properties, bool isDryRun = false )
         {
             Regex regex = new Regex( @"ou=(.*?),(.*)$", RegexOptions.IgnoreCase );
             Match match = regex.Match( identity );
@@ -27,7 +27,7 @@ namespace Synapse.ActiveDirectory.Core
         }
 
         // TODO : Make "private" after removed from all the OrgUnit Tests.
-        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, List<PropertyType> properties, bool isDryRun = false)
+        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
         {
             if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
@@ -71,7 +71,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void ModifyOrganizationUnit(string identity, string description, List<PropertyType> properties, bool isDryRun = false)
+        public static void ModifyOrganizationUnit(string identity, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
         {
             DirectoryEntry orgUnit = GetDirectoryEntry( identity );
             if ( orgUnit != null )

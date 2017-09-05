@@ -32,37 +32,29 @@ Actions:
       - Identity: 
         Description: 
         Properties:
-        # Managed By
-        - Name: managedBy
-          Values:
+          # Managed By User (Distinguished Name)
+          managedBy:
           - 
-        # City
-        - Name: l
-          Values:
+          # Country/Region (ISO-3166 2-Letter Code)
+          c:
           - 
-        # Country (ISO Standard 3166)
-        - Name: c
-          Values:
+          # City 
+          l:
           - 
-        # State
-        - Name: st
-          Values:
+          # State/Province
+          st:
           - 
-        # Street
-        - Name: street
-          Values:
+          # Street 
+          street:
           - 
-        # Postal Code
-        - Name: postalCode
-          Values:
+          # Zip/Postal Code 
+          postalCode:
           - 
-        # Country (Human Readable)
-        - Name: co
-          Values:
+          # Country (Human Readable) 
+          co:
           - 
-        # Country Code (ISO Standard 3166)
-        - Name: countryCode
-          Values:
+          # Country Code (ISO-3166 3-Digit Code)
+          countryCode:
           - 
     Dynamic:
     - Name: identity
@@ -70,18 +62,18 @@ Actions:
     - Name: description
       Path: OrganizationalUnits[0]:Description
     - Name: managedby
-      Path: OrganizationalUnits[0]:Properties[0]:Values[0]:Value
-    - Name: l
-      Path: OrganizationalUnits[0]:Properties[1]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:managedBy[0]:Value
     - Name: c
-      Path: OrganizationalUnits[0]:Properties[2]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:c[0]:Value
+    - Name: l
+      Path: OrganizationalUnits[0]:Properties:l[0]:Value
     - Name: st
-      Path: OrganizationalUnits[0]:Properties[3]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:st[0]:Value
     - Name: street
-      Path: OrganizationalUnits[0]:Properties[4]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:street[0]:Value
     - Name: postalcode
-      Path: OrganizationalUnits[0]:Properties[5]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:postalCode[0]:Value
     - Name: co
-      Path: OrganizationalUnits[0]:Properties[6]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:co[0]:Value
     - Name: countrycode
-      Path: OrganizationalUnits[0]:Properties[7]:Values[0]:Value
+      Path: OrganizationalUnits[0]:Properties:countryCode[0]:Value
