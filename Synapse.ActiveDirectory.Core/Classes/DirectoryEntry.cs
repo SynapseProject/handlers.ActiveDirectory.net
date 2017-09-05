@@ -100,7 +100,7 @@ namespace Synapse.ActiveDirectory.Core
 
         //TODO : Create A Serializable Version Of This
         [XmlArrayItem(ElementName = "Property")]
-        public List<PropertyType> Properties { get; set; }
+        public Dictionary<string, List<string>> Properties { get; set; }
         //
         // Summary:
         //     Gets the name of the schema class for this System.DirectoryServices.DirectoryEntry
@@ -157,12 +157,12 @@ namespace Synapse.ActiveDirectory.Core
             {
                 if ( de.Properties != null )
                 {
-                    Properties = new List<PropertyType>();
+                    Properties = new Dictionary<string, List<string>>();
                     IDictionaryEnumerator ide = de.Properties.GetEnumerator();
                     while ( ide.MoveNext() )
                     {
-                        PropertyType prop = GetProperty( ide.Key.ToString(), ide.Value );
-                        Properties.Add( prop );
+                        List<string> propValues = GetPropertyValues( ide.Value );
+                        Properties.Add( ide.Key.ToString(), propValues );
                     }
                 }
             }
@@ -174,10 +174,9 @@ namespace Synapse.ActiveDirectory.Core
             Username = de.Username;
         }
 
-        private PropertyType GetProperty(string name, object values)
+        private List<string> GetPropertyValues(object values)
         {
-            PropertyType prop = new PropertyType();
-            prop.Name = name;
+            List<string> propValues = new List<string>();
 
             PropertyValueCollection pvc = (PropertyValueCollection)values;
             IEnumerator pvcValues = pvc.GetEnumerator();
@@ -190,12 +189,12 @@ namespace Synapse.ActiveDirectory.Core
                     if ( bytes.Length == 16 )
                     {
                         Guid guid = new Guid( bytes );
-                        prop.Values.Add( guid.ToString() );
+                        propValues.Add( guid.ToString() );
                     }
                     else
                     {
                         string str = System.Text.Encoding.UTF8.GetString( bytes );
-                        prop.Values.Add( str );
+                        propValues.Add( str );
                     }
                 }
                 else if ( type.FullName == @"System.__ComObject" )
@@ -205,11 +204,11 @@ namespace Synapse.ActiveDirectory.Core
                 }
                 else
                 {
-                    prop.Values.Add( pvcValues.Current.ToString() );
+                    propValues.Add( pvcValues.Current.ToString() );
                 }
             }
 
-            return prop;
+            return propValues;
         }
 
     }
