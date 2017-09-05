@@ -3,6 +3,7 @@ using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 
 
@@ -237,5 +238,114 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        public static Dictionary<string, List<string>> GetProperties(DirectoryEntry de)
+        {
+            Dictionary<string, List<string>> properties = null;
+            if ( de.Properties != null )
+            {
+                properties = new Dictionary<string, List<string>>();
+                IDictionaryEnumerator ide = de.Properties.GetEnumerator();
+                while ( ide.MoveNext() )
+                {
+                    List<string> propValues = GetPropertyValues( ide.Key.ToString(), ide.Value );
+                    properties.Add( ide.Key.ToString(), propValues );
+                }
+            }
+
+            return properties;
+        }
+
+        public static List<string> GetPropertyValues(string name, object values)
+        {
+            List<string> propValues = new List<string>();
+
+            PropertyValueCollection pvc = (PropertyValueCollection)values;
+            IEnumerator pvcValues = pvc.GetEnumerator();
+            while ( pvcValues.MoveNext() )
+            {
+                Type type = pvcValues.Current.GetType();
+                if ( type.FullName == @"System.Byte[]" )
+                {
+                    byte[] bytes = (byte[])pvcValues.Current;
+                    if ( name == "objectGUID" )
+                    {
+                        Guid guid = new Guid( bytes );
+                        propValues.Add( guid.ToString() );
+                    }
+                    else if ( name == "objectSid" )
+                    {
+                        String sid = ConvertByteToStringSid( bytes );
+                        propValues.Add( sid );
+                    }
+                    else
+                    {
+                        string str = System.Text.Encoding.UTF8.GetString( bytes );
+                        propValues.Add( str );
+                    }
+                }
+                else if ( type.FullName == @"System.__ComObject" )
+                {
+                    // TODO : Do something with ComObjects.  For now, just ignore
+                    continue;
+                }
+                else
+                {
+                    propValues.Add( pvcValues.Current.ToString() );
+                }
+            }
+
+            return propValues;
+        }
+
+        // Copied From https://www.codeproject.com/Articles/3688/How-to-get-user-SID-using-DirectoryServices-classe
+        public static string ConvertByteToStringSid(Byte[] bytes)
+        {
+            StringBuilder strSid = new StringBuilder();
+            strSid.Append( "S-" );
+            try
+            {
+                // Add SID revision.
+                strSid.Append( bytes[0].ToString() );
+                // Next six bytes are SID authority value.
+                if ( bytes[6] != 0 || bytes[5] != 0 )
+                {
+                    string strAuth = String.Format
+                        ( "0x{0:2x}{1:2x}{2:2x}{3:2x}{4:2x}{5:2x}",
+                        (Int16)bytes[1],
+                        (Int16)bytes[2],
+                        (Int16)bytes[3],
+                        (Int16)bytes[4],
+                        (Int16)bytes[5],
+                        (Int16)bytes[6] );
+                    strSid.Append( "-" );
+                    strSid.Append( strAuth );
+                }
+                else
+                {
+                    Int64 iVal = (Int32)(bytes[1]) +
+                        (Int32)(bytes[2] << 8) +
+                        (Int32)(bytes[3] << 16) +
+                        (Int32)(bytes[4] << 24);
+                    strSid.Append( "-" );
+                    strSid.Append( iVal.ToString() );
+                }
+
+                // Get sub authority count...
+                int iSubCount = Convert.ToInt32( bytes[7] );
+                int idxAuth = 0;
+                for ( int i = 0; i < iSubCount; i++ )
+                {
+                    idxAuth = 8 + i * 4;
+                    UInt32 iSubAuth = BitConverter.ToUInt32( bytes, idxAuth );
+                    strSid.Append( "-" );
+                    strSid.Append( iSubAuth.ToString() );
+                }
+            }
+            catch ( Exception )
+            {
+                return System.Text.Encoding.UTF8.GetString( bytes );
+            }
+            return strSid.ToString();
+        }
     }
 }

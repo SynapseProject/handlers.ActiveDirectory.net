@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,6 +56,8 @@ namespace Synapse.ActiveDirectory.Core
         //     contains the principal objects that represent the members of the group.
         public List<PrincipalObject> Members { get; set; }
 
+        public Dictionary<string, List<string>> Properties { get; set; }
+
 
         public static GroupPrincipalObject FromGroupPrincipal(GroupPrincipal gp)
         {
@@ -66,6 +69,14 @@ namespace Synapse.ActiveDirectory.Core
             if( gp == null ) return;
 
             SetPropertiesFromPrincipal( gp );
+
+            object obj = gp.GetUnderlyingObject();
+            if ( obj.GetType() == typeof( DirectoryEntry ) )
+            {
+                DirectoryEntry gde = (DirectoryEntry)obj;
+                Properties = DirectoryServices.GetProperties( gde );
+            }
+
 
             GroupScope = gp.GroupScope;
             IsSecurityGroup = gp.IsSecurityGroup;

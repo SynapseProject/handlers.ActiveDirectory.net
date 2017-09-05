@@ -161,7 +161,7 @@ namespace Synapse.ActiveDirectory.Core
                     IDictionaryEnumerator ide = de.Properties.GetEnumerator();
                     while ( ide.MoveNext() )
                     {
-                        List<string> propValues = GetPropertyValues( ide.Value );
+                        List<string> propValues = DirectoryServices.GetPropertyValues( ide.Key.ToString(), ide.Value );
                         Properties.Add( ide.Key.ToString(), propValues );
                     }
                 }
@@ -172,43 +172,6 @@ namespace Synapse.ActiveDirectory.Core
                 SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
-        }
-
-        private List<string> GetPropertyValues(object values)
-        {
-            List<string> propValues = new List<string>();
-
-            PropertyValueCollection pvc = (PropertyValueCollection)values;
-            IEnumerator pvcValues = pvc.GetEnumerator();
-            while (pvcValues.MoveNext())
-            {
-                Type type = pvcValues.Current.GetType();
-                if ( type.FullName == @"System.Byte[]" )
-                {
-                    byte[] bytes = (byte[])pvcValues.Current;
-                    if ( bytes.Length == 16 )
-                    {
-                        Guid guid = new Guid( bytes );
-                        propValues.Add( guid.ToString() );
-                    }
-                    else
-                    {
-                        string str = System.Text.Encoding.UTF8.GetString( bytes );
-                        propValues.Add( str );
-                    }
-                }
-                else if ( type.FullName == @"System.__ComObject" )
-                {
-                    // TODO : Do something with ComObjects.  For now, just ignore
-                    continue;
-                }
-                else
-                {
-                    propValues.Add( pvcValues.Current.ToString() );
-                }
-            }
-
-            return propValues;
         }
 
     }
