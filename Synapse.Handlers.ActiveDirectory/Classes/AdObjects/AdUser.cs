@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
+using System.DirectoryServices;
 
 using Synapse.ActiveDirectory.Core;
 
@@ -74,6 +75,8 @@ namespace Synapse.Handlers.ActiveDirectory
             user.Name = name;
             this.UserPrincipalName = this.UserPrincipalName ?? name;
             this.SamAccountName = this.SamAccountName ?? name;
+            if (this.Properties?.Count > 0)
+                user.Save();    // User Must Exist Before Properties Can Be Updated.
 
             UpdateUserPrincipal( user );
 
@@ -131,6 +134,9 @@ namespace Synapse.Handlers.ActiveDirectory
 
             if ( this.Password != null )
                 user.SetPassword( Password );
+
+            if ( user.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                DirectoryServices.SetProperties( (DirectoryEntry)user.GetUnderlyingObject(), this.Properties );
         }
 
     }

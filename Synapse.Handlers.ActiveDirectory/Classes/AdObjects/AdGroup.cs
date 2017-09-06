@@ -4,6 +4,7 @@ using System.Xml.Serialization;
 using System.Xml;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
+using System.DirectoryServices;
 
 using Synapse.ActiveDirectory.Core;
 
@@ -53,6 +54,8 @@ namespace Synapse.Handlers.ActiveDirectory
 
             group.Name = name;
             this.SamAccountName = this.SamAccountName ?? name;
+            if (this.Properties?.Count > 0)
+                group.Save();   // Group Must Exist Before Properties Can Be Updated
 
             UpdateGroupPrincipal( group );
 
@@ -72,6 +75,8 @@ namespace Synapse.Handlers.ActiveDirectory
             if ( this.Scope != null )
                 group.GroupScope = this.Scope;
 
+            if ( group.GetUnderlyingObjectType() == typeof( DirectoryEntry ) && this.Properties?.Count > 0 )
+                DirectoryServices.SetProperties( (DirectoryEntry)group.GetUnderlyingObject(), this.Properties );
         }
 
     }
