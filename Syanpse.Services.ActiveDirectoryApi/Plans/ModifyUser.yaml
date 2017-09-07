@@ -56,8 +56,102 @@ Actions:
         EmailAddress: 
         VoiceTelephoneNumber: 
         EmployeeId: 
-#       Other Fields
+#       Other Fields and Properties
         Password: 
+        Properties:
+          # User Initials
+          initials:
+          - 
+          # Office
+          physicalDeliveryOfficeName:
+          -
+          # Other Telephone Numbers
+          otherTelephone:
+          -
+          # WWw Home Page
+          wWWHomePage:
+          -
+          # Other Web Pages
+          url:
+          -
+          # Log On To
+          logonWorkstation:
+          -
+          # Log On To
+          userWorkstations:
+          -
+          # Country/Region (ISO-3166 2-Letter Code)
+          c:
+          - 
+          # City 
+          l:
+          - 
+          # State/Province
+          st:
+          - 
+          # Street 
+          streetAddress:
+          - 
+          # Post Office Box 
+          postOfficeBox:
+          - 
+          # Zip/Postal Code 
+          postalCode:
+          - 
+          # Country (Human Readable) 
+          co:
+          - 
+          # Country Code (ISO-3166 3-Digit Code)
+          countryCode:
+          - 
+          # Job Title 
+          title:
+          - 
+          # Department 
+          department:
+          - 
+          # Company 
+          company:
+          - 
+          # Manager Name (Distinguished Name) 
+          manager:
+          - 
+          # Profile Path
+          profilePath:
+          - 
+          # Home Phone
+          homePhone:
+          - 
+          # Other Home Phones
+          otherHomePhone:
+          - 
+          # Pager
+          pager:
+          - 
+          # Other Pagers
+          otherPager:
+          - 
+          # Mobile
+          mobile:
+          - 
+          # Other Mobiles
+          otherMobile:
+          - 
+          # Fax Number
+          facsimileTelephoneNumber:
+          - 
+          # Other Fax Numbers
+          otherFacsimileTelephoneNumber:
+          - 
+          # IP Phone
+          ipPhone:
+          - 
+          # Other IP Phones
+          otherIpPhone:
+          - 
+          # Notes
+          info:
+          - 
     Dynamic:
 #   Principal Fields
     - Name: identity
@@ -111,3 +205,65 @@ Actions:
 #   Other Fields
     - Name: password
       Path: Users[0]:Password
+    - Name: initials
+      Path: Users[0]:Properties:initials[0]:Value
+    - Name: physicaldeliveryofficename
+      Path: Users[0]:Properties:physicalDeliveryOfficeName[0]:Value
+    - Name: othertelephone
+      Path: Users[0]:Properties:otherTelephone[0]:Value
+    - Name: wwwhomepage
+      Path: Users[0]:Properties:wWWHomePage[0]:Value
+    - Name: url
+      Path: Users[0]:Properties:url[0]:Value
+    - Name: logonworkstation
+      Path: Users[0]:Properties:logonWorkstation[0]:Value
+    - Name: userworkstations
+      Path: Users[0]:Properties:userWorkstations[0]:Value
+    - Name: c
+      Path: Users[0]:Properties:c[0]:Value
+    - Name: l
+      Path: Users[0]:Properties:l[0]:Value
+    - Name: st
+      Path: Users[0]:Properties:st[0]:Value
+    - Name: streetaddress
+      Path: Users[0]:Properties:streetAddress[0]:Value
+    - Name: postofficebox
+      Path: Users[0]:Properties:postOfficeBox[0]:Value
+    - Name: postalcode
+      Path: Users[0]:Properties:postalCode[0]:Value
+    - Name: co
+      Path: Users[0]:Properties:co[0]:Value
+    - Name: countrycode
+      Path: Users[0]:Properties:countryCode[0]:Value
+    - Name: title
+      Path: Users[0]:Properties:title[0]:Value
+    - Name: department
+      Path: Users[0]:Properties:department[0]:Value
+    - Name: company
+      Path: Users[0]:Properties:company[0]:Value
+    - Name: manager
+      Path: Users[0]:Properties:manager[0]:Value
+    - Name: profilepath
+      Path: Users[0]:Properties:profilePath[0]:Value
+    - Name: homephone
+      Path: Users[0]:Properties:homePhone[0]:Value
+    - Name: otherhomephone
+      Path: Users[0]:Properties:otherHomePhone[0]:Value
+    - Name: pager
+      Path: Users[0]:Properties:pager[0]:Value
+    - Name: otherpager
+      Path: Users[0]:Properties:otherPager[0]:Value
+    - Name: mobile
+      Path: Users[0]:Properties:mobile[0]:Value
+    - Name: othermobile
+      Path: Users[0]:Properties:otherMobile[0]:Value
+    - Name: facsimiletelephonenumber
+      Path: Users[0]:Properties:facsimileTelephoneNumber[0]:Value
+    - Name: otherfacsimiletelephonenumber
+      Path: Users[0]:Properties:otherFacsimileTelephoneNumber[0]:Value
+    - Name: ipphone
+      Path: Users[0]:Properties:ipPhone[0]:Value
+    - Name: otheripphone
+      Path: Users[0]:Properties:otherIpPhone[0]:Value
+    - Name: info
+      Path: Users[0]:Properties:info[0]:Value

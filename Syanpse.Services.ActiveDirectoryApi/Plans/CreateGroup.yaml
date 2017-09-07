@@ -35,6 +35,19 @@ Actions:
         Description: 
         IsSecurityGroup: true
         SamAccountName: 
+        Properties:
+          # Managed By User (Distinguished Name)
+          managedBy:
+          - 
+          # Display Name
+          displayName:
+          - 
+          # E-mail
+          mail:
+          - 
+          # Comments
+          info:
+          - 
     Dynamic:
     - Name: identity
       Path: Groups[0]:Identity
@@ -46,3 +59,11 @@ Actions:
       Path: Groups[0]:IsSecurityGroup
     - Name: samaccountname
       Path: Groups[0]:SamAccountName
+    - Name: managedby
+      Path: Groups[0]:Properties:managedBy[0]:Value
+    - Name: displayname
+      Path: Groups[0]:Properties:displayName[0]:Value
+    - Name: mail
+      Path: Groups[0]:Properties:mail[0]:Value
+    - Name: info
+      Path: Groups[0]:Properties:info[0]:Value

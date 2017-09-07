@@ -115,6 +115,7 @@ public partial class ActiveDirectoryApiController : ApiController
             if ( !string.IsNullOrWhiteSpace( user.EmployeeId ) )
                 pe.DynamicParameters.Add( @"employeeid", user.EmployeeId );
 
+            AddPropertiesToPlan( pe, user.Properties );
         }
 
         return pe;
@@ -135,6 +136,8 @@ public partial class ActiveDirectoryApiController : ApiController
                 pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
             if (group.IsSecurityGroup != null)
                 pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
+
+            AddPropertiesToPlan( pe, group.Properties );
         }
 
         return pe;
