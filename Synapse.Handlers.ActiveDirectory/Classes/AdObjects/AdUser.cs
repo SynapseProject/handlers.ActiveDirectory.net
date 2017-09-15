@@ -135,8 +135,9 @@ namespace Synapse.Handlers.ActiveDirectory
             if ( this.Password != null )
                 user.SetPassword( Password );
 
-            if ( user.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
-                DirectoryServices.SetProperties( (DirectoryEntry)user.GetUnderlyingObject(), this.Properties );
+            if (this.Properties?.Count > 0)
+                if ( user.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                    DirectoryServices.SetProperties( (DirectoryEntry)user.GetUnderlyingObject(), this.Properties );
         }
 
     }

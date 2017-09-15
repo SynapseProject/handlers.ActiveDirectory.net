@@ -44,15 +44,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         try
         {
-            //if IsDryRun == true, test if ConnectionString is valid and works.
+            //TODO : if IsDryRun == true, test if ConnectionString is valid and works.
             if( startInfo.IsDryRun )
             {
                 OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
 
 
-                result.ExitData = config.LdapRoot;
+                result.ExitData = "Success";
                 result.Message = msg =
-                    $"Connection test successful! Connection string: {config.LdapRoot}";
+                    $"Connection test successful!";
             }
             //else, select data as declared in Parameters.QueryString
             else

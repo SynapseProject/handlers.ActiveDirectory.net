@@ -13,11 +13,9 @@ namespace Synapse.Handlers.ActiveDirectory
     public class ActiveDirectoryHandlerConfig
     {
         [XmlElement]
-        public string LdapRoot { get; set; }
-        [XmlElement]
         public ActionType Action { get; set; }
         [XmlElement]
-        public bool RunSequential { get; set; }
+        public bool RunSequential { get; set; } = false;
         [XmlElement]
         public bool QueryGroupMembership { get; set; } = true;
         [XmlElement]
