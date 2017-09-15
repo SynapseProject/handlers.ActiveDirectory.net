@@ -8,7 +8,6 @@ Actions:
     Config:
       Type: Yaml
       Values:
-        LdapRoot: LDAP://DC=sandbox,DC=local
         Action: Delete
         RunSequential: false
         QueryGroupMembership: false
