@@ -16,13 +16,13 @@ Actions:
         ReturnObjects: true
         SuppressOutput: false
       Dynamic:
-      - Name: showgroups
+      - Name: querygroupmembership
         Path: QueryGroupMembership
-      - Name: formattype
-        Path: OutputType
-      - Name: prettyprint
-        Path: PrettyPrint
-      - Name: returnobject
+#      - Name: outputtype
+#        Path: OutputType
+#      - Name: prettyprint
+#        Path: PrettyPrint
+      - Name: returnobjects
         Path: ReturnObjects
   Parameters:
     Type: Yaml

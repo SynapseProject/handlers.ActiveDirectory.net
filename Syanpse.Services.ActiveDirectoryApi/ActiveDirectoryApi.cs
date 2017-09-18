@@ -176,7 +176,7 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
-    private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope)
+    private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope, SerializationType outputType = SerializationType.Json)
     {
         IExecuteController ec = GetExecuteControllerInstance();
         StartPlanEnvelope pe = planEnvelope;
@@ -188,7 +188,7 @@ public partial class ActiveDirectoryApiController : ApiController
         foreach ( KeyValuePair<string, string> kvp in query )
             pe.DynamicParameters.Add( kvp.Key, kvp.Value );
 
-        string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false );
+        string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false, serializationType: outputType );
         return YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( reply );
     }
 
