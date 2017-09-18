@@ -238,12 +238,12 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static Dictionary<string, List<string>> GetProperties(DirectoryEntry de)
+        public static SerializableDictionary<string, List<string>> GetProperties(DirectoryEntry de)
         {
-            Dictionary<string, List<string>> properties = null;
+            SerializableDictionary<string, List<string>> properties = null;
             if ( de.Properties != null )
             {
-                properties = new Dictionary<string, List<string>>();
+                properties = new SerializableDictionary<string, List<string>>();
                 IDictionaryEnumerator ide = de.Properties.GetEnumerator();
                 while ( ide.MoveNext() )
                 {

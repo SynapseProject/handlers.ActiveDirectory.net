@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.DirectoryServices.AccountManagement;
 using System.DirectoryServices;
+using System.Xml.Serialization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -88,7 +89,7 @@ namespace Synapse.ActiveDirectory.Core
         //     The underlying store does not support this property.
         public string VoiceTelephoneNumber { get; set; }
 
-        public Dictionary<string, List<string>> Properties { get; set; }
+        public SerializableDictionary<string, List<string>> Properties { get; set; }
 
 
         public static UserPrincipalObject FromUserPrincipal(UserPrincipal up)

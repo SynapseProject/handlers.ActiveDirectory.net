@@ -95,12 +95,9 @@ namespace Synapse.ActiveDirectory.Core
         //     object.
         //
         // Returns:
-        //     A System.DirectoryServices.PropertyCollection object that contains the properties
+        //     A SerializableDictionary object that contains the properties
         //     that are set on this entry.
-
-        //TODO : Create A Serializable Version Of This
-        [XmlArrayItem(ElementName = "Property")]
-        public Dictionary<string, List<string>> Properties { get; set; }
+        public SerializableDictionary<string, List<string>> Properties { get; set; }
         //
         // Summary:
         //     Gets the name of the schema class for this System.DirectoryServices.DirectoryEntry
@@ -157,7 +154,7 @@ namespace Synapse.ActiveDirectory.Core
             {
                 if ( de.Properties != null )
                 {
-                    Properties = new Dictionary<string, List<string>>();
+                    Properties = new SerializableDictionary<string, List<string>>();
                     IDictionaryEnumerator ide = de.Properties.GetEnumerator();
                     while ( ide.MoveNext() )
                     {

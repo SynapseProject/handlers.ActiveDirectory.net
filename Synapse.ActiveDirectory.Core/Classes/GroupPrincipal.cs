@@ -5,6 +5,7 @@ using System.DirectoryServices;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 
 namespace Synapse.ActiveDirectory.Core
 {
@@ -56,7 +57,7 @@ namespace Synapse.ActiveDirectory.Core
         //     contains the principal objects that represent the members of the group.
         public List<PrincipalObject> Members { get; set; }
 
-        public Dictionary<string, List<string>> Properties { get; set; }
+        public SerializableDictionary<string, List<string>> Properties { get; set; }
 
 
         public static GroupPrincipalObject FromGroupPrincipal(GroupPrincipal gp)
