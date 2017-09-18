@@ -151,6 +151,9 @@ Actions:
           # Notes
           info:
           - 
+          # Lockout Time (Set To Zero To Unlock Account)
+          lockoutTime:
+          -
     Dynamic:
 #   Principal Fields
     - Name: identity
@@ -266,3 +269,5 @@ Actions:
       Path: Users[0]:Properties:otherIpPhone[0]:Value
     - Name: info
       Path: Users[0]:Properties:info[0]:Value
+    - Name: lockouttime
+      Path: Users[0]:Properties:lockoutTime[0]:Value
