@@ -6,6 +6,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 using System.Security.Principal;
+using System.Xml;
+using System.Xml.Serialization;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -188,8 +190,24 @@ public partial class ActiveDirectoryApiController : ApiController
         foreach ( KeyValuePair<string, string> kvp in query )
             pe.DynamicParameters.Add( kvp.Key, kvp.Value );
 
-        string reply = (string)ec.StartPlanSync( pe, planName, setContentType: false, serializationType: outputType );
-        return YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( reply );
+        object reply = ec.StartPlanSync( pe, planName, setContentType: false, serializationType: outputType );
+        ActiveDirectoryHandlerResults result = null;
+        if ( outputType == SerializationType.Json )
+        {
+            result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( (string)reply );
+        }
+        else if ( outputType == SerializationType.Yaml )
+        {
+            String str = YamlHelpers.Serialize( reply );
+            result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( str );
+        }
+        else if ( outputType == SerializationType.Xml )
+        {
+            XmlDocument doc = (XmlDocument)reply;
+            result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
+        }
+
+        return result;
     }
 
     private void AddPropertiesToPlan(StartPlanEnvelope pe, Dictionary<String, List<String>> properties)

@@ -18,10 +18,6 @@ Actions:
       Dynamic:
       - Name: querygroupmembership
         Path: QueryGroupMembership
-#      - Name: outputtype
-#        Path: OutputType
-#      - Name: prettyprint
-#        Path: PrettyPrint
       - Name: returnobjects
         Path: ReturnObjects
   Parameters:
