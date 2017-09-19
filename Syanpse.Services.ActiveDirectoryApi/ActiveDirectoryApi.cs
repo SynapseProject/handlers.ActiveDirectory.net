@@ -178,7 +178,7 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
-    private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope, SerializationType outputType = SerializationType.Json)
+    private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope )
     {
         IExecuteController ec = GetExecuteControllerInstance();
         StartPlanEnvelope pe = planEnvelope;
@@ -190,18 +190,36 @@ public partial class ActiveDirectoryApiController : ApiController
         foreach ( KeyValuePair<string, string> kvp in query )
             pe.DynamicParameters.Add( kvp.Key, kvp.Value );
 
-        object reply = ec.StartPlanSync( pe, planName, setContentType: false, serializationType: outputType );
+        object reply = ec.StartPlanSync( pe, planName, setContentType: false );
         ActiveDirectoryHandlerResults result = null;
-        if ( outputType == SerializationType.Json )
+        Type replyType = reply.GetType();
+        if ( replyType == typeof(string) )
         {
-            result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( (string)reply );
+            try
+            {
+                result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( (string)reply );
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    // Reply was not Json or Yaml.  See if Xml
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml( (string)reply );
+                    result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
+                }
+                catch (Exception)
+                {
+                    throw e;
+                }
+            }
         }
-        else if ( outputType == SerializationType.Yaml )
+        else if ( replyType == typeof(Dictionary<object,object>) )
         {
             String str = YamlHelpers.Serialize( reply );
             result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( str );
         }
-        else if ( outputType == SerializationType.Xml )
+        else if ( replyType == typeof(XmlDocument) )
         {
             XmlDocument doc = (XmlDocument)reply;
             result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
