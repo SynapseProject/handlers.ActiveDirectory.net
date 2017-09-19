@@ -347,5 +347,14 @@ namespace Synapse.ActiveDirectory.Core
             }
             return strSid.ToString();
         }
+
+        public static String GetDomain(String distinguishedName)
+        {
+            String domain = Regex.Replace( distinguishedName, @"(.*?)DC\s*=\s*(.*)", "$2", RegexOptions.IgnoreCase );
+            domain = Regex.Replace( domain, @"\s*dc\s*=\s*", "", RegexOptions.IgnoreCase );
+            domain = Regex.Replace( domain, @"\s*,\s*", "." );
+
+            return domain;
+        }
     }
 }

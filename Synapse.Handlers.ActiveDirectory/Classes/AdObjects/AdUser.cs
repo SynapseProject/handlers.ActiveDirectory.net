@@ -54,6 +54,7 @@ namespace Synapse.Handlers.ActiveDirectory
         {
             String name = this.Identity;
             String path = DirectoryServices.GetDomainDistinguishedName();
+            String domain = DirectoryServices.GetDomain( path );
 
             if ( DirectoryServices.IsDistinguishedName(this.Identity) )
             {
@@ -64,6 +65,7 @@ namespace Synapse.Handlers.ActiveDirectory
                     name = match.Groups[1]?.Value?.Trim();
                     path = match.Groups[2]?.Value?.Trim();
                 }
+                domain = DirectoryServices.GetDomain( this.Identity );
             }
             else if ( String.IsNullOrWhiteSpace( this.Identity ) )
                 throw new AdException( "Unable To Create User Principal From Given Input.", AdStatusType.MissingInput );
@@ -73,7 +75,7 @@ namespace Synapse.Handlers.ActiveDirectory
             UserPrincipal user = new UserPrincipal( context );
 
             user.Name = name;
-            this.UserPrincipalName = this.UserPrincipalName ?? name;
+            this.UserPrincipalName = this.UserPrincipalName ?? $"{name}@{domain}";
             this.SamAccountName = this.SamAccountName ?? name;
             if (this.Properties?.Count > 0)
                 user.Save();    // User Must Exist Before Properties Can Be Updated.
