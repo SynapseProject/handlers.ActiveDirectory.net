@@ -30,10 +30,8 @@ Actions:
         Description: 
         IsSecurityGroup: true
         SamAccountName: 
+        ManagedBy:
         Properties:
-          # Managed By User (Distinguished Name)
-          managedBy:
-          - 
           # Display Name
           displayName:
           - 
@@ -55,7 +53,7 @@ Actions:
     - Name: samaccountname
       Path: Groups[0]:SamAccountName
     - Name: managedby
-      Path: Groups[0]:Properties:managedBy[0]:Value
+      Path: Groups[0]:ManagedBy
     - Name: displayname
       Path: Groups[0]:Properties:displayName[0]:Value
     - Name: mail

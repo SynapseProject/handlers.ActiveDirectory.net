@@ -80,6 +80,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Plans\AddGroupToGroup.yaml" />
+    <None Include="Plans\ModifyGroup.yaml" />
+    <None Include="Plans\ModifyOrgUnit.yaml" />
+    <None Include="Plans\ModifyUser.yaml" />
     <None Include="Plans\RemoveGroupFromGroup.yaml" />
     <None Include="Plans\RemoveUserFromGroup.yaml" />
     <None Include="Plans\AddUserToGroup.yaml" />

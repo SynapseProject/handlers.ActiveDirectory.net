@@ -138,6 +138,8 @@ public partial class ActiveDirectoryApiController : ApiController
                 pe.DynamicParameters.Add( @"scope", group.Scope.ToString() );
             if (group.IsSecurityGroup != null)
                 pe.DynamicParameters.Add( @"securitygroup", group.IsSecurityGroup.ToString() );
+            if ( group.ManagedBy != null )
+                pe.DynamicParameters.Add( @"managedby", group.ManagedBy );
 
             AddPropertiesToPlan( pe, group.Properties );
         }
@@ -172,6 +174,8 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             if ( !string.IsNullOrWhiteSpace( ou.Description ) )
                 pe.DynamicParameters.Add( @"description", ou.Description );
+            if ( ou.ManagedBy != null )
+                pe.DynamicParameters.Add( @"managedby", ou.ManagedBy );
 
             AddPropertiesToPlan( pe, ou.Properties );
         }

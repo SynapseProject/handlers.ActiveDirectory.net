@@ -26,10 +26,8 @@ Actions:
       OrganizationalUnits:
       - Identity: 
         Description: 
+        ManagedBy:
         Properties:
-          # Managed By User (Distinguished Name)
-          managedBy:
-          - 
           # Country/Region (ISO-3166 2-Letter Code)
           c:
           - 
@@ -57,7 +55,7 @@ Actions:
     - Name: description
       Path: OrganizationalUnits[0]:Description
     - Name: managedby
-      Path: OrganizationalUnits[0]:Properties:managedBy[0]:Value
+      Path: OrganizationalUnits[0]:ManagedBy
     - Name: c
       Path: OrganizationalUnits[0]:Properties:c[0]:Value
     - Name: l
