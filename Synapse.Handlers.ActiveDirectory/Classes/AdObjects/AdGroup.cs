@@ -20,6 +20,9 @@ namespace Synapse.Handlers.ActiveDirectory
         public GroupScope? Scope { get; set; }
         public bool? IsSecurityGroup { get; set; }
 
+        // Settable DirectoryEntry Properties
+        public string ManagedBy { get; set; }
+
         [XmlArrayItem(ElementName = "Group")]
         public List<string> Groups { get; set; }
 
@@ -74,6 +77,15 @@ namespace Synapse.Handlers.ActiveDirectory
 
             if ( this.Scope != null )
                 group.GroupScope = this.Scope;
+
+            // Get DistinguishedName from User or Group Identity for ManagedBy Property
+            if ( this.ManagedBy != null && group.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            {
+                String distinguishedName = DirectoryServices.GetDistinguishedName( this.ManagedBy );
+                if ( distinguishedName == null )
+                    distinguishedName = this.ManagedBy;     // Cant' Find As User Or Group, Pass Raw Value (Might Be ~null~)
+                DirectoryServices.SetProperty( (DirectoryEntry)group.GetUnderlyingObject(), "managedby", distinguishedName );
+            }
 
             if ( group.GetUnderlyingObjectType() == typeof( DirectoryEntry ) && this.Properties?.Count > 0 )
                 DirectoryServices.SetProperties( (DirectoryEntry)group.GetUnderlyingObject(), this.Properties );

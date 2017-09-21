@@ -356,5 +356,28 @@ namespace Synapse.ActiveDirectory.Core
 
             return domain;
         }
+
+        public static string GetDistinguishedName(string identity)
+        {
+            String distinguishedName = null;
+            try
+            {
+                UserPrincipalObject upo = DirectoryServices.GetUser( identity, false );
+                distinguishedName = upo.DistinguishedName;
+            }
+            catch ( Exception ) { }
+
+            if ( distinguishedName == null )
+            {
+                try
+                {
+                    GroupPrincipalObject gpo = DirectoryServices.GetGroup( identity, false );
+                    distinguishedName = gpo.DistinguishedName;
+                }
+                catch ( Exception ) { }
+            }
+
+            return distinguishedName;
+        }
     }
 }

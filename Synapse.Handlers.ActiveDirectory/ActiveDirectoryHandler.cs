@@ -307,6 +307,25 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
+
+                    // Get DistinguishedName from User or Group Identity for ManagedBy Property
+                    if ( !String.IsNullOrWhiteSpace(ou.ManagedBy) )
+                    {
+                        if ( ou.Properties == null )
+                            ou.Properties = new Dictionary<string, List<string>>();
+
+                        if ( !ou.Properties.ContainsKey( "managedBy" ) )
+                        {
+                            String distinguishedName = DirectoryServices.GetDistinguishedName( ou.ManagedBy );
+                            if ( distinguishedName == null )
+                                distinguishedName = ou.ManagedBy;
+
+                            List<String> values = new List<string>();
+                            values.Add( distinguishedName );
+                            ou.Properties.Add( "managedBy", values );
+                        }
+                    }
+
                     if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                     else if (DirectoryServices.IsDistinguishedName(ou.Identity))
@@ -424,7 +443,26 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
+
+                    // Get DistinguishedName from User or Group Identity for ManagedBy Property
+                    if ( !String.IsNullOrWhiteSpace( ou.ManagedBy ) )
+                    {
+                        if ( ou.Properties == null )
+                            ou.Properties = new Dictionary<string, List<string>>();
+
+                        if ( !ou.Properties.ContainsKey( "managedBy" ) )
+                        {
+                            String distinguishedName = DirectoryServices.GetDistinguishedName( ou.ManagedBy );
+                            if ( distinguishedName == null )
+                                distinguishedName = ou.ManagedBy;
+
+                            List<String> values = new List<string>();
+                            values.Add( distinguishedName );
+                            ou.Properties.Add( "managedBy", values );
+                        }
+                    }
+
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                             DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Description, ou.Properties, isDryRun );

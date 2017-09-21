@@ -10,6 +10,7 @@ namespace Synapse.Handlers.ActiveDirectory
     public class AdOrganizationalUnit : AdObject
     {
         public string Description { get; set; }
+        public string ManagedBy { get; set; }
 
         public override AdObjectType GetADType()
         {
