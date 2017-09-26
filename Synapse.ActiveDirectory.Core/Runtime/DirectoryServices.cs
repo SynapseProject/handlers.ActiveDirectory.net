@@ -91,6 +91,17 @@ namespace Synapse.ActiveDirectory.Core
             return groupPrincipal;
         }
 
+        public static Principal GetPrincipal(string identity, string domainName = null)
+        {
+            if ( String.IsNullOrWhiteSpace( identity ) )
+                return null;
+
+            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
+
+            Principal principal = Principal.FindByIdentity( principalContext, identity );
+            return principal;
+        }
+
         public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = "organizationalUnit")
         {
             string rootName = GetDomainDistinguishedName();
