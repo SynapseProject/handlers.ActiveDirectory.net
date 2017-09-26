@@ -132,6 +132,8 @@ namespace Synapse.ActiveDirectory.Core
         //     The user name to use when authenticating the client.
         public string Username { get; set; }
 
+        public List<AccessRuleObject> AccessRules { get; set; } = new List<AccessRuleObject>();
+
 
         public static DirectoryEntryObject FromDirectoryEntry(DirectoryEntry de)
         {
@@ -169,6 +171,8 @@ namespace Synapse.ActiveDirectory.Core
                 SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
+
+            AccessRules = DirectoryServices.GetAccessRules( de );
         }
 
     }

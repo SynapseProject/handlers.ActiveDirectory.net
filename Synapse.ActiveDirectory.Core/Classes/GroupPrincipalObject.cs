@@ -69,7 +69,7 @@ namespace Synapse.ActiveDirectory.Core
         {
             if( gp == null ) return;
 
-            SetPropertiesFromPrincipal( gp );
+            SetPropertiesFromPrincipal( gp, true );
 
             object obj = gp.GetUnderlyingObject();
             if ( obj.GetType() == typeof( DirectoryEntry ) )

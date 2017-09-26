@@ -272,7 +272,7 @@ namespace Synapse.ActiveDirectory.Core
         {
             if( ap == null ) return;
 
-            SetPropertiesFromPrincipal( ap );
+            SetPropertiesFromPrincipal( ap, true );
 
             AccountExpirationDate = ap.AccountExpirationDate;
             AllowReversiblePasswordEncryption = ap.AllowReversiblePasswordEncryption;
