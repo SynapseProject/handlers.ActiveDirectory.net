@@ -53,6 +53,7 @@
     <Compile Include="Classes\UserPrincipalObject.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />
+    <Compile Include="Runtime\Security.cs" />
     <Compile Include="Runtime\User.cs" />
     <Compile Include="Runtime\DirectoryServices.cs" />
     <Compile Include="Classes\Enums.cs" />

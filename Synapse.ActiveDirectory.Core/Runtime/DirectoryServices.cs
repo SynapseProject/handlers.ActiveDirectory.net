@@ -23,7 +23,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
-            if (String.IsNullOrWhiteSpace(domainName))
+            if ( String.IsNullOrWhiteSpace( domainName ) )
             {
                 // If null, principal context defaults to a domain controller for the domain of the user principal
                 // under which the thread is running.
@@ -164,13 +164,13 @@ namespace Synapse.ActiveDirectory.Core
         {
             try
             {
-                if (values != null)
+                if ( values != null )
                 {
                     List<String> addValues = new List<string>();
                     bool clearValue = false;
 
                     // Ensure at least one value in the list is non-null
-                    foreach ( String v in values)
+                    foreach ( String v in values )
                     {
                         if ( v != null )
                         {
@@ -205,7 +205,7 @@ namespace Synapse.ActiveDirectory.Core
                 }
 
 
-                if (commitChanges)
+                if ( commitChanges )
                     de.CommitChanges();
             }
             catch ( Exception e )
@@ -361,7 +361,7 @@ namespace Synapse.ActiveDirectory.Core
             if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 return GetAccessRules( (DirectoryEntry)principal.GetUnderlyingObject() );
             else
-                throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported  );
+                throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
         }
 
         public static List<AccessRuleObject> GetAccessRules(DirectoryEntry de)
@@ -369,10 +369,10 @@ namespace Synapse.ActiveDirectory.Core
             List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
             Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
 
-            AuthorizationRuleCollection rules = de.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ));
-            if (rules != null)
+            AuthorizationRuleCollection rules = de.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
+            if ( rules != null )
             {
-                foreach (AuthorizationRule rule in rules)
+                foreach ( AuthorizationRule rule in rules )
                 {
                     ActiveDirectoryAccessRule accessRule = (ActiveDirectoryAccessRule)rule;
                     AccessRuleObject aro = new AccessRuleObject()
