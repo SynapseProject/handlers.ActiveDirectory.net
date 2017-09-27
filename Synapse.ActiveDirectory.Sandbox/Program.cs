@@ -17,21 +17,21 @@ namespace Synapse.ActiveDirectory.Core
         {
             Principal target = DirectoryServices.GetPrincipal( "TestGroup" );
 
-            DirectoryServices.AddAccessRights( target, "wagug0", ActiveDirectoryRights.Self, AccessControlType.Allow );
-            DirectoryServices.AddAccessRights( target, "wagug0", ActiveDirectoryRights.GenericRead, AccessControlType.Allow );
-            DirectoryServices.AddAccessRights( target, "wagug0", ActiveDirectoryRights.WriteProperty, AccessControlType.Deny );
-            DirectoryServices.AddAccessRights( target, "wagug0", ActiveDirectoryRights.Delete | ActiveDirectoryRights.DeleteTree, AccessControlType.Deny );
+            DirectoryServices.AddAccessRule( target, "wagug0", ActiveDirectoryRights.Self, AccessControlType.Allow );
+            DirectoryServices.AddAccessRule( target, "wagug0", ActiveDirectoryRights.GenericRead, AccessControlType.Allow );
+            DirectoryServices.AddAccessRule( target, "wagug0", ActiveDirectoryRights.WriteProperty, AccessControlType.Deny );
+            DirectoryServices.AddAccessRule( target, "wagug0", ActiveDirectoryRights.Delete | ActiveDirectoryRights.DeleteTree, AccessControlType.Deny );
             WriteAccessRights();
 
-            DirectoryServices.DeleteAccessRights( target, "wagug0", ActiveDirectoryRights.GenericRead, AccessControlType.Allow );
-            DirectoryServices.DeleteAccessRights( target, "wagug0", ActiveDirectoryRights.Delete, AccessControlType.Deny );
+            DirectoryServices.DeleteAccessRule( target, "wagug0", ActiveDirectoryRights.GenericRead, AccessControlType.Allow );
+            DirectoryServices.DeleteAccessRule( target, "wagug0", ActiveDirectoryRights.Delete, AccessControlType.Deny );
             WriteAccessRights();
 
-            DirectoryServices.SetAccessRights( target, "wagug0", ActiveDirectoryRights.CreateChild, AccessControlType.Allow );
-            DirectoryServices.SetAccessRights( target, "wagug0", ActiveDirectoryRights.DeleteTree, AccessControlType.Deny );
+            DirectoryServices.SetAccessRule( target, "wagug0", ActiveDirectoryRights.CreateChild, AccessControlType.Allow );
+            DirectoryServices.SetAccessRule( target, "wagug0", ActiveDirectoryRights.DeleteTree, AccessControlType.Deny );
             WriteAccessRights();
 
-            DirectoryServices.PurgeAccessRights( target, "wagug0" );
+            DirectoryServices.PurgeAccessRules( target, "wagug0" );
             WriteAccessRights();
 
             Console.WriteLine( "Press <ENTER> To Continue..." );
