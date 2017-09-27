@@ -12,9 +12,9 @@ namespace Synapse.ActiveDirectory.Core
     public class GroupPrincipalObject : PrincipalObject, ICloneable
     {
         public GroupPrincipalObject() { }
-        public GroupPrincipalObject(GroupPrincipal gp)
+        public GroupPrincipalObject(GroupPrincipal gp, bool getAccessRules = false)
         {
-            SetPropertiesFromGroupPrincipal( gp );
+            SetPropertiesFromGroupPrincipal( gp, getAccessRules );
         }
 
         public object Clone()
@@ -65,11 +65,11 @@ namespace Synapse.ActiveDirectory.Core
             return new GroupPrincipalObject( gp );
         }
 
-        public void SetPropertiesFromGroupPrincipal(GroupPrincipal gp)
+        public void SetPropertiesFromGroupPrincipal(GroupPrincipal gp, bool getAccessRules)
         {
             if( gp == null ) return;
 
-            SetPropertiesFromPrincipal( gp, true );
+            SetPropertiesFromPrincipal( gp, getAccessRules );
 
             object obj = gp.GetUnderlyingObject();
             if ( obj.GetType() == typeof( DirectoryEntry ) )

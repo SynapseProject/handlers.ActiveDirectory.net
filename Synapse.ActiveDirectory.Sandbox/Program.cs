@@ -40,14 +40,14 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void WriteAccessRights()
         {
-            GroupPrincipalObject gpo = DirectoryServices.GetGroup( "TestGroup", false );
+            GroupPrincipalObject gpo = DirectoryServices.GetGroup( "TestGroup", false, false );
 
             foreach ( AccessRuleObject rule in gpo.AccessRules )
             {
-                if ( rule.Principal.Name == "wagug0" )
+                if ( rule.IdentityName == "wagug0" )
                 {
                     String type = rule.IsInherited ? "INHERITED" : "EXPLICIT ";
-                    Console.WriteLine( $">> {type} {rule.Principal.Name} = [{rule.ControlType} - {rule.Rights}]" );
+                    Console.WriteLine( $">> {type} {rule.IdentityName} = [{rule.ControlType} - {rule.Rights}]" );
                 }
             }
             Console.WriteLine( "==================================" );

@@ -15,9 +15,9 @@ namespace Synapse.ActiveDirectory.Core
         private string VALID_PARENT_CLASS_NAME = @"organizationalUnit";
 
         public DirectoryEntryObject() { }
-        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema = true)
+        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules)
         {
-            SetPropertiesFromDirectoryEntry( de, loadSchema );
+            SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules );
         }
 
         //
@@ -132,15 +132,15 @@ namespace Synapse.ActiveDirectory.Core
         //     The user name to use when authenticating the client.
         public string Username { get; set; }
 
-        public List<AccessRuleObject> AccessRules { get; set; } = new List<AccessRuleObject>();
+        public List<AccessRuleObject> AccessRules { get; set; } 
 
 
         public static DirectoryEntryObject FromDirectoryEntry(DirectoryEntry de)
         {
-            return new DirectoryEntryObject( de );
+            return new DirectoryEntryObject( de, true, false );
         }
 
-        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema = true)
+        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema, bool getAccessRules)
         {
             if( de == null ) return;
 
@@ -149,7 +149,7 @@ namespace Synapse.ActiveDirectory.Core
             NativeGuid = de.NativeGuid;
             if ( de.Parent.SchemaClassName == VALID_PARENT_CLASS_NAME )
             {
-                Parent = new DirectoryEntryObject( de.Parent, false );
+                Parent = new DirectoryEntryObject( de.Parent, false, false );
             }
 
             if (de.SchemaClassName == VALID_PARENT_CLASS_NAME)
@@ -168,11 +168,12 @@ namespace Synapse.ActiveDirectory.Core
             Path = de.Path;
             SchemaClassName = de.SchemaClassName;
             if (loadSchema)
-                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false );
+                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
 
-            AccessRules = DirectoryServices.GetAccessRules( de );
+            if (getAccessRules)
+                AccessRules = DirectoryServices.GetAccessRules( de );
         }
 
     }

@@ -114,8 +114,8 @@ namespace Synapse.ActiveDirectory.Core
         public string UserPrincipalName { get; set; }
         #endregion
 
-        public List<PrincipalObject> Groups { get; set; } = new List<PrincipalObject>();
-        public List<AccessRuleObject> AccessRules { get; set; } = new List<AccessRuleObject>();
+        public List<PrincipalObject> Groups { get; set; } 
+        public List<AccessRuleObject> AccessRules { get; set; } 
 
 
         public static PrincipalObject FromPrincipal(Principal p)
@@ -140,13 +140,17 @@ namespace Synapse.ActiveDirectory.Core
             StructuralObjectClass = p.StructuralObjectClass;
             UserPrincipalName = p.UserPrincipalName;
 
-            if (getAccessRules)
+            if ( getAccessRules )
+            {
+                AccessRules = new List<AccessRuleObject>();
                 AccessRules = DirectoryServices.GetAccessRules( p );
+            }
         }
 
         public void GetGroups()
         {
             PrincipalSearchResult<Principal> sr = _innerPrincipal.GetGroups();
+            Groups = new List<PrincipalObject>();
             foreach( Principal p in sr )
                 Groups.Add( new PrincipalObject( p ) );
         }

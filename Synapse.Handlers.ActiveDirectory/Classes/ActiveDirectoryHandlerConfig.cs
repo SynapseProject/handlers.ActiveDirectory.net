@@ -19,6 +19,8 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         public bool QueryGroupMembership { get; set; } = true;
         [XmlElement]
+        public bool ReturnAccessRules { get; set; } = true;
+        [XmlElement]
         public bool ReturnObjects { get; set; } = true;
         [XmlElement]
         public bool SuppressOutput { get; set; } = false;
