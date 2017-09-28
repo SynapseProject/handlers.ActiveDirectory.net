@@ -55,6 +55,7 @@
   <ItemGroup>
     <Compile Include="Classes\ActiveDirectoryHandlerResults.cs" />
     <Compile Include="Classes\ActiveDirectoryObjectResult.cs" />
+    <Compile Include="Classes\AdObjects\AdAccessRule.cs" />
     <Compile Include="Classes\AdObjects\AdObject.cs" />
     <Compile Include="Classes\AdObjects\AdGroup.cs" />
     <Compile Include="Classes\ActiveDirectoryHandlerParameters.cs" />

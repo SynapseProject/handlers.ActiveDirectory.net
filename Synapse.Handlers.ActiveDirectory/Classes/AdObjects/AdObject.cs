@@ -14,9 +14,13 @@ namespace Synapse.Handlers.ActiveDirectory
     {
         protected string NULL = "~null~";
 
+        [XmlElement]
         public string Identity { get; set; }
-
+        [XmlArrayItem(ElementName = "Property")]
         public Dictionary<String, List<String>> Properties { get; set; }
+        [XmlArrayItem(ElementName = "AccessRule")]
+        public List<AdAccessRule> AccessRules { get; set; }
+
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }
 

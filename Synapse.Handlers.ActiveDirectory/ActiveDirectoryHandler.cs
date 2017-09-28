@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
 
@@ -86,6 +87,26 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     case ActionType.RemoveFromGroup:
                         ProcessActiveDirectoryObjects( parameters.Users, ProcessGroupRemove );
                         ProcessActiveDirectoryObjects( parameters.Groups, ProcessGroupRemove );
+                        break;
+                    case ActionType.AddAccessRule:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        break;
+                    case ActionType.RemoveAccessRule:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        break;
+                    case ActionType.SetAccessRule:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        break;
+                    case ActionType.PurgeAccessRules:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
                         break;
                     default:
                         throw new AdException( $"Unknown Action {config.Action} Specified", AdStatusType.NotSupported );
@@ -566,6 +587,102 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         AddToGroup( result, obj, returnObject );
         results.Add( result );
+    }
+
+    private void ProcessAccessRules(AdObject obj, bool returnObject = false)
+    {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = obj.Type,
+            Identity = obj.Identity
+        };
+
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            Action = config.Action,
+            Status = AdStatusType.Success,
+            Message = "Success",
+        };
+
+        try
+        {
+            // Get Target DirectoryEntry For Rules
+            DirectoryEntry de = null;
+            if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
+            {
+                Principal principal = DirectoryServices.GetPrincipal( obj.Identity );
+                if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                    de = (DirectoryEntry)principal.GetUnderlyingObject();
+                else
+                    throw new AdException( $"AddAccessRule Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
+            }
+            else
+                de = DirectoryServices.GetDirectoryEntry( obj.Identity );
+
+            // Add Rules To Target DirectoryEntry
+            foreach ( AdAccessRule rule in obj.AccessRules )
+            {
+                ActiveDirectoryRights rights = 0;
+                if (rule.Rights != null)
+                    foreach ( ActiveDirectoryRights right in rule.Rights )
+                        rights |= right;
+
+                String message = String.Empty;
+                switch ( config.Action )
+                {
+                    case ActionType.AddAccessRule:
+                        DirectoryServices.AddAccessRule( de, rule.Identity, rights, rule.Type );
+                        message = $"{rule.Type} [{rights}] Rule Added To {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        break;
+                    case ActionType.RemoveAccessRule:
+                        DirectoryServices.DeleteAccessRule( de, rule.Identity, rights, rule.Type );
+                        message = $"{rule.Type} [{rights}] Rule Deleted From {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        break;
+                    case ActionType.SetAccessRule:
+                        DirectoryServices.SetAccessRule( de, rule.Identity, rights, rule.Type );
+                        message = $"{rule.Type} [{rights}] Rule Set On {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        break;
+                    case ActionType.PurgeAccessRules:
+                        DirectoryServices.PurgeAccessRules( de, rule.Identity );
+                        message = $"All Rules Purged On {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        break;
+                    default:
+                        throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
+                }
+
+                result.Statuses.Add( status );
+                OnLogMessage( "ProcessAccessRules", message );
+            }
+
+        }
+        catch ( AdException ex )
+        {
+            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+        }
+        catch ( Exception e )
+        {
+            OnLogMessage( "ProcessDelete", e.Message );
+            OnLogMessage( "ProcessDelete", e.StackTrace );
+            AdException le = new AdException( e );
+            ProcessActiveDirectoryException( result, le, status.Action, obj );
+        }
+
+        if ( returnObject )
+        {
+            object adObject = GetActiveDirectoryObject( obj );
+            Type returnType = obj.GetType();
+            if ( returnType == typeof( AdUser ) )
+                result.User = (UserPrincipalObject)adObject;
+            else if ( returnType == typeof( AdGroup ) )
+                result.Group = (GroupPrincipalObject)adObject;
+            else if ( returnType == typeof( AdOrganizationalUnit ) )
+                result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
+            else
+                throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
+        }
+
+        results.Add( result );
+
     }
 
     private void AddToGroup(ActiveDirectoryObjectResult result, AdObject obj, bool returnObject = true)
