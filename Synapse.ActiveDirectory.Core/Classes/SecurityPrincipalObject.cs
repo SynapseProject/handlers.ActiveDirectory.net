@@ -11,9 +11,9 @@ namespace Synapse.ActiveDirectory.Core
     public class SecurityPrincipalObject : PrincipalObject
     {
         public SecurityPrincipalObject() { }
-        public SecurityPrincipalObject(AuthenticablePrincipal ap)
+        public SecurityPrincipalObject(AuthenticablePrincipal ap, bool returnAccessRules = false)
         {
-            SetPropertiesFromAuthenticablePrincipal( ap );
+            SetPropertiesFromAuthenticablePrincipal( ap, returnAccessRules );
         }
 
         #region AuthenticablePrincipal
@@ -268,11 +268,11 @@ namespace Synapse.ActiveDirectory.Core
             return new SecurityPrincipalObject( ap );
         }
 
-        public void SetPropertiesFromAuthenticablePrincipal(AuthenticablePrincipal ap)
+        public void SetPropertiesFromAuthenticablePrincipal(AuthenticablePrincipal ap, bool returnAccessRules)
         {
             if( ap == null ) return;
 
-            SetPropertiesFromPrincipal( ap );
+            SetPropertiesFromPrincipal( ap, returnAccessRules );
 
             AccountExpirationDate = ap.AccountExpirationDate;
             AllowReversiblePasswordEncryption = ap.AllowReversiblePasswordEncryption;

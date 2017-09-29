@@ -11,7 +11,7 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static UserPrincipalObject GetUser(string identity, bool getGroups)
+        public static UserPrincipalObject GetUser(string identity, bool getGroups, bool getAccessRules)
         {
             UserPrincipalObject u = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
@@ -22,7 +22,7 @@ namespace Synapse.ActiveDirectory.Core
                     if ( user == null )
                         throw new AdException( $"User [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
-                    u = new UserPrincipalObject( user );
+                    u = new UserPrincipalObject( user, getAccessRules );
                     if ( getGroups )
                         u.GetGroups();
                 }

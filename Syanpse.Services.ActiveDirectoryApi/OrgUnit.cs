@@ -49,4 +49,47 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "accessrule/ou/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults AddAccessRuleToOrgUnit(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.OrganizationalUnit.AddAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/ou/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults RemoveAccessRuleFromOrgUnit(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.OrganizationalUnit.RemoveAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route( "accessrule/ou/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults SetAccessRuleOnOrgUnit(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.OrganizationalUnit.SetAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/ou/{identity}/{principal}" )]
+    public ActiveDirectoryHandlerResults PurgeAccessRulesOnOrgUnit(string identity, string principal)
+    {
+        string planName = config.Plans.OrganizationalUnit.PurgeAccessRules;
+
+        AdAccessRule rule = CreateAccessRule( principal, null, null );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
 }

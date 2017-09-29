@@ -64,4 +64,48 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "accessrule/group/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults AddAccessRuleToGroup(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.Group.AddAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/group/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults RemoveAccessRuleFromGroup(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.Group.RemoveAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route( "accessrule/group/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults SetAccessRuleOnGroup(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.Group.SetAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/group/{identity}/{principal}" )]
+    public ActiveDirectoryHandlerResults PurgeAccessRulesOnGroup(string identity, string principal)
+    {
+        string planName = config.Plans.Group.PurgeAccessRules;
+
+        AdAccessRule rule = CreateAccessRule( principal, null, null );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
 }

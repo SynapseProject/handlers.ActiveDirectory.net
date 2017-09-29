@@ -1,18 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B1468ED1-CDB3-473B-B8E9-50808CF1E948}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Synapse.Handlers.ActiveDirectory</RootNamespace>
-    <AssemblyName>Synapse.Handlers.ActiveDirectory</AssemblyName>
+    <ProjectGuid>{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Synapse.ActiveDirectory.Sandbox</RootNamespace>
+    <AssemblyName>Synapse.ActiveDirectory.Sandbox</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -30,10 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
       <HintPath>..\packages\Synapse.Core.Signed.0.1.17218.0-beta\lib\net45\Synapse.Core.dll</HintPath>
     </Reference>
@@ -49,42 +47,29 @@
     <Reference Include="System.Xml" />
     <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
       <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
-      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\ActiveDirectoryHandlerResults.cs" />
-    <Compile Include="Classes\ActiveDirectoryObjectResult.cs" />
-    <Compile Include="Classes\AdObjects\AdAccessRule.cs" />
-    <Compile Include="Classes\AdObjects\AdObject.cs" />
-    <Compile Include="Classes\AdObjects\AdGroup.cs" />
-    <Compile Include="Classes\ActiveDirectoryHandlerParameters.cs" />
-    <Compile Include="Classes\ActiveDirectoryHandlerConfig.cs" />
-    <Compile Include="Classes\AdObjects\AdOrganizationalUnit.cs" />
-    <Compile Include="Classes\AdObjects\AdUser.cs" />
-    <Compile Include="Classes\ActiveDirectoryStatus.cs" />
-    <Compile Include="ActiveDirectoryHandler.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
+    <ProjectReference Include="..\Syanpse.Services.ActiveDirectoryApi\Synapse.Services.ActiveDirectoryApi.csproj">
+      <Project>{e35e65f1-a918-47f9-b7e7-dd1e950e7c11}</Project>
+      <Name>Synapse.Services.ActiveDirectoryApi</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Synapse.ActiveDirectory.Core\Synapse.ActiveDirectory.Core.csproj">
       <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
       <Name>Synapse.ActiveDirectory.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
+      <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
+      <Name>Synapse.Handlers.ActiveDirectory</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File $(SolutionDir)scripts\setVersion.ps1 -path $(ProjectDir)Properties\AssemblyInfo.cs -versionFile $(SolutionDir)scripts\AssemblyInfo.xml</PreBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

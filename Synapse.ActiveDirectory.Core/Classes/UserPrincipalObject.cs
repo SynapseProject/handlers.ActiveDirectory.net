@@ -12,9 +12,9 @@ namespace Synapse.ActiveDirectory.Core
     public class UserPrincipalObject : SecurityPrincipalObject, ICloneable
     {
         public UserPrincipalObject() { }
-        public UserPrincipalObject(UserPrincipal up)
+        public UserPrincipalObject(UserPrincipal up, bool returnAccessRules = false)
         {
-            SetPropertiesFromUserPrincipal( up );
+            SetPropertiesFromUserPrincipal( up, returnAccessRules );
         }
 
         public object Clone()
@@ -97,11 +97,11 @@ namespace Synapse.ActiveDirectory.Core
             return new UserPrincipalObject( up );
         }
 
-        public void SetPropertiesFromUserPrincipal(UserPrincipal up)
+        public void SetPropertiesFromUserPrincipal(UserPrincipal up, bool returnAccessRules)
         {
             if( up == null ) return;
 
-            SetPropertiesFromAuthenticablePrincipal( up );
+            SetPropertiesFromAuthenticablePrincipal( up, returnAccessRules );
 
             EmailAddress = up.EmailAddress;
             EmployeeId = up.EmployeeId;

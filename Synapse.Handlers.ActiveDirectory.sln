@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.ActiveDirectory.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.Services.ActiveDirectoryApi", "Syanpse.Services.ActiveDirectoryApi\Synapse.Services.ActiveDirectoryApi.csproj", "{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Synapse.ActiveDirectory.Sandbox", "Synapse.ActiveDirectory.Sandbox\Synapse.ActiveDirectory.Sandbox.csproj", "{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EC12477-D6BB-42B6-A2FD-92731C59BA4A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

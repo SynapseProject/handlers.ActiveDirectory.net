@@ -1,17 +1,20 @@
-Name: DeleteGroupApi
-Description: Delete Ldap Group
+Name: PurgeAccessRulesOnGroupApi
+Description: Purge Access Rules On A Group
 IsActive: true
 Actions:
-- Name: DeleteGroup
+- Name: PurgeAccessRulesOnGroup
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: Delete
+        Action: PurgeAccessRules
         RunSequential: false
+        QueryGroupMembership: false
         OutputType: Json
         PrettyPrint: false
+        ReturnObjects: true
+        ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
       - Name: querygroupmembership
@@ -25,6 +28,10 @@ Actions:
     Values:
       Groups:
       - Identity: 
+        AccessRules:
+        - Identity: 
     Dynamic:
     - Name: identity
       Path: Groups[0]:Identity
+    - Name: ruleidentity
+      Path: Groups[0]:AccessRules[0]:Identity

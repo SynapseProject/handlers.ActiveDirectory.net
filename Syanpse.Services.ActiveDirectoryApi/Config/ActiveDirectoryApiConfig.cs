@@ -47,6 +47,10 @@ public class ActiveDirectoryApiConfig
             config.Plans.User.Modify = @"ModifyUser";
             config.Plans.User.AddToGroup = @"AddUserToGroup";
             config.Plans.User.RemoveFromGroup = @"RemoveUserFromGroup";
+            config.Plans.User.AddAccessRule = @"AddAccessRuleToUser";
+            config.Plans.User.RemoveAccessRule = @"RemoveAccessRuleFromUser";
+            config.Plans.User.SetAccessRule = @"SetAccessRuleOnUser";
+            config.Plans.User.PurgeAccessRules = @"PurgeAccessRulesOnUser";
 
             config.Plans.Group.Query = @"QueryGroup";
             config.Plans.Group.Create = @"CreateGroup";
@@ -54,11 +58,19 @@ public class ActiveDirectoryApiConfig
             config.Plans.Group.Modify = @"ModifyGroup";
             config.Plans.Group.AddToGroup = @"AddGroupToGroup";
             config.Plans.Group.RemoveFromGroup = @"RemoveGroupFromGroup";
+            config.Plans.Group.AddAccessRule = @"AddAccessRuleToGroup";
+            config.Plans.Group.RemoveAccessRule = @"RemoveAccessRuleFromGroup";
+            config.Plans.Group.SetAccessRule = @"SetAccessRuleOnGroup";
+            config.Plans.Group.PurgeAccessRules = @"PurgeAccessRulesOnGroup";
 
             config.Plans.OrganizationalUnit.Query = @"QueryOrgUnit";
             config.Plans.OrganizationalUnit.Create = @"CreateOrgUnit";
             config.Plans.OrganizationalUnit.Delete = @"DeleteOrgUnit";
             config.Plans.OrganizationalUnit.Modify = @"ModifyOrgUnit";
+            config.Plans.OrganizationalUnit.AddAccessRule = @"AddAccessRuleToOrgUnit";
+            config.Plans.OrganizationalUnit.RemoveAccessRule = @"RemoveAccessRuleFromOrgUnit";
+            config.Plans.OrganizationalUnit.SetAccessRule = @"SetAccessRuleOnOrgUnit";
+            config.Plans.OrganizationalUnit.PurgeAccessRules = @"PurgeAccessRulesOnOrgUnit";
 
             config.Serialize();
         }
@@ -78,31 +90,32 @@ public class PlanConfig
     public OrgUnitPlans OrganizationalUnit { get; set; } = new OrgUnitPlans();
 }
 
-public class UserPlans
+public class AllPlans
 {
     public string Query { get; set; }
     public string Create { get; set; }
     public string Delete { get; set; }
     public string Modify { get; set; }
+    public string AddAccessRule { get; set; }
+    public string RemoveAccessRule { get; set; }
+    public string SetAccessRule { get; set; }
+    public string PurgeAccessRules { get; set; }
+}
+
+public class UserPlans : AllPlans
+{
     public string AddToGroup { get; set; }
     public string RemoveFromGroup { get; set; }
 }
 
-public class GroupPlans
+public class GroupPlans : AllPlans
 {
-    public string Query { get; set; }
-    public string Create { get; set; }
-    public string Delete { get; set; }
-    public string Modify { get; set; }
     public string AddToGroup { get; set; }
     public string RemoveFromGroup { get; set; }
 }
 
-public class OrgUnitPlans
+public class OrgUnitPlans : AllPlans
 {
-    public string Query { get; set; }
-    public string Create { get; set; }
-    public string Delete { get; set; }
-    public string Modify { get; set; }
 }
+
 

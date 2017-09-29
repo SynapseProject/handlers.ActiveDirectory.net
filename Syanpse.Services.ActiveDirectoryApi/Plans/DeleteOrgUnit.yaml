@@ -10,16 +10,16 @@ Actions:
       Values:
         Action: Delete
         RunSequential: false
-        QueryGroupMembership: false
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: false
         SuppressOutput: false
       Dynamic:
       - Name: querygroupmembership
         Path: QueryGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:

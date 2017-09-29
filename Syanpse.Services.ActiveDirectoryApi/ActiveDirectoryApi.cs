@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using System.Security.Principal;
 using System.Xml;
 using System.Xml.Serialization;
+using System.DirectoryServices;
+using System.Security.AccessControl;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -182,6 +184,21 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
+    // Manipulating Access Rules
+    private StartPlanEnvelope GetPlanEnvelope(string identity, AdAccessRule rule)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        if ( rule != null )
+        {
+            if ( !string.IsNullOrWhiteSpace( rule.Identity ) )
+                pe.DynamicParameters.Add( @"ruleidentity", rule.Identity );
+
+            pe.DynamicParameters.Add( @"ruletype", rule.Type.ToString() );
+            pe.DynamicParameters.Add( @"rulerights", rule.Rights.ToString() );
+        }
+        return pe;
+    }
+
     private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope )
     {
         IExecuteController ec = GetExecuteControllerInstance();
@@ -246,6 +263,19 @@ public partial class ActiveDirectoryApiController : ApiController
                 }
             }
         }
+    }
+
+    private AdAccessRule CreateAccessRule(string principal, string type, string rights)
+    {
+        AdAccessRule rule = new AdAccessRule();
+        rule.Identity = principal;
+        if (!String.IsNullOrWhiteSpace(type))
+            rule.Type = (AccessControlType)Enum.Parse( typeof( AccessControlType ), type );
+
+        if ( !String.IsNullOrWhiteSpace( rights ) )
+            rule.Rights = (ActiveDirectoryRights)Enum.Parse( typeof( ActiveDirectoryRights ), rights );
+
+        return rule;
     }
 
     private bool IsDistinguishedName(String name)

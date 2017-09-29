@@ -15,7 +15,7 @@ namespace Synapse.ActiveDirectory.Core
         public PrincipalObject() { }
         public PrincipalObject(Principal p)
         {
-            SetPropertiesFromPrincipal( p );
+            SetPropertiesFromPrincipal( p, false );
         }
 
         #region Principal
@@ -114,7 +114,8 @@ namespace Synapse.ActiveDirectory.Core
         public string UserPrincipalName { get; set; }
         #endregion
 
-        public List<PrincipalObject> Groups { get; set; } = new List<PrincipalObject>();
+        public List<PrincipalObject> Groups { get; set; } 
+        public List<AccessRuleObject> AccessRules { get; set; } 
 
 
         public static PrincipalObject FromPrincipal(Principal p)
@@ -122,7 +123,7 @@ namespace Synapse.ActiveDirectory.Core
             return new PrincipalObject( p );
         }
 
-        public void SetPropertiesFromPrincipal(Principal p)
+        public void SetPropertiesFromPrincipal(Principal p, bool getAccessRules)
         {
             _innerPrincipal = p;
 
@@ -138,11 +139,18 @@ namespace Synapse.ActiveDirectory.Core
             Sid = p.Sid.Value;
             StructuralObjectClass = p.StructuralObjectClass;
             UserPrincipalName = p.UserPrincipalName;
+
+            if ( getAccessRules )
+            {
+                AccessRules = new List<AccessRuleObject>();
+                AccessRules = DirectoryServices.GetAccessRules( p );
+            }
         }
 
         public void GetGroups()
         {
             PrincipalSearchResult<Principal> sr = _innerPrincipal.GetGroups();
+            Groups = new List<PrincipalObject>();
             foreach( Principal p in sr )
                 Groups.Add( new PrincipalObject( p ) );
         }

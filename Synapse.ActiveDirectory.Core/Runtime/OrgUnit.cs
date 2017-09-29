@@ -229,22 +229,14 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static OrganizationalUnitObject GetOrganizationalUnit(string name, string path)
-        {
-            String distinguishedName = String.IsNullOrWhiteSpace( path ) ? 
-                $"ou={name},{GetDomainDistinguishedName().Replace( "LDAP://", "" )}" : 
-                $"ou={name},{path.Replace( "LDAP://", "" )}";
-            return GetOrganizationalUnit( distinguishedName );
-        }
-
-        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName)
+        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName, bool getAccessRules)
         {
             DirectoryEntry ou = GetDirectoryEntry( distinguishedName );
 
             if ( ou == null )
                 throw new AdException( $"Organizational Unit [{distinguishedName}] Not Found.", AdStatusType.DoesNotExist );
             else
-                return new OrganizationalUnitObject( ou );
+                return new OrganizationalUnitObject( ou, getAccessRules );
         }
     }
 }

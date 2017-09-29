@@ -5,47 +5,12 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
-
+using System.Security.AccessControl;
 
 namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-/*        public static string GetObjectDistinguishedName(AdObjectType objectClass, string objectName, string ldapRoot)
-        {
-            string distinguishedName = string.Empty;
-
-            using( DirectoryEntry entry = new DirectoryEntry( ldapRoot ) )
-            using( DirectorySearcher searcher = new DirectorySearcher( entry ) )
-            {
-                switch( objectClass )
-                {
-                    case AdObjectType.User:
-                    {
-                        searcher.Filter = "(&(objectClass=user)(|(cn=" + objectName + ")(sAMAccountName=" + objectName + ")))";
-                        break;
-                    }
-                    case AdObjectType.Group:
-                    case AdObjectType.Computer:
-                    {
-                        searcher.Filter = $"(&(objectClass={objectClass.ToString().ToLower()})(|(cn=" + objectName + ")(dn=" + objectName + ")))";
-                        break;
-                    }
-                }
-                SearchResult result = searcher.FindOne();
-
-                if( result == null )
-                    throw new KeyNotFoundException( "unable to locate the distinguishedName for the object " + objectName + " in the " + ldapRoot + " ldapRoot" );
-
-                DirectoryEntry directoryObject = result.GetDirectoryEntry();
-                distinguishedName = "LDAP://" + directoryObject.Properties["distinguishedName"].Value;
-
-                entry.Close();
-            }
-
-            return distinguishedName;
-        }
-*/
         private static string GetCommonName(String distinguishedName)
         {
             Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
@@ -58,7 +23,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
-            if (String.IsNullOrWhiteSpace(domainName))
+            if ( String.IsNullOrWhiteSpace( domainName ) )
             {
                 // If null, principal context defaults to a domain controller for the domain of the user principal
                 // under which the thread is running.
@@ -199,13 +164,13 @@ namespace Synapse.ActiveDirectory.Core
         {
             try
             {
-                if (values != null)
+                if ( values != null )
                 {
                     List<String> addValues = new List<string>();
                     bool clearValue = false;
 
                     // Ensure at least one value in the list is non-null
-                    foreach ( String v in values)
+                    foreach ( String v in values )
                     {
                         if ( v != null )
                         {
@@ -240,7 +205,7 @@ namespace Synapse.ActiveDirectory.Core
                 }
 
 
-                if (commitChanges)
+                if ( commitChanges )
                     de.CommitChanges();
             }
             catch ( Exception e )
@@ -370,25 +335,54 @@ namespace Synapse.ActiveDirectory.Core
 
         public static string GetDistinguishedName(string identity)
         {
-            String distinguishedName = null;
-            try
-            {
-                UserPrincipalObject upo = DirectoryServices.GetUser( identity, false );
-                distinguishedName = upo.DistinguishedName;
-            }
-            catch ( Exception ) { }
+            Principal principal = DirectoryServices.GetPrincipal( identity );
+            return principal.DistinguishedName;
+        }
 
-            if ( distinguishedName == null )
+        public static List<AccessRuleObject> GetAccessRules(Principal principal)
+        {
+            if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                return GetAccessRules( (DirectoryEntry)principal.GetUnderlyingObject() );
+            else
+                throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
+        }
+
+        public static List<AccessRuleObject> GetAccessRules(DirectoryEntry de)
+        {
+            List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
+            Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
+
+            AuthorizationRuleCollection rules = de.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
+            if ( rules != null )
             {
-                try
+                foreach ( AuthorizationRule rule in rules )
                 {
-                    GroupPrincipalObject gpo = DirectoryServices.GetGroup( identity, false );
-                    distinguishedName = gpo.DistinguishedName;
+                    ActiveDirectoryAccessRule accessRule = (ActiveDirectoryAccessRule)rule;
+                    AccessRuleObject aro = new AccessRuleObject()
+                    {
+                        ControlType = accessRule.AccessControlType,
+                        Rights = accessRule.ActiveDirectoryRights,
+                        IdentityReference = accessRule.IdentityReference.Value,
+                        InheritanceFlags = accessRule.InheritanceFlags,
+                        IsInherited = accessRule.IsInherited,
+                    };
+
+                    Principal principal = null;
+                    if ( principals.ContainsKey( aro.IdentityReference ) )
+                        principal = principals[aro.IdentityReference];
+                    else
+                    {
+                        principal = DirectoryServices.GetPrincipal( aro.IdentityReference );
+                        principals.Add( aro.IdentityReference, principal );
+                    }
+
+                    aro.IdentityName = principal.Name;
+                    accessRules.Add( aro );
+
                 }
-                catch ( Exception ) { }
             }
 
-            return distinguishedName;
+            return accessRules;
         }
     }
 }

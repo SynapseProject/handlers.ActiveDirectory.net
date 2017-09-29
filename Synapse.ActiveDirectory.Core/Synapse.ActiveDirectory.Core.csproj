@@ -43,20 +43,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\AccessRuleObject.cs" />
     <Compile Include="Classes\AdException.cs" />
-    <Compile Include="Classes\DirectoryEntry.cs" />
-    <Compile Include="Classes\OrgUnit.cs" />
-    <Compile Include="Classes\GroupPrincipal.cs" />
-    <Compile Include="Classes\Principal.cs" />
+    <Compile Include="Classes\DirectoryEntryObject.cs" />
+    <Compile Include="Classes\OrganizationalUnitObject.cs" />
+    <Compile Include="Classes\GroupPrincipalObject.cs" />
+    <Compile Include="Classes\PrincipalObject.cs" />
     <Compile Include="Classes\SerializableDictionary.cs" />
-    <Compile Include="Classes\UserPrincipal.cs" />
+    <Compile Include="Classes\UserPrincipalObject.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />
+    <Compile Include="Runtime\Security.cs" />
     <Compile Include="Runtime\User.cs" />
     <Compile Include="Runtime\DirectoryServices.cs" />
     <Compile Include="Classes\Enums.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Classes\SecurityPrincipal.cs" />
+    <Compile Include="Classes\SecurityPrincipalObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
