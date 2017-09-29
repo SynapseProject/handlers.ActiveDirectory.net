@@ -622,25 +622,20 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             // Add Rules To Target DirectoryEntry
             foreach ( AdAccessRule rule in obj.AccessRules )
             {
-                ActiveDirectoryRights rights = 0;
-                if (rule.Rights != null)
-                    foreach ( ActiveDirectoryRights right in rule.Rights )
-                        rights |= right;
-
                 String message = String.Empty;
                 switch ( config.Action )
                 {
                     case ActionType.AddAccessRule:
-                        DirectoryServices.AddAccessRule( de, rule.Identity, rights, rule.Type );
-                        message = $"{rule.Type} [{rights}] Rule Added To {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        DirectoryServices.AddAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        message = $"{rule.Type} [{rule.Rights}] Rule Added To {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.RemoveAccessRule:
-                        DirectoryServices.DeleteAccessRule( de, rule.Identity, rights, rule.Type );
-                        message = $"{rule.Type} [{rights}] Rule Deleted From {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        DirectoryServices.DeleteAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        message = $"{rule.Type} [{rule.Rights}] Rule Deleted From {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.SetAccessRule:
-                        DirectoryServices.SetAccessRule( de, rule.Identity, rights, rule.Type );
-                        message = $"{rule.Type} [{rights}] Rule Set On {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
+                        DirectoryServices.SetAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        message = $"{rule.Type} [{rule.Rights}] Rule Set On {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.PurgeAccessRules:
                         DirectoryServices.PurgeAccessRules( de, rule.Identity );

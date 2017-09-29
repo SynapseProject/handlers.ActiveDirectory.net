@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Web.Http;
 using System.Net.Http;
+using System.Security.AccessControl;
+using System.DirectoryServices;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -61,7 +63,53 @@ public partial class ActiveDirectoryApiController : ApiController
     public ActiveDirectoryHandlerResults RemoveUserFromGroup(string identity, string groupIdentity)
     {
         string planName = config.Plans.User.RemoveFromGroup;
-        StartPlanEnvelope pe =  GetPlanEnvelope( identity, groupIdentity );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupIdentity );
         return CallPlan( planName, pe );
     }
+
+    [HttpPost]
+    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults AddAccessRuleToUser(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.User.AddAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults RemoveAccessRuleFromUser(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.User.RemoveAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
+    public ActiveDirectoryHandlerResults SetAccessRuleOnUser(string identity, string principal, string type, string rights)
+    {
+        string planName = config.Plans.User.SetAccessRule;
+
+        AdAccessRule rule = CreateAccessRule( principal, type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "accessrule/user/{identity}/{principal}" )]
+    public ActiveDirectoryHandlerResults PurgeAccessRulesOnUser(string identity, string principal)
+    {
+        string planName = config.Plans.User.PurgeAccessRules;
+
+        AdAccessRule rule = CreateAccessRule( principal, null, null );
+        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        return CallPlan( planName, pe );
+    }
+
+
 }

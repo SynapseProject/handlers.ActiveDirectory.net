@@ -15,7 +15,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public string Identity { get; set; }
         [XmlElement]
         public AccessControlType Type { get; set; }
-        [XmlArrayItem(ElementName = "Right")]
-        public List<ActiveDirectoryRights> Rights { get; set; }
+        [XmlElement]
+        public ActiveDirectoryRights Rights { get; set; }
     }
 }

@@ -1,14 +1,14 @@
-Name: RemoveGroupFromGroupApi
-Description: Remove Group From Ldap Group
+Name: AddAccessRuleToOrgUnitApi
+Description: Add Access Rule To A Organizational Unit
 IsActive: true
 Actions:
-- Name: RemoveGroup
+- Name: AddAccessRuleToOrgUnit
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: RemoveFromGroup
+        Action: AddAccessRule
         RunSequential: false
         QueryGroupMembership: false
         OutputType: Json
@@ -26,12 +26,18 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Groups:
+      OrganizationalUnits:
       - Identity: 
-        Groups:
-        - 
+        AccessRules:
+        - Identity: 
+          Type: 
+          Rights:
     Dynamic:
     - Name: identity
-      Path: Groups[0]:Identity
-    - Name: groupidentity
-      Path: Groups[0]:Groups[0]:Value
+      Path: OrganizationalUnits[0]:Identity
+    - Name: ruleidentity
+      Path: OrganizationalUnits[0]:AccessRules[0]:Identity
+    - Name: ruletype
+      Path: OrganizationalUnits[0]:AccessRules[0]:Type
+    - Name: rulerights
+      Path: OrganizationalUnits[0]:AccessRules[0]:Rights
