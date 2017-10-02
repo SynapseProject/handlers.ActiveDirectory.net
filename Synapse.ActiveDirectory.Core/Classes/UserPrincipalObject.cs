@@ -12,9 +12,9 @@ namespace Synapse.ActiveDirectory.Core
     public class UserPrincipalObject : SecurityPrincipalObject, ICloneable
     {
         public UserPrincipalObject() { }
-        public UserPrincipalObject(UserPrincipal up, bool returnAccessRules = false)
+        public UserPrincipalObject(UserPrincipal up, bool getAccessRules = false, bool getObjectProperties = true)
         {
-            SetPropertiesFromUserPrincipal( up, returnAccessRules );
+            SetPropertiesFromUserPrincipal( up, getAccessRules, getObjectProperties );
         }
 
         public object Clone()
@@ -97,11 +97,11 @@ namespace Synapse.ActiveDirectory.Core
             return new UserPrincipalObject( up );
         }
 
-        public void SetPropertiesFromUserPrincipal(UserPrincipal up, bool returnAccessRules)
+        public void SetPropertiesFromUserPrincipal(UserPrincipal up, bool getAccessRules, bool getObjectProperties)
         {
             if( up == null ) return;
 
-            SetPropertiesFromAuthenticablePrincipal( up, returnAccessRules );
+            SetPropertiesFromAuthenticablePrincipal( up, getAccessRules );
 
             EmailAddress = up.EmailAddress;
             EmployeeId = up.EmployeeId;
@@ -111,7 +111,7 @@ namespace Synapse.ActiveDirectory.Core
             VoiceTelephoneNumber = up.VoiceTelephoneNumber;
 
             object obj = up.GetUnderlyingObject();
-            if ( obj.GetType() == typeof( DirectoryEntry ) )
+            if ( obj.GetType() == typeof( DirectoryEntry ) && getObjectProperties )
             {
                 DirectoryEntry gde = (DirectoryEntry)obj;
                 Properties = DirectoryServices.GetProperties( gde );

@@ -15,9 +15,9 @@ namespace Synapse.ActiveDirectory.Core
         private string VALID_PARENT_CLASS_NAME = @"organizationalUnit";
 
         public DirectoryEntryObject() { }
-        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules)
+        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties)
         {
-            SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules );
+            SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules, getObjectProperties );
         }
 
         //
@@ -135,12 +135,7 @@ namespace Synapse.ActiveDirectory.Core
         public List<AccessRuleObject> AccessRules { get; set; } 
 
 
-        public static DirectoryEntryObject FromDirectoryEntry(DirectoryEntry de)
-        {
-            return new DirectoryEntryObject( de, true, false );
-        }
-
-        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema, bool getAccessRules)
+        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties)
         {
             if( de == null ) return;
 
@@ -149,12 +144,12 @@ namespace Synapse.ActiveDirectory.Core
             NativeGuid = de.NativeGuid;
             if ( de.Parent.SchemaClassName == VALID_PARENT_CLASS_NAME )
             {
-                Parent = new DirectoryEntryObject( de.Parent, false, false );
+                Parent = new DirectoryEntryObject( de.Parent, false, false, false );
             }
 
             if (de.SchemaClassName == VALID_PARENT_CLASS_NAME)
             {
-                if ( de.Properties != null )
+                if ( de.Properties != null && getObjectProperties)
                 {
                     Properties = new SerializableDictionary<string, List<string>>();
                     IDictionaryEnumerator ide = de.Properties.GetEnumerator();
@@ -168,7 +163,7 @@ namespace Synapse.ActiveDirectory.Core
             Path = de.Path;
             SchemaClassName = de.SchemaClassName;
             if (loadSchema)
-                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false );
+                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
 

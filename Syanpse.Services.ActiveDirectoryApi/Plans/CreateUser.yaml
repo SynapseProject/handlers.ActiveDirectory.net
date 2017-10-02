@@ -14,6 +14,7 @@ Actions:
         OutputType: Json
         PrettyPrint: false
         ReturnObjects: true
+        ReturnObjectProperties: true
         ReturnAccessRules: false
         UseUpsert: true
         SuppressOutput: false
@@ -22,6 +23,8 @@ Actions:
         Path: QueryGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
       - Name: returnaccessrules
         Path: ReturnAccessRules
   Parameters:

@@ -479,7 +479,7 @@ namespace Synapse.ActiveDirectory.Core
             return false;
         }
 
-        public static GroupPrincipalObject GetGroup(string identity, bool getGroups, bool getAccessRules)
+        public static GroupPrincipalObject GetGroup(string identity, bool getGroups, bool getAccessRules, bool getObjectProperties)
         {
             GroupPrincipalObject g = null;
             using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
@@ -490,7 +490,7 @@ namespace Synapse.ActiveDirectory.Core
                     if ( group == null )
                         throw new AdException( $"Group [{identity}] Not Found.", AdStatusType.DoesNotExist );
 
-                    g = new GroupPrincipalObject( group, getAccessRules );
+                    g = new GroupPrincipalObject( group, getAccessRules, getObjectProperties );
                     if ( getGroups )
                         g.GetGroups();
                 }

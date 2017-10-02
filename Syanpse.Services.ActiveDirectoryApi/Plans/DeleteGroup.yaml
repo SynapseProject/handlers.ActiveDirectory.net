@@ -18,6 +18,8 @@ Actions:
         Path: QueryGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
       - Name: returnaccessrules
         Path: ReturnAccessRules
   Parameters:

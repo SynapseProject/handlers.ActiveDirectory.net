@@ -40,7 +40,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void WriteAccessRights()
         {
-            GroupPrincipalObject gpo = DirectoryServices.GetGroup( "TestGroup", false, false );
+            GroupPrincipalObject gpo = DirectoryServices.GetGroup( "TestGroup", false, false, false );
 
             foreach ( AccessRuleObject rule in gpo.AccessRules )
             {

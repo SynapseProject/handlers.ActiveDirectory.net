@@ -229,17 +229,17 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             case AdObjectType.User:
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
-                upo = DirectoryServices.GetUser( user.Identity, config.QueryGroupMembership, config.ReturnAccessRules );
+                upo = DirectoryServices.GetUser( user.Identity, config.QueryGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
                 return upo;
             case AdObjectType.Group:
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
-                gpo = DirectoryServices.GetGroup( group.Identity, config.QueryGroupMembership, config.ReturnAccessRules );
+                gpo = DirectoryServices.GetGroup( group.Identity, config.QueryGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
-                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules );
+                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties );
                 return ouo;
             default:
                 throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );

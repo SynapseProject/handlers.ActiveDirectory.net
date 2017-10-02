@@ -15,12 +15,15 @@ Actions:
         PrettyPrint: false
         ReturnObjects: true
         ReturnAccessRules: false
+        ReturnObjectProperties: true
         SuppressOutput: false
       Dynamic:
       - Name: querygroupmembership
         Path: QueryGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
       - Name: returnaccessrules
         Path: ReturnAccessRules
   Parameters:

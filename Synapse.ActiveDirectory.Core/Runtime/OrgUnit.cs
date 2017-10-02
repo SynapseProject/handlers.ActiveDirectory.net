@@ -229,14 +229,14 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName, bool getAccessRules)
+        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName, bool getAccessRules, bool getObjectProperties)
         {
             DirectoryEntry ou = GetDirectoryEntry( distinguishedName );
 
             if ( ou == null )
                 throw new AdException( $"Organizational Unit [{distinguishedName}] Not Found.", AdStatusType.DoesNotExist );
             else
-                return new OrganizationalUnitObject( ou, getAccessRules );
+                return new OrganizationalUnitObject( ou, getAccessRules, getObjectProperties );
         }
     }
 }

@@ -268,11 +268,11 @@ namespace Synapse.ActiveDirectory.Core
             return new SecurityPrincipalObject( ap );
         }
 
-        public void SetPropertiesFromAuthenticablePrincipal(AuthenticablePrincipal ap, bool returnAccessRules)
+        public void SetPropertiesFromAuthenticablePrincipal(AuthenticablePrincipal ap, bool getAccessRules)
         {
             if( ap == null ) return;
 
-            SetPropertiesFromPrincipal( ap, returnAccessRules );
+            SetPropertiesFromPrincipal( ap, getAccessRules );
 
             AccountExpirationDate = ap.AccountExpirationDate;
             AllowReversiblePasswordEncryption = ap.AllowReversiblePasswordEncryption;
