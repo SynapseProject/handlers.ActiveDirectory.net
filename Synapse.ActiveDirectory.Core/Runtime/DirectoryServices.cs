@@ -384,5 +384,83 @@ namespace Synapse.ActiveDirectory.Core
 
             return accessRules;
         }
+
+        public static List<DirectoryEntryObject> Search(string filter, bool getAccessRules = false, bool getObjectProperties = true)
+        {
+            List<DirectoryEntryObject> searchResults = new List<DirectoryEntryObject>();
+
+            SearchResultCollection results = DoSearch( filter, null );
+            foreach ( SearchResult result in results )
+            {
+                DirectoryEntry de = result.GetDirectoryEntry();
+                DirectoryEntryObject deo = new DirectoryEntryObject( de, false, false, true );
+                searchResults.Add( deo );
+            }
+
+            return searchResults;
+        }
+
+        public static SearchResults Search(string filter, string[] returnProperties)
+        {
+            SearchResults searchResults = new SearchResults();
+
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+
+            SearchResultCollection results = DoSearch( filter, returnProperties );
+            searchResults.Results = new List<SearchResultRow>();
+
+            foreach ( SearchResult result in results )
+            {
+                SearchResultRow row = new SearchResultRow();
+                row.Path = result.Path;
+
+                if ( returnProperties != null )
+                {
+                    row.Properties = new SerializableDictionary<string, List<string>>();
+                    foreach ( string key in returnProperties )
+                    {
+                        List<string> values = new List<string>();
+                        if ( result.Properties.Contains( key ) )
+                        {
+                            foreach ( string value in result.Properties[key] )
+                                values.Add( value );
+                            row.Properties.Add( key, values );
+                        }
+                        else
+                            row.Properties.Add( key, null );
+                    }
+                }
+
+                searchResults.Results.Add( row );
+            }
+
+            return searchResults;
+        }
+
+        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null)
+        {
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+
+            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
+            {
+                searcher.Filter = filter;
+                searcher.SearchScope = SearchScope.Subtree;
+                if ( returnProperties != null )
+                {
+                    foreach ( string property in returnProperties )
+                        searcher.PropertiesToLoad.Add( property );
+                }
+                searcher.ReferralChasing = ReferralChasingOption.All;
+
+                SearchResultCollection results = searcher.FindAll();
+                return results;
+            }
+
+        }
     }
 }

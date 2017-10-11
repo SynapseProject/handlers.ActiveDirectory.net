@@ -12,12 +12,10 @@ namespace Synapse.ActiveDirectory.Core
 {
     public class DirectoryEntryObject
     {
-        private string VALID_PARENT_CLASS_NAME = @"organizationalUnit";
-
         public DirectoryEntryObject() { }
-        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties)
+        public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties, bool getParent = true)
         {
-            SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules, getObjectProperties );
+            SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules, getObjectProperties, getParent );
         }
 
         //
@@ -135,31 +133,29 @@ namespace Synapse.ActiveDirectory.Core
         public List<AccessRuleObject> AccessRules { get; set; } 
 
 
-        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties)
+        public void SetPropertiesFromDirectoryEntry(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties, bool getParent)
         {
             if( de == null ) return;
 
             Guid = de.Guid;
             Name = de.Name;
             NativeGuid = de.NativeGuid;
-            if ( de.Parent.SchemaClassName == VALID_PARENT_CLASS_NAME )
+            if ( getParent )
             {
-                Parent = new DirectoryEntryObject( de.Parent, false, false, false );
+                Parent = new DirectoryEntryObject( de.Parent, false, false, false, false );
             }
 
-            if (de.SchemaClassName == VALID_PARENT_CLASS_NAME)
+            if ( de.Properties != null && getObjectProperties)
             {
-                if ( de.Properties != null && getObjectProperties)
+                Properties = new SerializableDictionary<string, List<string>>();
+                IDictionaryEnumerator ide = de.Properties.GetEnumerator();
+                while ( ide.MoveNext() )
                 {
-                    Properties = new SerializableDictionary<string, List<string>>();
-                    IDictionaryEnumerator ide = de.Properties.GetEnumerator();
-                    while ( ide.MoveNext() )
-                    {
-                        List<string> propValues = DirectoryServices.GetPropertyValues( ide.Key.ToString(), ide.Value );
-                        Properties.Add( ide.Key.ToString(), propValues );
-                    }
+                    List<string> propValues = DirectoryServices.GetPropertyValues( ide.Key.ToString(), ide.Value );
+                    Properties.Add( ide.Key.ToString(), propValues );
                 }
             }
+
             Path = de.Path;
             SchemaClassName = de.SchemaClassName;
             if (loadSchema)

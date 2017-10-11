@@ -49,6 +49,7 @@
     <Compile Include="Classes\OrganizationalUnitObject.cs" />
     <Compile Include="Classes\GroupPrincipalObject.cs" />
     <Compile Include="Classes\PrincipalObject.cs" />
+    <Compile Include="Classes\SearchResults.cs" />
     <Compile Include="Classes\SerializableDictionary.cs" />
     <Compile Include="Classes\UserPrincipalObject.cs" />
     <Compile Include="Runtime\Group.cs" />

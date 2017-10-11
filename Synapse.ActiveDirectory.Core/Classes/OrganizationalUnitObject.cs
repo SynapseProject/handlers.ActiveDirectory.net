@@ -28,11 +28,11 @@ namespace Synapse.ActiveDirectory.Core
             return this.MemberwiseClone();
         }
 
-        public void SetPropertiesFromOrganizationalUnit(DirectoryEntry ou, bool getAccessRules, bool getObjectProperties)
+        public void SetPropertiesFromOrganizationalUnit(DirectoryEntry ou, bool getAccessRules, bool getObjectProperties, bool getParent = true)
         {
             if( ou == null ) return;
 
-            SetPropertiesFromDirectoryEntry( ou, true, getAccessRules, getObjectProperties );
+            SetPropertiesFromDirectoryEntry( ou, true, getAccessRules, getObjectProperties, getParent );
 
             DistinguishedName = ou.Properties["distinguishedName"].Value.ToString();
         }
