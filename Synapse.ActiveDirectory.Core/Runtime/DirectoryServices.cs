@@ -240,37 +240,48 @@ namespace Synapse.ActiveDirectory.Core
             while ( pvcValues.MoveNext() )
             {
                 Type type = pvcValues.Current.GetType();
-                if ( type.FullName == @"System.Byte[]" )
-                {
-                    byte[] bytes = (byte[])pvcValues.Current;
-                    if ( name == "objectGUID" )
-                    {
-                        Guid guid = new Guid( bytes );
-                        propValues.Add( guid.ToString() );
-                    }
-                    else if ( name == "objectSid" )
-                    {
-                        String sid = ConvertByteToStringSid( bytes );
-                        propValues.Add( sid );
-                    }
-                    else
-                    {
-                        string str = System.Text.Encoding.UTF8.GetString( bytes );
-                        propValues.Add( str );
-                    }
-                }
-                else if ( type.FullName == @"System.__ComObject" )
-                {
-                    // TODO : Do something with ComObjects.  For now, just ignore
-                    continue;
-                }
-                else
-                {
-                    propValues.Add( pvcValues.Current.ToString() );
-                }
+                String valueStr = GetPropertyValueString( pvcValues.Current );
+                if (valueStr != null)
+                    propValues.Add( valueStr );
             }
 
             return propValues;
+        }
+
+        private static string GetPropertyValueString(object value)
+        {
+            String propString = null;
+
+            Type type = value.GetType();
+            if ( type.FullName == @"System.Byte[]" )
+            {
+                byte[] bytes = (byte[])value;
+                // Try To Convert To Guid
+                if ( propString == null )
+                    try
+                    { propString = new Guid( bytes ).ToString(); }
+                    catch { }
+
+                // Try To Convert To Sid
+                if ( propString == null )
+                    try
+                    { propString = ConvertByteToStringSid( bytes ); }
+                    catch { }
+
+                // Default To Byte Array String
+                if ( propString == null )
+                    try
+                    { propString = System.Text.Encoding.UTF8.GetString( bytes ); }
+                    catch { }                
+            }
+            else if ( type.FullName == @"System.__ComObject" )
+            {
+                // TODO : Do something with ComObjects.  For now, just ignore
+            }
+            else
+                propString = value.ToString();
+
+            return propString;
         }
 
         // Copied From https://www.codeproject.com/Articles/3688/How-to-get-user-SID-using-DirectoryServices-classe
@@ -424,8 +435,11 @@ namespace Synapse.ActiveDirectory.Core
                         List<string> values = new List<string>();
                         if ( result.Properties.Contains( key ) )
                         {
-                            foreach ( string value in result.Properties[key] )
-                                values.Add( value );
+                            foreach ( object value in result.Properties[key] )
+                            {
+                                string valueStr = GetPropertyValueString( value );
+                                values.Add( valueStr );
+                            }
                             row.Properties.Add( key, values );
                         }
                         else

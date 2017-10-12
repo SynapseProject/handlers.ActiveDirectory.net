@@ -53,8 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\ActiveDirectoryHandlerResults.cs" />
-    <Compile Include="Classes\ActiveDirectoryObjectResult.cs" />
+    <Compile Include="Classes\AdObjects\AdSearchRequest.cs" />
+    <Compile Include="Classes\ResultObjects\ActiveDirectoryHandlerResults.cs" />
+    <Compile Include="Classes\ResultObjects\ActiveDirectoryObjectResult.cs" />
     <Compile Include="Classes\AdObjects\AdAccessRule.cs" />
     <Compile Include="Classes\AdObjects\AdObject.cs" />
     <Compile Include="Classes\AdObjects\AdGroup.cs" />
@@ -62,7 +63,7 @@
     <Compile Include="Classes\ActiveDirectoryHandlerConfig.cs" />
     <Compile Include="Classes\AdObjects\AdOrganizationalUnit.cs" />
     <Compile Include="Classes\AdObjects\AdUser.cs" />
-    <Compile Include="Classes\ActiveDirectoryStatus.cs" />
+    <Compile Include="Classes\ResultObjects\ActiveDirectoryStatus.cs" />
     <Compile Include="ActiveDirectoryHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
