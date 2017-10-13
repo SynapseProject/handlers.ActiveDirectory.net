@@ -153,14 +153,24 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        public static void AddProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        {
+            SetProperty( de, name, value, commitChanges, false );
+        }
+
+        public static void AddProperties(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        {
+            SetProperty( de, name, values, commitChanges, false );
+        }
+
+        public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
         {
             List<String> values = new List<string>();
             values.Add( value );
-            SetProperty( de, name, values, commitChanges );
+            SetProperty( de, name, values, commitChanges, replaceExisting );
         }
 
-        public static void SetProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        public static void SetProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false, bool replaceExisting = true)
         {
             try
             {
@@ -195,7 +205,7 @@ namespace Synapse.ActiveDirectory.Core
                     else if ( addValues.Count > 0 )
                     {
                         // Replace Existing Value(s) 
-                        if ( de.Properties[name].Value != null )
+                        if ( de.Properties[name].Value != null && replaceExisting)
                             de.Properties[name].Clear();
 
                         foreach ( String value in addValues )
