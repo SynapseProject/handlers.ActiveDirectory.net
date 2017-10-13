@@ -153,16 +153,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void AddProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
-        {
-            SetProperty( de, name, value, commitChanges, false );
-        }
-
-        public static void AddProperties(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
-        {
-            SetProperty( de, name, values, commitChanges, false );
-        }
-
         public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
         {
             List<String> values = new List<string>();
@@ -222,6 +212,42 @@ namespace Synapse.ActiveDirectory.Core
             {
                 throw new AdException( $"Property [{name}] Failed To Update With Error [{e.Message?.Trim()}].", e, AdStatusType.InvalidAttribute );
             }
+        }
+
+        public static void AddProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        {
+            SetProperty( de, name, value, commitChanges, false );
+        }
+
+        public static void AddProperties(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        {
+            SetProperty( de, name, values, commitChanges, false );
+        }
+
+        public static void DeleteProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
+        {
+            List<String> values = new List<string>();
+            values.Add( value );
+            DeleteProperty( de, name, values, commitChanges, replaceExisting );
+        }
+
+        public static void DeleteProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false, bool replaceExisting = true)
+        {
+            if ( values != null )
+            {
+                foreach ( String value in values )
+                    de.Properties[name].Remove( value );
+            }
+
+            if ( commitChanges )
+                de.CommitChanges();
+        }
+
+        public static void ClearProperty(DirectoryEntry de, String name, bool commitChanges = false)
+        {
+            de.Properties[name].Clear();
+            if ( commitChanges )
+                de.CommitChanges();
         }
 
         public static SerializableDictionary<string, List<string>> GetProperties(DirectoryEntry de)
