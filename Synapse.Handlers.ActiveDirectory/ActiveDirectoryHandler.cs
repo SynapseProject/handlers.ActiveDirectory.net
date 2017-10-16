@@ -879,13 +879,19 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
     private void ProcessSearchRequest(AdSearchRequest request)
     {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = AdObjectType.None,
+        };
+
         String filter = request.Filter;
         if (request.Parameters != null)
             foreach ( RegexParameters param in request.Parameters )
                 filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
 
         OnLogMessage( "ProcessSearchRequest", $"Executing Query : [{filter}]." );
-        SearchResults results = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
-        String yaml = YamlHelpers.Serialize( results );
+        SearchResults searchResults = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
+        result.SearchResults = searchResults;
+        results.Add( result );
     }
 }
