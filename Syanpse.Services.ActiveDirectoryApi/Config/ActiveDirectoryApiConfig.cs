@@ -72,6 +72,8 @@ public class ActiveDirectoryApiConfig
             config.Plans.OrganizationalUnit.SetAccessRule = @"SetAccessRuleOnOrgUnit";
             config.Plans.OrganizationalUnit.PurgeAccessRules = @"PurgeAccessRulesOnOrgUnit";
 
+            config.Plans.Search = @"Search";
+
             config.Serialize();
         }
         else
@@ -88,6 +90,7 @@ public class PlanConfig
     public UserPlans User { get; set; } = new UserPlans();
     public GroupPlans Group { get; set; } = new GroupPlans();
     public OrgUnitPlans OrganizationalUnit { get; set; } = new OrgUnitPlans();
+    public string Search { get; set; }
 }
 
 public class AllPlans

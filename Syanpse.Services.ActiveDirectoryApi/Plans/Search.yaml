@@ -1,0 +1,28 @@
+Name: GenericSearch
+Description: Perform A Generic Search Against The Active Directory
+IsActive: true
+Actions:
+- Name: GenericSearch
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Search
+        RunSequential: false
+        ReturnObjects: true
+        OutputType: Yaml
+        PrettyPrint: true
+        SuppressOutput: false
+  Parameters:
+    Type: Yaml
+    Values:
+      SearchRequests:
+      - Filter: xxxxxxxx
+        ReturnAttributes: xxxxxxxx
+    Dynamic:
+    - Name: filter
+      Path: SearchRequests[0]:Filter
+    - Name: attributes
+      Path: SearchRequests[0]:ReturnAttributes
+      Parse: true

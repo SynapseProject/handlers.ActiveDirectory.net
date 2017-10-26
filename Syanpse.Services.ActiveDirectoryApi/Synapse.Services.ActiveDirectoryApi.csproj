@@ -71,6 +71,7 @@
     <Compile Include="Config\ActiveDirectoryApiConfig.cs" />
     <Compile Include="OrgUnit.cs" />
     <Compile Include="Group.cs" />
+    <Compile Include="Search.cs" />
     <Compile Include="User.cs" />
     <Compile Include="ActiveDirectoryApi.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
