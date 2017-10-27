@@ -30,4 +30,12 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = GetPlanEnvelope( parameters );
         return CallPlan( planName, pe );
     }
+
+    [HttpGet]
+    [Route( "search/{planname}/help" )]
+    public object DefinedSearch(string planname)
+    {
+        //TODO : Implement Me
+        return null;
+    }
 }
