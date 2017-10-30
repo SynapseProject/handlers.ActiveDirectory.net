@@ -26,5 +26,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public GroupPrincipalObject Group { get; set; }
         [XmlElement]
         public OrganizationalUnitObject OrganizationalUnit { get; set; }
+        [XmlElement]
+        public SearchResults SearchResults { get; set; }
     }
 }

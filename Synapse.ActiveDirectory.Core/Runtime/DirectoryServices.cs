@@ -153,14 +153,14 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
         {
             List<String> values = new List<string>();
             values.Add( value );
-            SetProperty( de, name, values, commitChanges );
+            SetProperty( de, name, values, commitChanges, replaceExisting );
         }
 
-        public static void SetProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        public static void SetProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false, bool replaceExisting = true)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace Synapse.ActiveDirectory.Core
                     else if ( addValues.Count > 0 )
                     {
                         // Replace Existing Value(s) 
-                        if ( de.Properties[name].Value != null )
+                        if ( de.Properties[name].Value != null && replaceExisting)
                             de.Properties[name].Clear();
 
                         foreach ( String value in addValues )
@@ -212,6 +212,42 @@ namespace Synapse.ActiveDirectory.Core
             {
                 throw new AdException( $"Property [{name}] Failed To Update With Error [{e.Message?.Trim()}].", e, AdStatusType.InvalidAttribute );
             }
+        }
+
+        public static void AddProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
+        {
+            SetProperty( de, name, value, commitChanges, false );
+        }
+
+        public static void AddProperties(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
+        {
+            SetProperty( de, name, values, commitChanges, false );
+        }
+
+        public static void DeleteProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
+        {
+            List<String> values = new List<string>();
+            values.Add( value );
+            DeleteProperty( de, name, values, commitChanges, replaceExisting );
+        }
+
+        public static void DeleteProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false, bool replaceExisting = true)
+        {
+            if ( values != null )
+            {
+                foreach ( String value in values )
+                    de.Properties[name].Remove( value );
+            }
+
+            if ( commitChanges )
+                de.CommitChanges();
+        }
+
+        public static void ClearProperty(DirectoryEntry de, String name, bool commitChanges = false)
+        {
+            de.Properties[name].Clear();
+            if ( commitChanges )
+                de.CommitChanges();
         }
 
         public static SerializableDictionary<string, List<string>> GetProperties(DirectoryEntry de)
@@ -240,37 +276,48 @@ namespace Synapse.ActiveDirectory.Core
             while ( pvcValues.MoveNext() )
             {
                 Type type = pvcValues.Current.GetType();
-                if ( type.FullName == @"System.Byte[]" )
-                {
-                    byte[] bytes = (byte[])pvcValues.Current;
-                    if ( name == "objectGUID" )
-                    {
-                        Guid guid = new Guid( bytes );
-                        propValues.Add( guid.ToString() );
-                    }
-                    else if ( name == "objectSid" )
-                    {
-                        String sid = ConvertByteToStringSid( bytes );
-                        propValues.Add( sid );
-                    }
-                    else
-                    {
-                        string str = System.Text.Encoding.UTF8.GetString( bytes );
-                        propValues.Add( str );
-                    }
-                }
-                else if ( type.FullName == @"System.__ComObject" )
-                {
-                    // TODO : Do something with ComObjects.  For now, just ignore
-                    continue;
-                }
-                else
-                {
-                    propValues.Add( pvcValues.Current.ToString() );
-                }
+                String valueStr = GetPropertyValueString( pvcValues.Current );
+                if (valueStr != null)
+                    propValues.Add( valueStr );
             }
 
             return propValues;
+        }
+
+        private static string GetPropertyValueString(object value)
+        {
+            String propString = null;
+
+            Type type = value.GetType();
+            if ( type.FullName == @"System.Byte[]" )
+            {
+                byte[] bytes = (byte[])value;
+                // Try To Convert To Guid
+                if ( propString == null )
+                    try
+                    { propString = new Guid( bytes ).ToString(); }
+                    catch { }
+
+                // Try To Convert To Sid
+                if ( propString == null )
+                    try
+                    { propString = ConvertByteToStringSid( bytes ); }
+                    catch { }
+
+                // Default To Byte Array String
+                if ( propString == null )
+                    try
+                    { propString = System.Text.Encoding.UTF8.GetString( bytes ); }
+                    catch { }                
+            }
+            else if ( type.FullName == @"System.__ComObject" )
+            {
+                // TODO : Do something with ComObjects.  For now, just ignore
+            }
+            else
+                propString = value.ToString();
+
+            return propString;
         }
 
         // Copied From https://www.codeproject.com/Articles/3688/How-to-get-user-SID-using-DirectoryServices-classe
@@ -383,6 +430,87 @@ namespace Synapse.ActiveDirectory.Core
             }
 
             return accessRules;
+        }
+
+        public static List<DirectoryEntryObject> Search(string filter, bool getAccessRules = false, bool getObjectProperties = true)
+        {
+            List<DirectoryEntryObject> searchResults = new List<DirectoryEntryObject>();
+
+            SearchResultCollection results = DoSearch( filter, null );
+            foreach ( SearchResult result in results )
+            {
+                DirectoryEntry de = result.GetDirectoryEntry();
+                DirectoryEntryObject deo = new DirectoryEntryObject( de, false, false, true );
+                searchResults.Add( deo );
+            }
+
+            return searchResults;
+        }
+
+        public static SearchResults Search(string filter, string[] returnProperties)
+        {
+            SearchResults searchResults = new SearchResults();
+
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+
+            SearchResultCollection results = DoSearch( filter, returnProperties );
+            searchResults.Results = new List<SearchResultRow>();
+
+            foreach ( SearchResult result in results )
+            {
+                SearchResultRow row = new SearchResultRow();
+                row.Path = result.Path;
+
+                if ( returnProperties != null )
+                {
+                    row.Properties = new SerializableDictionary<string, List<string>>();
+                    foreach ( string key in returnProperties )
+                    {
+                        List<string> values = new List<string>();
+                        if ( result.Properties.Contains( key ) )
+                        {
+                            foreach ( object value in result.Properties[key] )
+                            {
+                                string valueStr = GetPropertyValueString( value );
+                                values.Add( valueStr );
+                            }
+                            row.Properties.Add( key, values );
+                        }
+                        else
+                            row.Properties.Add( key, null );
+                    }
+                }
+
+                searchResults.Results.Add( row );
+            }
+
+            return searchResults;
+        }
+
+        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null)
+        {
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+
+            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
+            {
+                searcher.Filter = filter;
+                searcher.SearchScope = SearchScope.Subtree;
+                if ( returnProperties != null )
+                {
+                    foreach ( string property in returnProperties )
+                        searcher.PropertiesToLoad.Add( property );
+                }
+                searcher.ReferralChasing = ReferralChasingOption.All;
+
+                SearchResultCollection results = searcher.FindAll();
+                return results;
+            }
+
         }
     }
 }

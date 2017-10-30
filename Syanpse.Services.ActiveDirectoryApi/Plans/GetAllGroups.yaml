@@ -1,0 +1,34 @@
+Name: SearchGetAllGroups
+Description: Get All Groups For A Security Principal
+IsActive: true
+Actions:
+- Name: GetAllGroups
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Search
+        RunSequential: false
+        ReturnObjects: true
+        OutputType: Yaml
+        PrettyPrint: true
+        SuppressOutput: false
+  Parameters:
+    Type: Yaml
+    Values:
+      SearchRequests:
+      - Filter: "(|(member:1.2.840.113556.1.4.1941:=~~distinguishedname~~)(distinguishedName=~~distinguishedname~~))"
+        Parameters:
+        - Find: ~~distinguishedname~~
+          ReplaceWith: xxxxxxxx
+        ReturnAttributes: 
+        - name
+        - displayName
+        - userPrincipalName
+        - sAMAccountName
+        - objectGUID
+        - objectSid
+    Dynamic:
+    - Name: distinguishedname
+      Path: SearchRequests[0]:Parameters[0]:ReplaceWith

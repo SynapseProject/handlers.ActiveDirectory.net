@@ -199,6 +199,33 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
+    // Base Envelope for Generically Defined ActiveDirectory Searches
+    private StartPlanEnvelope GetPlanEnvelope(AdSearchRequest request)
+    {
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        pe.DynamicParameters.Add( @"filter", request.Filter );
+        string attributes = YamlHelpers.Serialize( request.ReturnAttributes, true, false );
+        if (attributes != null)
+            pe.DynamicParameters.Add( @"attributes", attributes );
+
+        return pe;
+    }
+
+    // Base Envelope for Generically Defined ActiveDirectory Searches
+    private StartPlanEnvelope GetPlanEnvelope(Dictionary<string, string> parameters)
+    {
+        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+
+        // Dynamic Parameters Are "Statically Defined" In The Plan.  Caller of the plan should know what keys and values to pass in.
+        if ( parameters != null )
+        {
+            foreach ( KeyValuePair<string, string> parameter in parameters )
+                pe.DynamicParameters.Add( parameter.Key, parameter.Value );
+        }
+
+        return pe;
+    }
+
     private ActiveDirectoryHandlerResults CallPlan(string planName, StartPlanEnvelope planEnvelope )
     {
         IExecuteController ec = GetExecuteControllerInstance();

@@ -8,6 +8,7 @@ using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
 
 using Synapse.Core;
+using Synapse.Core.Utilities;
 using Synapse.ActiveDirectory.Core;
 using Synapse.Handlers.ActiveDirectory;
 
@@ -107,6 +108,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
                         ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
                         ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        break;
+                    case ActionType.Search:
+                        ProcessSearchRequests( parameters.SearchRequests );
                         break;
                     default:
                         throw new AdException( $"Unknown Action {config.Action} Specified", AdStatusType.NotSupported );
@@ -856,4 +860,38 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         OnLogMessage( "Exception", ex.Message );
     }
 
+    private void ProcessSearchRequests(IEnumerable<AdSearchRequest> requests)
+    {
+        if ( requests != null )
+        {
+            if ( config.RunSequential )
+            {
+                foreach ( AdSearchRequest request in requests )
+                    ProcessSearchRequest( request );
+            }
+            else
+                Parallel.ForEach( requests, request =>
+                {
+                    ProcessSearchRequest( request );
+                } );
+        }
+    }
+
+    private void ProcessSearchRequest(AdSearchRequest request)
+    {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = AdObjectType.None,
+        };
+
+        String filter = request.Filter;
+        if (request.Parameters != null)
+            foreach ( RegexParameters param in request.Parameters )
+                filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
+
+        OnLogMessage( "ProcessSearchRequest", $"Executing Query : [{filter}]." );
+        SearchResults searchResults = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
+        result.SearchResults = searchResults;
+        results.Add( result );
+    }
 }
