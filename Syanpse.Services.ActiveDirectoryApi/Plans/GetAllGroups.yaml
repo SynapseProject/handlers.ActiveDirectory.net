@@ -24,6 +24,9 @@ Actions:
           ReplaceWith: xxxxxxxx
         ReturnAttributes: 
         - name
+        - displayName
+        - userPrincipalName
+        - sAMAccountName
         - objectGUID
         - objectSid
     Dynamic:

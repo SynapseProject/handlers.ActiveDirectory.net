@@ -19,7 +19,9 @@ Actions:
     Values:
       SearchRequests:
       - Filter: xxxxxxxx
-        ReturnAttributes: xxxxxxxx
+        ReturnAttributes:
+        - distinguishedName
+        - objectGUID
     Dynamic:
     - Name: filter
       Path: SearchRequests[0]:Filter
