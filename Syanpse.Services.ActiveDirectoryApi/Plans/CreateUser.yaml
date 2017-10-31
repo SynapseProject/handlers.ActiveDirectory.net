@@ -60,102 +60,38 @@ Actions:
 #       Other Fields and Properties
         Password: 
         Properties:
-          # User Initials
           initials:
-          - 
-          # Office
           physicalDeliveryOfficeName:
-          -
-          # Other Telephone Numbers
           otherTelephone:
-          -
-          # WWw Home Page
           wWWHomePage:
-          -
-          # Other Web Pages
           url:
-          -
-          # Log On To
           logonWorkstation:
-          -
-          # Log On To
           userWorkstations:
-          -
-          # Country/Region (ISO-3166 2-Letter Code)
           c:
-          - 
-          # City 
           l:
-          - 
-          # State/Province
           st:
-          - 
-          # Street 
           streetAddress:
-          - 
-          # Post Office Box 
           postOfficeBox:
-          - 
-          # Zip/Postal Code 
           postalCode:
-          - 
-          # Country (Human Readable) 
           co:
-          - 
-          # Country Code (ISO-3166 3-Digit Code)
           countryCode:
-          - 
-          # Job Title 
           title:
-          - 
-          # Department 
           department:
-          - 
-          # Company 
           company:
-          - 
-          # Manager Name (Distinguished Name) 
           manager:
-          - 
-          # Profile Path
           profilePath:
-          - 
-          # Home Phone
           homePhone:
-          - 
-          # Other Home Phones
           otherHomePhone:
-          - 
-          # Pager
           pager:
-          - 
-          # Other Pagers
           otherPager:
-          - 
-          # Mobile
           mobile:
-          - 
-          # Other Mobiles
           otherMobile:
-          - 
-          # Fax Number
           facsimileTelephoneNumber:
-          - 
-          # Other Fax Numbers
           otherFacsimileTelephoneNumber:
-          - 
-          # IP Phone
           ipPhone:
-          - 
-          # Other IP Phones
           otherIpPhone:
-          - 
-          # Notes
           info:
-          - 
-          # Lockout Time (Set To Zero To Unlock Account)
           lockoutTime:
-          -
     Dynamic:
 #   Principal Fields
     - Name: identity
@@ -210,66 +146,98 @@ Actions:
     - Name: password
       Path: Users[0]:Password
     - Name: initials
-      Path: Users[0]:Properties:initials[0]:Value
+      Path: Users[0]:Properties:initials
+      Parse: true
     - Name: physicaldeliveryofficename
-      Path: Users[0]:Properties:physicalDeliveryOfficeName[0]:Value
+      Path: Users[0]:Properties:physicalDeliveryOfficeName
+      Parse: true
     - Name: othertelephone
-      Path: Users[0]:Properties:otherTelephone[0]:Value
+      Path: Users[0]:Properties:otherTelephone
+      Parse: true
     - Name: wwwhomepage
-      Path: Users[0]:Properties:wWWHomePage[0]:Value
+      Path: Users[0]:Properties:wWWHomePage
+      Parse: true
     - Name: url
-      Path: Users[0]:Properties:url[0]:Value
+      Path: Users[0]:Properties:url
+      Parse: true
     - Name: logonworkstation
-      Path: Users[0]:Properties:logonWorkstation[0]:Value
+      Path: Users[0]:Properties:logonWorkstation
+      Parse: true
     - Name: userworkstations
-      Path: Users[0]:Properties:userWorkstations[0]:Value
+      Path: Users[0]:Properties:userWorkstations
+      Parse: true
     - Name: c
-      Path: Users[0]:Properties:c[0]:Value
+      Path: Users[0]:Properties:c
+      Parse: true
     - Name: l
-      Path: Users[0]:Properties:l[0]:Value
+      Path: Users[0]:Properties:l
+      Parse: true
     - Name: st
-      Path: Users[0]:Properties:st[0]:Value
+      Path: Users[0]:Properties:st
+      Parse: true
     - Name: streetaddress
-      Path: Users[0]:Properties:streetAddress[0]:Value
+      Path: Users[0]:Properties:streetAddress
+      Parse: true
     - Name: postofficebox
-      Path: Users[0]:Properties:postOfficeBox[0]:Value
+      Path: Users[0]:Properties:postOfficeBox
+      Parse: true
     - Name: postalcode
-      Path: Users[0]:Properties:postalCode[0]:Value
+      Path: Users[0]:Properties:postalCode
+      Parse: true
     - Name: co
-      Path: Users[0]:Properties:co[0]:Value
+      Path: Users[0]:Properties:co
+      Parse: true
     - Name: countrycode
-      Path: Users[0]:Properties:countryCode[0]:Value
+      Path: Users[0]:Properties:countryCode
+      Parse: true
     - Name: title
-      Path: Users[0]:Properties:title[0]:Value
+      Path: Users[0]:Properties:title
+      Parse: true
     - Name: department
-      Path: Users[0]:Properties:department[0]:Value
+      Path: Users[0]:Properties:department
+      Parse: true
     - Name: company
-      Path: Users[0]:Properties:company[0]:Value
+      Path: Users[0]:Properties:company
+      Parse: true
     - Name: manager
-      Path: Users[0]:Properties:manager[0]:Value
+      Path: Users[0]:Properties:manager
+      Parse: true
     - Name: profilepath
-      Path: Users[0]:Properties:profilePath[0]:Value
+      Path: Users[0]:Properties:profilePath
+      Parse: true
     - Name: homephone
-      Path: Users[0]:Properties:homePhone[0]:Value
+      Path: Users[0]:Properties:homePhone
+      Parse: true
     - Name: otherhomephone
-      Path: Users[0]:Properties:otherHomePhone[0]:Value
+      Path: Users[0]:Properties:otherHomePhone
+      Parse: true
     - Name: pager
-      Path: Users[0]:Properties:pager[0]:Value
+      Path: Users[0]:Properties:pager
+      Parse: true
     - Name: otherpager
-      Path: Users[0]:Properties:otherPager[0]:Value
+      Path: Users[0]:Properties:otherPager
+      Parse: true
     - Name: mobile
-      Path: Users[0]:Properties:mobile[0]:Value
+      Path: Users[0]:Properties:mobile
+      Parse: true
     - Name: othermobile
-      Path: Users[0]:Properties:otherMobile[0]:Value
+      Path: Users[0]:Properties:otherMobile
+      Parse: true
     - Name: facsimiletelephonenumber
-      Path: Users[0]:Properties:facsimileTelephoneNumber[0]:Value
+      Path: Users[0]:Properties:facsimileTelephoneNumber
+      Parse: true
     - Name: otherfacsimiletelephonenumber
-      Path: Users[0]:Properties:otherFacsimileTelephoneNumber[0]:Value
+      Path: Users[0]:Properties:otherFacsimileTelephoneNumber
+      Parse: true
     - Name: ipphone
-      Path: Users[0]:Properties:ipPhone[0]:Value
+      Path: Users[0]:Properties:ipPhone
+      Parse: true
     - Name: otheripphone
-      Path: Users[0]:Properties:otherIpPhone[0]:Value
+      Path: Users[0]:Properties:otherIpPhone
+      Parse: true
     - Name: info
-      Path: Users[0]:Properties:info[0]:Value
+      Path: Users[0]:Properties:info
+      Parse: true
     - Name: lockouttime
-      Path: Users[0]:Properties:lockoutTime[0]:Value
+      Path: Users[0]:Properties:lockoutTime
+      Parse: true

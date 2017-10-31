@@ -282,10 +282,11 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             foreach ( KeyValuePair<string, List<string>> property in properties )
             {
-                if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace(property.Key)) )
+                if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace( property.Key )) )
                 {
                     String pName = property.Key.ToLower();
-                    String pValue = property.Value[0];     // TODO : Figure Out How To Pass Multiple Values
+                    string values = YamlHelpers.Serialize( property.Value, true, false );
+                    String pValue = values;
                     pe.DynamicParameters.Add( pName, pValue );
                 }
             }

@@ -38,15 +38,9 @@ Actions:
         SamAccountName: 
         ManagedBy:
         Properties:
-          # Display Name
           displayName:
-          - 
-          # E-mail
           mail:
-          - 
-          # Comments
           info:
-          - 
     Dynamic:
     - Name: identity
       Path: Groups[0]:Identity
@@ -60,9 +54,13 @@ Actions:
       Path: Groups[0]:SamAccountName
     - Name: managedby
       Path: Groups[0]:ManagedBy
+    # Properties
     - Name: displayname
-      Path: Groups[0]:Properties:displayName[0]:Value
+      Path: Groups[0]:Properties:displayName
+      Parse: true
     - Name: mail
-      Path: Groups[0]:Properties:mail[0]:Value
+      Path: Groups[0]:Properties:mail
+      Parse: true
     - Name: info
-      Path: Groups[0]:Properties:info[0]:Value
+      Path: Groups[0]:Properties:info
+      Parse: true

@@ -34,27 +34,13 @@ Actions:
         Description: 
         ManagedBy:
         Properties:
-          # Country/Region (ISO-3166 2-Letter Code)
           c:
-          - 
-          # City 
           l:
-          - 
-          # State/Province
           st:
-          - 
-          # Street 
           street:
-          - 
-          # Zip/Postal Code 
           postalCode:
-          - 
-          # Country (Human Readable) 
           co:
-          - 
-          # Country Code (ISO-3166 3-Digit Code)
           countryCode:
-          - 
     Dynamic:
     - Name: identity
       Path: OrganizationalUnits[0]:Identity
@@ -63,16 +49,23 @@ Actions:
     - Name: managedby
       Path: OrganizationalUnits[0]:ManagedBy
     - Name: c
-      Path: OrganizationalUnits[0]:Properties:c[0]:Value
+      Path: OrganizationalUnits[0]:Properties:c
+      Parse: true
     - Name: l
-      Path: OrganizationalUnits[0]:Properties:l[0]:Value
+      Path: OrganizationalUnits[0]:Properties:l
+      Parse: true
     - Name: st
-      Path: OrganizationalUnits[0]:Properties:st[0]:Value
+      Path: OrganizationalUnits[0]:Properties:st
+      Parse: true
     - Name: street
-      Path: OrganizationalUnits[0]:Properties:street[0]:Value
+      Path: OrganizationalUnits[0]:Properties:street
+      Parse: true
     - Name: postalcode
-      Path: OrganizationalUnits[0]:Properties:postalCode[0]:Value
+      Path: OrganizationalUnits[0]:Properties:postalCode
+      Parse: true
     - Name: co
-      Path: OrganizationalUnits[0]:Properties:co[0]:Value
+      Path: OrganizationalUnits[0]:Properties:co
+      Parse: true
     - Name: countrycode
-      Path: OrganizationalUnits[0]:Properties:countryCode[0]:Value
+      Path: OrganizationalUnits[0]:Properties:countryCode
+      Parse: true
