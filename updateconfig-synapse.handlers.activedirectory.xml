@@ -1,0 +1,7 @@
+<UpdateConfig>
+  <CurrentVersion>0.1.17214.0</CurrentVersion>
+  <IsMandatory>false</IsMandatory>
+  <LastMandatoryVersion>0.1.17214.0</LastMandatoryVersion>
+  <PatchUri>https://github.com/SynapseProject/handlers.ActiveDirectory.net/releases/download/v0.1.17213.0-alpha/Synapse.Handlers.ActiveDirectory.v0.1.17213.0-alpha.zip</PatchUri>
+  <PatchSizeBytes>25072</PatchSizeBytes>
+</UpdateConfig>
