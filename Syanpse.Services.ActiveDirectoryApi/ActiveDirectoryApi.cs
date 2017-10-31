@@ -280,6 +280,11 @@ public partial class ActiveDirectoryApiController : ApiController
     {
         if ( properties != null )
         {
+            // Include Entire "Properties" Structure In Dynamic Parameter "properties"
+            string propStr = YamlHelpers.Serialize( properties, true, false );
+            pe.DynamicParameters.Add( @"properties", propStr );
+
+            // Include Each Property In A Dynamic Parameter Matching The Name of the Property
             foreach ( KeyValuePair<string, List<string>> property in properties )
             {
                 if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace( property.Key )) )
