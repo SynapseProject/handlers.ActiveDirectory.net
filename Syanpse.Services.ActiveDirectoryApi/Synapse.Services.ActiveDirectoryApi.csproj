@@ -81,10 +81,20 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Plans\AddAccessRuleToGroup.yaml" />
+    <None Include="Plans\AddAccessRuleToOrgUnit.yaml" />
+    <None Include="Plans\AddAccessRuleToUser.yaml" />
     <None Include="Plans\AddGroupToGroup.yaml" />
+    <None Include="Plans\GetAllGroups.yaml" />
     <None Include="Plans\ModifyGroup.yaml" />
     <None Include="Plans\ModifyOrgUnit.yaml" />
     <None Include="Plans\ModifyUser.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnGroup.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnOrgUnit.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnUser.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromGroup.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromOrgUnit.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromUser.yaml" />
     <None Include="Plans\RemoveGroupFromGroup.yaml" />
     <None Include="Plans\RemoveUserFromGroup.yaml" />
     <None Include="Plans\AddUserToGroup.yaml" />
@@ -97,6 +107,10 @@
     <None Include="Plans\GetOrgUnit.yaml" />
     <None Include="Plans\DeleteUser.yaml" />
     <None Include="Plans\GetUser.yaml" />
+    <None Include="Plans\Search.yaml" />
+    <None Include="Plans\SetAccessRuleOnGroup.yaml" />
+    <None Include="Plans\SetAccessRuleOnOrgUnit.yaml" />
+    <None Include="Plans\SetAccessRuleOnUser.yaml" />
     <None Include="Plans\WhoAmI.yaml" />
   </ItemGroup>
   <ItemGroup>

@@ -878,6 +878,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
     private void ProcessSearchRequest(AdSearchRequest request)
     {
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            Action = ActionType.Search,
+            Status = AdStatusType.Success,
+            Message = "Success",
+        };
+
+
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
             Type = AdObjectType.None,
@@ -891,6 +899,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         OnLogMessage( "ProcessSearchRequest", $"Executing Search : [{filter}]." );
         SearchResults searchResults = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
         result.SearchResults = searchResults;
+        result.Statuses.Add( status );
         results.Add( result );
     }
 }
