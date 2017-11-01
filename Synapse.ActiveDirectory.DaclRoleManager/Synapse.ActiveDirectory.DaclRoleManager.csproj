@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E27A474D-C3CC-4DD6-A9B4-5D815EA14AA0}</ProjectGuid>
+    <ProjectGuid>{638D97B0-74FC-49E4-B523-DB9E661C04D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Synapse.ActiveDirectory.Core</RootNamespace>
-    <AssemblyName>Synapse.ActiveDirectory.Core</AssemblyName>
+    <RootNamespace>Synapse.ActiveDirectory.DaclRoleManager</RootNamespace>
+    <AssemblyName>Synapse.ActiveDirectory.DaclRoleManager</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,50 +30,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Core.Signed.0.1.17303.0-beta\lib\net45\Synapse.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\AccessRuleObject.cs" />
-    <Compile Include="Classes\AdException.cs" />
-    <Compile Include="Classes\DirectoryEntryObject.cs" />
-    <Compile Include="Classes\OrganizationalUnitObject.cs" />
-    <Compile Include="Classes\GroupPrincipalObject.cs" />
-    <Compile Include="Classes\PrincipalObject.cs" />
-    <Compile Include="Classes\SearchResults.cs" />
-    <Compile Include="Classes\SerializableDictionary.cs" />
-    <Compile Include="Classes\UserPrincipalObject.cs" />
-    <Compile Include="Interfaces\IRoleManager.cs" />
-    <Compile Include="Runtime\Group.cs" />
-    <Compile Include="Runtime\OrgUnit.cs" />
-    <Compile Include="Runtime\Security.cs" />
-    <Compile Include="Runtime\User.cs" />
-    <Compile Include="Runtime\DirectoryServices.cs" />
-    <Compile Include="Classes\Enums.cs" />
+    <Compile Include="Classes\DaclRoleManagerConfig.cs" />
+    <Compile Include="DaclRoleManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Classes\SecurityPrincipalObject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Synapse.ActiveDirectory.Core\Synapse.ActiveDirectory.Core.csproj">
+      <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
+      <Name>Synapse.ActiveDirectory.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PreBuildEvent>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File $(SolutionDir)scripts\setVersion.ps1 -path $(ProjectDir)Properties\AssemblyInfo.cs -versionFile $(SolutionDir)scripts\AssemblyInfo.xml</PreBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
