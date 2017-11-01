@@ -17,7 +17,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route( "ou/{identity}" )]
     public ActiveDirectoryHandlerResults GetOrgUnit(string identity)
     {
-        string planName = config.Plans.OrganizationalUnit.Query;
+        string planName = config.Plans.OrganizationalUnit.Get;
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }

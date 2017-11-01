@@ -1,16 +1,16 @@
-Name: QueryUserApi
-Description: Lookup Ldap User
+Name: GetOrgUnitApi
+Description: Lookup Ldap Organizational Unit
 IsActive: true
 Actions:
-- Name: QueryUser
+- Name: GetOrgUnit
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: Query
+        Action: Get
         RunSequential: false
-        QueryGroupMembership: false
+        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
         ReturnObjects: true
@@ -18,8 +18,8 @@ Actions:
         ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
-      - Name: querygroupmembership
-        Path: QueryGroupMembership
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
       - Name: returnobjectproperties
@@ -29,8 +29,8 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      OrganizationalUnits:
       - Identity: 
     Dynamic:
     - Name: identity
-      Path: Users[0]:Identity
+      Path: OrganizationalUnits[0]:Identity

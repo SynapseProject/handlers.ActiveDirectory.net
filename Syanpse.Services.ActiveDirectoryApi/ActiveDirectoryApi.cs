@@ -234,8 +234,8 @@ public partial class ActiveDirectoryApiController : ApiController
         if (pe == null)
             pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
 
-        IEnumerable<KeyValuePair<string, string>> query = this.Request.GetQueryNameValuePairs();
-        foreach ( KeyValuePair<string, string> kvp in query )
+        IEnumerable<KeyValuePair<string, string>> queryString = this.Request.GetQueryNameValuePairs();
+        foreach ( KeyValuePair<string, string> kvp in queryString )
             pe.DynamicParameters.Add( kvp.Key, kvp.Value );
 
         object reply = ec.StartPlanSync( pe, planName, setContentType: false );

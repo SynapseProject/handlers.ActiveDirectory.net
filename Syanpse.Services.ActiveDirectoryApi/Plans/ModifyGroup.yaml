@@ -10,7 +10,7 @@ Actions:
       Values:
         Action: Modify
         RunSequential: false
-        QueryGroupMembership: false
+        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
         ReturnObjects: true
@@ -19,8 +19,8 @@ Actions:
         UseUpsert: true
         SuppressOutput: false
       Dynamic:
-      - Name: querygroupmembership
-        Path: QueryGroupMembership
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
       - Name: returnobjectproperties

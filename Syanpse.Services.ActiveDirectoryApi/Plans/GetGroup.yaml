@@ -1,16 +1,16 @@
-Name: QueryGroupApi
+Name: GetGroupApi
 Description: Lookup Ldap Group
 IsActive: true
 Actions:
-- Name: QueryGroup
+- Name: GetGroup
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: Query
+        Action: Get
         RunSequential: false
-        QueryGroupMembership: false
+        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
         ReturnObjects: true
@@ -18,8 +18,8 @@ Actions:
         ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
-      - Name: querygroupmembership
-        Path: QueryGroupMembership
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
       - Name: returnobjectproperties

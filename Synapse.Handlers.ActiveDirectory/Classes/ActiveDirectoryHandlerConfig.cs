@@ -17,7 +17,7 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         public bool RunSequential { get; set; } = false;
         [XmlElement]
-        public bool QueryGroupMembership { get; set; } = true;
+        public bool ReturnGroupMembership { get; set; } = true;
         [XmlElement]
         public bool ReturnAccessRules { get; set; } = true;
         [XmlElement]

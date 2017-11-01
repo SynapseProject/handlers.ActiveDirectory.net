@@ -93,10 +93,10 @@
     <None Include="Plans\DeleteOrgUnit.yaml" />
     <None Include="Plans\DeleteGroup.yaml" />
     <None Include="Plans\CreateUser.yaml" />
-    <None Include="Plans\QueryGroup.yaml" />
-    <None Include="Plans\QueryOrgUnit.yaml" />
+    <None Include="Plans\GetGroup.yaml" />
+    <None Include="Plans\GetOrgUnit.yaml" />
     <None Include="Plans\DeleteUser.yaml" />
-    <None Include="Plans\QueryUser.yaml" />
+    <None Include="Plans\GetUser.yaml" />
     <None Include="Plans\WhoAmI.yaml" />
   </ItemGroup>
   <ItemGroup>

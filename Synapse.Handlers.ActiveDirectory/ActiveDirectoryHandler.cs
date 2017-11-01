@@ -56,15 +56,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 result.Message = msg =
                     $"Connection test successful!";
             }
-            //else, select data as declared in Parameters.QueryString
             else
             {
                 switch( config.Action )
                 {
-                    case ActionType.Query:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessQuery );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessQuery );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessQuery );
+                    case ActionType.Get:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessGet );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessGet );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessGet );
                         break;
                     case ActionType.Create:
                         ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessCreate );
@@ -167,7 +166,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
     }
 
-    private void ProcessQuery(AdObject obj, bool returnObject = true)
+    private void ProcessGet(AdObject obj, bool returnObject = true)
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
@@ -175,11 +174,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             Identity = obj.Identity
         };
 
-        DoQuery( result, obj, returnObject );
+        GetObject( result, obj, returnObject );
         results.Add( result );
     }
 
-    private void DoQuery(ActiveDirectoryObjectResult result, AdObject obj, bool returnObject = true, bool returnStatus = true)
+    private void GetObject(ActiveDirectoryObjectResult result, AdObject obj, bool returnObject = true, bool returnStatus = true)
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
@@ -219,8 +218,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( Exception e )
         {
-            OnLogMessage( "ProcessQuery", e.Message );
-            OnLogMessage( "ProcessQuery", e.StackTrace );
+            OnLogMessage( "GetObject", e.Message );
+            OnLogMessage( "GetObject", e.StackTrace );
             AdException le = new AdException( e );
             ProcessActiveDirectoryException( result, le, status.Action, obj );
         }
@@ -233,12 +232,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             case AdObjectType.User:
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
-                upo = DirectoryServices.GetUser( user.Identity, config.QueryGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+                upo = DirectoryServices.GetUser( user.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
                 return upo;
             case AdObjectType.Group:
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
-                gpo = DirectoryServices.GetGroup( group.Identity, config.QueryGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+                gpo = DirectoryServices.GetGroup( group.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
@@ -744,7 +743,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             }
 
             if ( returnObject )
-                DoQuery( result, obj, true, false );
+                GetObject( result, obj, true, false );
         }
         catch ( AdException ex )
         {
@@ -818,7 +817,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             }
 
             if ( returnObject )
-                DoQuery( result, obj, true, false );
+                GetObject( result, obj, true, false );
         }
         catch ( AdException ex )
         {
@@ -889,7 +888,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             foreach ( RegexParameters param in request.Parameters )
                 filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
 
-        OnLogMessage( "ProcessSearchRequest", $"Executing Query : [{filter}]." );
+        OnLogMessage( "ProcessSearchRequest", $"Executing Search : [{filter}]." );
         SearchResults searchResults = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
         result.SearchResults = searchResults;
         results.Add( result );

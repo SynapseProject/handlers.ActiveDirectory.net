@@ -17,7 +17,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route( "user/{identity}" )]
     public ActiveDirectoryHandlerResults GetUser(string identity)
     {
-        string planName = config.Plans.User.Query;
+        string planName = config.Plans.User.Get;
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }

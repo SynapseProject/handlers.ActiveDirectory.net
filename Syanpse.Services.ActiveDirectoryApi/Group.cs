@@ -14,7 +14,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route( "group/{identity}" )]
     public ActiveDirectoryHandlerResults GetGroup(string identity)
     {
-        string planName = config.Plans.Group.Query;
+        string planName = config.Plans.Group.Get;
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         return CallPlan( planName, pe );
     }

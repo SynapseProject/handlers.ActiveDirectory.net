@@ -41,7 +41,7 @@ public class ActiveDirectoryApiConfig
         {
             config = new ActiveDirectoryApiConfig();
 
-            config.Plans.User.Query = @"QueryUser";
+            config.Plans.User.Get = @"GetUser";
             config.Plans.User.Create = @"CreateUser";
             config.Plans.User.Delete = @"DeleteUser";
             config.Plans.User.Modify = @"ModifyUser";
@@ -52,7 +52,7 @@ public class ActiveDirectoryApiConfig
             config.Plans.User.SetAccessRule = @"SetAccessRuleOnUser";
             config.Plans.User.PurgeAccessRules = @"PurgeAccessRulesOnUser";
 
-            config.Plans.Group.Query = @"QueryGroup";
+            config.Plans.Group.Get = @"GetGroup";
             config.Plans.Group.Create = @"CreateGroup";
             config.Plans.Group.Delete = @"DeleteGroup";
             config.Plans.Group.Modify = @"ModifyGroup";
@@ -63,7 +63,7 @@ public class ActiveDirectoryApiConfig
             config.Plans.Group.SetAccessRule = @"SetAccessRuleOnGroup";
             config.Plans.Group.PurgeAccessRules = @"PurgeAccessRulesOnGroup";
 
-            config.Plans.OrganizationalUnit.Query = @"QueryOrgUnit";
+            config.Plans.OrganizationalUnit.Get = @"GetOrgUnit";
             config.Plans.OrganizationalUnit.Create = @"CreateOrgUnit";
             config.Plans.OrganizationalUnit.Delete = @"DeleteOrgUnit";
             config.Plans.OrganizationalUnit.Modify = @"ModifyOrgUnit";
@@ -95,7 +95,7 @@ public class PlanConfig
 
 public class AllPlans
 {
-    public string Query { get; set; }
+    public string Get { get; set; }
     public string Create { get; set; }
     public string Delete { get; set; }
     public string Modify { get; set; }

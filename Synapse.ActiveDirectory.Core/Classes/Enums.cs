@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Core
     public enum ActionType
     {
         None,
-        Query,
+        Get,
         Create,
         Modify,
         Delete,

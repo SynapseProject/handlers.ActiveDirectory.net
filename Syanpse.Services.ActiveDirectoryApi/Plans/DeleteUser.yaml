@@ -14,8 +14,8 @@ Actions:
         PrettyPrint: false
         SuppressOutput: false
       Dynamic:
-      - Name: querygroupmembership
-        Path: QueryGroupMembership
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
       - Name: returnobjects
         Path: ReturnObjects
       - Name: returnobjectproperties
