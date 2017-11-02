@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace Synapse.ActiveDirectory.Core
 {
@@ -67,41 +68,52 @@ namespace Synapse.ActiveDirectory.Core
             return principal;
         }
 
-        public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = "organizationalUnit")
+        public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = null)
         {
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
             string searchString = null;
 
             if ( IsDistinguishedName( identity ) )
                 searchString = $"(distinguishedName={identity})";
             else if ( IsGuid( identity ) )
                 searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
+            else if ( IsSid( identity ) )
+                searchString = $"(objectSid={identity}";
             else
-                searchString = $"(name={identity})";
+                searchString = $"(|(name={identity})(userPrincipalName={identity})(sAMAccountName={identity}))";
+
+            if ( objectClass != null )
+                searchString = $"(&(objectClass={objectClass}){searchString})";
+
+            List<DirectoryEntry> results = GetDirectoryEntries( searchString );
+
+            if ( results.Count > 1 )
+                throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
+
+            return results[0];
+
+        }
 
 
-            DirectoryEntry de = null;
+        public static List<DirectoryEntry> GetDirectoryEntries(string filter)
+        {
+            List<DirectoryEntry> entries = new List<DirectoryEntry>();
+            string rootName = GetDomainDistinguishedName();
+            if ( !rootName.StartsWith( "LDAP://" ) )
+                rootName = "LDAP://" + rootName;
+
             using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
-                searcher.Filter = $"(&(objectClass={objectClass}){searchString})";
+                searcher.Filter = filter;
                 searcher.SearchScope = SearchScope.Subtree;
-                searcher.PropertiesToLoad.Add( "name" );
-                searcher.PropertiesToLoad.Add( "distinguishedname" );
-                searcher.PropertiesToLoad.Add( "objectGuid" );
                 searcher.ReferralChasing = ReferralChasingOption.All;
 
                 SearchResultCollection results = searcher.FindAll();
-                if ( results.Count > 1 )
-                    throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
-                else if ( results.Count == 1 )
-                    de = results[0].GetDirectoryEntry();
-
+                foreach ( SearchResult result in results )
+                    entries.Add( result.GetDirectoryEntry() );
             }
 
-            return de;
+            return entries;
         }
 
         public static string GetDomainDistinguishedName()
@@ -127,6 +139,19 @@ namespace Synapse.ActiveDirectory.Core
             try
             {
                 Guid.Parse( identity );
+                rc = true;
+            }
+            catch ( Exception ) { }
+
+            return rc;
+        }
+
+        public static bool IsSid(String identity)
+        {
+            bool rc = false;
+            try
+            {
+                SecurityIdentifier sid = new SecurityIdentifier( identity );
                 rc = true;
             }
             catch ( Exception ) { }

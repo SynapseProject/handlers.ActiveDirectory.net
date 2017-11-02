@@ -73,7 +73,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void ModifyOrganizationUnit(string identity, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
         {
-            DirectoryEntry orgUnit = GetDirectoryEntry( identity );
+            DirectoryEntry orgUnit = GetDirectoryEntry( identity, "organizationalUnit" );
             if ( orgUnit != null )
             {
                 if ( description != null )
@@ -96,7 +96,7 @@ namespace Synapse.ActiveDirectory.Core
 
             identity = identity.Replace( "LDAP://", "" );
 
-            DirectoryEntry orgUnitForDelete = GetDirectoryEntry( identity );
+            DirectoryEntry orgUnitForDelete = GetDirectoryEntry( identity, "organizationalUnit" );
 
             if ( orgUnitForDelete != null )
             {
@@ -119,9 +119,9 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static bool IsExistingDirectoryEntry(string identity, string objectClass = "organizationalUnit")
+        public static bool IsExistingDirectoryEntry(string identity)
         {
-            return GetDirectoryEntry( identity, objectClass ) != null;
+            return GetDirectoryEntry( identity ) != null;
         }
 
         public static bool IsExistingOrganizationUnit(string ouPath)
@@ -229,14 +229,24 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static OrganizationalUnitObject GetOrganizationalUnit(string distinguishedName, bool getAccessRules, bool getObjectProperties)
+        public static OrganizationalUnitObject GetOrganizationalUnit(string identity, bool getAccessRules, bool getObjectProperties)
         {
-            DirectoryEntry ou = GetDirectoryEntry( distinguishedName );
-
-            if ( ou == null )
-                throw new AdException( $"Organizational Unit [{distinguishedName}] Not Found.", AdStatusType.DoesNotExist );
+            string searchString = null;
+            if ( IsDistinguishedName( identity ) )
+                searchString = $"(distinguishedName={identity})";
+            else if ( IsGuid( identity ) )
+                searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
             else
-                return new OrganizationalUnitObject( ou, getAccessRules, getObjectProperties );
+                searchString = $"(name={identity})";
+
+            string filter = $"(&(objectClass=organizationalUnit)({searchString})";
+
+            List<DirectoryEntry> entries = GetDirectoryEntries( filter );
+
+            if (entries.Count > 1)
+                throw new AdException( $"Organizational Unit [{identity}] Not Found.", AdStatusType.DoesNotExist );
+            else
+                return new OrganizationalUnitObject( entries[0], getAccessRules, getObjectProperties );
         }
     }
 }

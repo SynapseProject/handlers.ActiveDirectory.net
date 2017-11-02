@@ -36,14 +36,17 @@ namespace Synapse.ActiveDirectory.Core
         Create,
         Modify,
         Delete,
+        Rename,
+        Move,
         AddToGroup,
         RemoveFromGroup,
-        Move,
         Search,
         AddAccessRule,
         RemoveAccessRule,
         SetAccessRule,
-        PurgeAccessRules
+        PurgeAccessRules,
+        AddRole,
+        RemoveRole
     }
 
     public enum AdStatusType

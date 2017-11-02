@@ -137,6 +137,5 @@ namespace Synapse.ActiveDirectory.Core
             de.CommitChanges();
         }
 
-
     }
 }
