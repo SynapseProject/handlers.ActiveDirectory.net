@@ -25,8 +25,8 @@ namespace Synapse.ActiveDirectory.RoleManager
     public class DaclRole
     {
         public string Name { get; set; }
+        public ActiveDirectoryRights AdRights { get; set; }
+        public ActionType AllowedActions { get; set; }
         public List<string> ExtendsRoles { get; set; } = new List<string>();
-        public List<ActionType> AllowedActions { get; set; } = new List<ActionType>();
-        public List<ActiveDirectoryRights> AdRights { get; set; } = new List<ActiveDirectoryRights>();
     }
 }

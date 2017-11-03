@@ -29,24 +29,28 @@ namespace Synapse.ActiveDirectory.Core
         GroupPolicy
     }
 
+    [Flags]
+    // Used as "flags" when assigning to a Role.  Used indivdually when performing an action.
+    // "All" value should only be used when assigning to a Role.
     public enum ActionType
     {
-        None,
-        Get,
-        Create,
-        Modify,
-        Delete,
-        Rename,
-        Move,
-        AddToGroup,
-        RemoveFromGroup,
-        Search,
-        AddAccessRule,
-        RemoveAccessRule,
-        SetAccessRule,
-        PurgeAccessRules,
-        AddRole,
-        RemoveRole
+        None = 0,
+        Get = 1,
+        Create = 2,
+        Modify = 4,
+        Delete = 8,
+        Rename = 16,
+        Move = 32,
+        AddToGroup = 64,
+        RemoveFromGroup = 128,
+        Search = 256,
+        AddAccessRule = 512,
+        RemoveAccessRule = 1024,
+        SetAccessRule = 2048,
+        PurgeAccessRules = 4096,
+        AddRole = 8192,
+        RemoveRole = 16384,
+        All = 32767
     }
 
     public enum AdStatusType

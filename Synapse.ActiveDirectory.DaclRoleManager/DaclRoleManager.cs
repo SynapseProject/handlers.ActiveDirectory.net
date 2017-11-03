@@ -21,18 +21,38 @@ namespace Synapse.ActiveDirectory.RoleManager
             foreach (DaclRole role in config.Roles)
             {
                 Roles.Add( role.Name, role );
-                foreach ( ActionType action in role.AllowedActions )
+                UpdateAllowedActions( role.Name, role.AllowedActions );
+            }
+
+            // Load "Role Inheritance" Values
+            foreach (DaclRole role in config.Roles)
+            {
+                if ( role.ExtendsRoles != null )
                 {
-                    if ( Actions.ContainsKey( action ) )
+                    foreach ( string parent in role.ExtendsRoles )
                     {
-                        Actions[action].Add( role.Name );
+                        if ( Roles.ContainsKey( parent ) )
+                            UpdateAllowedActions( role.Name, Roles[parent].AllowedActions );
                     }
-                    else
+                }
+            }
+        }
+
+        private void UpdateAllowedActions(string roleName, ActionType allowedActions)
+        {
+            ActionType[] actionTypes = (ActionType[])(Enum.GetValues( typeof( ActionType ) ));
+            foreach ( ActionType action in actionTypes )
+            {
+                if ( action != ActionType.All && action != ActionType.None )
+                {
+                    if ( !Actions.ContainsKey( action ) )
                     {
-                        List<string> newList = new List<string>();
-                        newList.Add( role.Name );
-                        Actions.Add( action, newList );
+                        List<string> roles = new List<string>();
+                        Actions.Add( action, roles );
                     }
+
+                    if ( (allowedActions & action) == action )
+                        Actions[action].Add( roleName );
                 }
             }
         }
@@ -41,12 +61,27 @@ namespace Synapse.ActiveDirectory.RoleManager
 
         public bool CanPerformAction(string principal, ActionType action, string adObject)
         {
-            throw new NotImplementedException();
+            bool canPerformAction = false;
+            ActiveDirectoryRights principalRights = GetAdAccessRights( principal, adObject );
+
+            foreach (string role in Actions[action])
+            {
+                ActiveDirectoryRights roleRights = Roles[role].AdRights;
+                if ((roleRights & principalRights) == roleRights )
+                {
+                    canPerformAction = true;
+                    break;
+                }
+            }
+
+            return canPerformAction;
         }
 
         public void CanPerformActionOrException(string principal, ActionType action, string adObject)
         {
-            throw new NotImplementedException();
+            bool rc = CanPerformAction( principal, action, adObject );
+            if ( !rc )
+                throw new AdException( $"[{principal}] cannot perform action [{action}] on [{adObject}].", AdStatusType.NotAllowed );
         }
 
         #endregion
@@ -55,7 +90,13 @@ namespace Synapse.ActiveDirectory.RoleManager
 
         public void AddRole(string principal, string role, string adObject)
         {
-            throw new NotImplementedException();
+            Principal p = DirectoryServices.GetPrincipal( principal );
+            DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
+
+            if ( Roles.ContainsKey( role ) )
+                DirectoryServices.AddAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow );
+            else
+                throw new AdException( $"Role [{role}] Does Not Exist.", AdStatusType.DoesNotExist );
         }
 
         public IEnumerable<string> GetRoles()
@@ -65,25 +106,32 @@ namespace Synapse.ActiveDirectory.RoleManager
 
         public bool HasRole(string principal, string role, string adObject)
         {
-            ActiveDirectoryRights rights = GetAdAccessRights( principal, adObject );
+            ActiveDirectoryRights principalRights = GetAdAccessRights( principal, adObject );
+            ActiveDirectoryRights roleRights = Roles[role].AdRights;
 
-            Console.WriteLine( $">> Effective Rights : {rights}" );
-
-            return true;
+            bool hasRole = (principalRights & roleRights) == roleRights;
+            return hasRole;
         }
 
         public void RemoveRole(string principal, string role, string adObject)
         {
-            throw new NotImplementedException();
+            Principal p = DirectoryServices.GetPrincipal( principal );
+            DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
+
+            if ( Roles.ContainsKey( role ) )
+                DirectoryServices.DeleteAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow );
+            else
+                throw new AdException( $"Role [{role}] Does Not Exist.", AdStatusType.DoesNotExist );
         }
 
         #endregion
 
+        // Get A Principal's Cumulitive AD Rights On An Object
         private ActiveDirectoryRights GetAdAccessRights(string principal, string adObject)
         {
             ActiveDirectoryRights myRights = 0;
             Principal p = DirectoryServices.GetPrincipal( principal );
-            List<DirectoryEntry> groups = DirectoryServices.GetMembership( p, true );
+            List<DirectoryEntry> groups = DirectoryServices.GetGroupMembership( p, true );
 
             DirectoryEntry de = DirectoryServices.GetDirectoryEntry( adObject );
             List<AccessRuleObject> rules = DirectoryServices.GetAccessRules( de );
@@ -100,16 +148,14 @@ namespace Synapse.ActiveDirectory.RoleManager
                     rights.Add( rule.IdentityReference, rule.Rights );
             }
 
-            Console.WriteLine( "======================= Cumulative Rights ======================= " );
-
-            foreach ( KeyValuePair<string, ActiveDirectoryRights> right in rights )
-                Console.WriteLine( $">> {right.Key} : {right.Value}" );
-
             foreach (DirectoryEntry entry in groups)
             {
-                string sid = DirectoryServices.ConvertByteToStringSid( (byte[])entry.Properties["objectSid"].Value );
-                if ( rights.ContainsKey( sid ) )
-                    myRights |= rights[sid];
+                if ( entry.Properties.Contains( "objectSid" ) )
+                {
+                    string sid = DirectoryServices.ConvertByteToStringSid( (byte[])entry.Properties["objectSid"].Value );
+                    if ( rights.ContainsKey( sid ) )
+                        myRights |= rights[sid];
+                }
             }
 
             return myRights;

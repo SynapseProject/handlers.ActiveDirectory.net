@@ -504,7 +504,7 @@ namespace Synapse.ActiveDirectory.Core
         }
 
         // Returns all groups a Principal is a member of, either directly, or thru group nesting
-        public static List<DirectoryEntry> GetMembership(Principal principal, bool includePrincipal = false)
+        public static List<DirectoryEntry> GetGroupMembership(Principal principal, bool includePrincipal = false)
         {
             string filter = $"(member:1.2.840.113556.1.4.1941:={principal.DistinguishedName})";
             if (includePrincipal)
