@@ -94,14 +94,15 @@ namespace Synapse.ActiveDirectory.Core
         }
 
 
-        public static List<DirectoryEntry> GetDirectoryEntries(string filter)
+        public static List<DirectoryEntry> GetDirectoryEntries(string filter, string searchBase = null)
         {
             List<DirectoryEntry> entries = new List<DirectoryEntry>();
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
+            if (String.IsNullOrWhiteSpace( searchBase ) )
+                searchBase = GetDomainDistinguishedName();
+            if ( !searchBase.StartsWith( "LDAP://" ) )
+                searchBase = "LDAP://" + searchBase;
 
-            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;
@@ -457,11 +458,11 @@ namespace Synapse.ActiveDirectory.Core
             return accessRules;
         }
 
-        public static List<DirectoryEntryObject> Search(string filter, bool getAccessRules = false, bool getObjectProperties = true)
+        public static List<DirectoryEntryObject> Search(string searchBase, string filter, bool getAccessRules = false, bool getObjectProperties = true)
         {
             List<DirectoryEntryObject> searchResults = new List<DirectoryEntryObject>();
 
-            SearchResultCollection results = DoSearch( filter, null );
+            SearchResultCollection results = DoSearch( filter, null, searchBase );
             foreach ( SearchResult result in results )
             {
                 DirectoryEntry de = result.GetDirectoryEntry();
@@ -472,15 +473,11 @@ namespace Synapse.ActiveDirectory.Core
             return searchResults;
         }
 
-        public static SearchResults Search(string filter, string[] returnProperties)
+        public static SearchResults Search(string searchBase, string filter, string[] returnProperties)
         {
             SearchResults searchResults = new SearchResults();
 
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
-
-            SearchResultCollection results = DoSearch( filter, returnProperties );
+            SearchResultCollection results = DoSearch( filter, returnProperties, searchBase );
             searchResults.Results = new List<SearchResultRow>();
 
             foreach ( SearchResult result in results )
@@ -514,13 +511,14 @@ namespace Synapse.ActiveDirectory.Core
             return searchResults;
         }
 
-        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null)
+        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null, string searchBase = null)
         {
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
+            if (String.IsNullOrWhiteSpace(searchBase))
+            searchBase = GetDomainDistinguishedName();
+            if ( !searchBase.StartsWith( "LDAP://" ) )
+                searchBase = "LDAP://" + searchBase;
 
-            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;

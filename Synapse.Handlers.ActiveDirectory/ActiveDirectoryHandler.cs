@@ -897,7 +897,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
 
         OnLogMessage( "ProcessSearchRequest", $"Executing Search : [{filter}]." );
-        SearchResults searchResults = DirectoryServices.Search( filter, request.ReturnAttributes?.ToArray() );
+        if (request.SearchBase != null)
+            OnLogMessage( "ProcessSearchRequest", $"Search Base : [{request.SearchBase}]." );
+        SearchResults searchResults = DirectoryServices.Search( request.SearchBase, filter, request.ReturnAttributes?.ToArray() );
         result.SearchResults = searchResults;
         result.Statuses.Add( status );
         results.Add( result );
