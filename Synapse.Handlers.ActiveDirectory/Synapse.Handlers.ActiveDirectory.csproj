@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\AdObjects\AdSearchRequest.cs" />
+    <Compile Include="Classes\Config\HandlerConfig.cs" />
     <Compile Include="Classes\ResultObjects\ActiveDirectoryHandlerResults.cs" />
     <Compile Include="Classes\ResultObjects\ActiveDirectoryObjectResult.cs" />
     <Compile Include="Classes\AdObjects\AdAccessRule.cs" />

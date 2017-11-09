@@ -29,15 +29,15 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( $"AddAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
         }
 
-        public static void AddAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type)
+        public static void AddAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
             AddAccessRule( de, principal, rights, type );
         }
 
-        public static void AddAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type)
+        public static void AddAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
-            ActiveDirectoryAccessRule newRule = new ActiveDirectoryAccessRule( principal.Sid, rights, type );
+            ActiveDirectoryAccessRule newRule = new ActiveDirectoryAccessRule( principal.Sid, rights, type, inherit );
 
             de.ObjectSecurity.AddAccessRule( newRule );
             de.CommitChanges();
@@ -76,32 +76,32 @@ namespace Synapse.ActiveDirectory.Core
         }
 
         // Set Access Rights - Removes Any Existing Rules For The Principal And Sets Rules To Rights Passed In
-        public static void SetAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type)
+        public static void SetAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
             if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
-                SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type );
+                SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"SetAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
         }
 
-        public static void SetAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type)
+        public static void SetAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
             if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
-                SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type );
+                SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"SetAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
         }
 
-        public static void SetAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type)
+        public static void SetAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            SetAccessRule( de, principal, rights, type );
+            SetAccessRule( de, principal, rights, type, inherit );
         }
 
-        public static void SetAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type)
+        public static void SetAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.All)
         {
-            ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule( principal.Sid, rights, type );
+            ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule( principal.Sid, rights, type, inherit );
 
             de.ObjectSecurity.SetAccessRule( rule );
             de.CommitChanges();

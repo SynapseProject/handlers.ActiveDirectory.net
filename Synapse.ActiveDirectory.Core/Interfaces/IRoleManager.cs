@@ -10,6 +10,8 @@ namespace Synapse.ActiveDirectory.Core
 {
     public interface IRoleManager
     {
+        void Initialize(object config);
+
         // Role Execution
         bool CanPerformAction(string principal, ActionType action, string adObject);
         void CanPerformActionOrException(string principal, ActionType action, string adObject);

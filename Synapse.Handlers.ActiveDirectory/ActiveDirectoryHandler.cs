@@ -15,6 +15,12 @@ using Synapse.Handlers.ActiveDirectory;
 public class ActiveDirectoryHandler : HandlerRuntimeBase
 {
     ActiveDirectoryHandlerConfig config = null;
+    HandlerConfig handlerConfig = null;
+    IRoleManager roleManager = new DefaultRoleManager();
+
+    HandlerStartInfo startInfo = null;
+    string requestUser = null;
+
     ActiveDirectoryHandlerResults results = new ActiveDirectoryHandlerResults();
     bool isDryRun = false;
 
@@ -22,6 +28,12 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         //deserialize the Config from the Handler declaration
         this.config = DeserializeOrNew<ActiveDirectoryHandlerConfig>( config );
+        if ( handlerConfig == null )
+        {
+            this.handlerConfig = HandlerConfig.DeserializeOrNew();
+            this.roleManager = AssemblyLoader.Load<IRoleManager>( handlerConfig.RoleManager.Name, @"Synapse.ActiveDirectory.Core:DefaultRoleManager" );
+            this.roleManager.Initialize( handlerConfig?.RoleManager?.Config );
+        }
         return this;
     }
 
@@ -37,12 +49,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         string msg = "Complete";
         Exception exc = null;
 
+        this.startInfo = startInfo;
+        requestUser = WhoAmI();
         isDryRun = startInfo.IsDryRun;
 
         //deserialize the Parameters from the Action declaration
         Synapse.Handlers.ActiveDirectory.ActiveDirectoryHandlerParameters parameters = base.DeserializeOrNew<Synapse.Handlers.ActiveDirectory.ActiveDirectoryHandlerParameters>( startInfo.Parameters );
 
         OnLogMessage( "Execute", $"Running Handler As User [{System.Security.Principal.WindowsIdentity.GetCurrent().Name}]" );
+        OnLogMessage( "Execute", $"Request User : [{requestUser}]" );
 
         try
         {
@@ -174,7 +189,16 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             Identity = obj.Identity
         };
 
-        GetObject( result, obj, returnObject );
+        try
+        {
+            roleManager.CanPerformActionOrException( requestUser, ActionType.Get, obj.Identity );
+            GetObject( result, obj, returnObject );
+        }
+        catch (AdException ade)
+        {
+            ProcessActiveDirectoryException( result, ade, ActionType.Get, obj );
+        }
+
         results.Add( result );
     }
 
@@ -267,6 +291,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         try
         {
             object adObject = null;
+            string statusAction = "Created";
 
             switch ( obj.Type )
             {
@@ -275,20 +300,24 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     UserPrincipal up = null;
                     if ( config.UseUpsert && DirectoryServices.IsExistingUser( obj.Identity ) )
                     {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         up = DirectoryServices.GetUserPrincipal( obj.Identity );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         user.UpdateUserPrincipal( up );
+                        statusAction = "Modified";
                     }
                     else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                     {
+                        String path = DirectoryServices.GetParentPath( obj.Identity );
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                         up = user.CreateUserPrincipal();
                     }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveUser( up, isDryRun );
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
                         AddToGroup( result, user, false );
@@ -309,6 +338,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         group.UpdateGroupPrincipal( gp );
+                        statusAction = "Modified";
                     }
                     else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                     {
@@ -318,7 +348,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
                         AddToGroup( result, group, false );
@@ -351,13 +381,16 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
+                    {
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
-                    else if (DirectoryServices.IsDistinguishedName(ou.Identity))
+                        statusAction = "Modified";
+                    }
+                    else if ( DirectoryServices.IsDistinguishedName( ou.Identity ) )
                         DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
 
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] Created." );
+                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( returnObject )
                     {
@@ -841,22 +874,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             Message = ex.Message,
         };
 
-        switch ( obj.Type )
-        {
-            case AdObjectType.User:
-                result.Statuses.Add( status );
-                break;
-            case AdObjectType.Group:
-                result.Statuses.Add( status );
-                break;
-            case AdObjectType.OrganizationalUnit:
-                result.Statuses.Add( status );
-                break;
-            default:
-                throw ex;
-        }
-
         OnLogMessage( "Exception", ex.Message );
+        result.Statuses.Add( status );
     }
 
     private void ProcessSearchRequests(IEnumerable<AdSearchRequest> requests)
@@ -903,5 +922,19 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         result.SearchResults = searchResults;
         result.Statuses.Add( status );
         results.Add( result );
+    }
+
+    private string WhoAmI()
+    {
+        string user = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
+
+        if ( DirectoryServices.IsExistingUser( startInfo.RequestUser ) )
+            user = startInfo.RequestUser;
+
+        // TODO : Remove Domain Check / Removal Once Support For Multiple Domains Is Added.
+        if ( user.Contains( @"\" ) )
+            user = user.Substring( user.IndexOf(@"\") + 1 );
+
+        return user;
     }
 }

@@ -535,5 +535,13 @@ namespace Synapse.ActiveDirectory.Core
             }
 
         }
+
+        public static string GetParentPath(string distinguishedName)
+        {
+            Regex regex = new Regex( @",(.*)" );
+            Match match = regex.Match( distinguishedName );
+
+            return match.Groups[1].Value;
+        }
     }
 }

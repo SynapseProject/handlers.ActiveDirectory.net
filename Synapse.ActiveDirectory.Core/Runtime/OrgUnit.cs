@@ -239,7 +239,7 @@ namespace Synapse.ActiveDirectory.Core
             else
                 searchString = $"(name={identity})";
 
-            string filter = $"(&(objectClass=organizationalUnit)({searchString})";
+            string filter = $"(&(objectClass=organizationalUnit){searchString})";
 
             List<DirectoryEntry> entries = GetDirectoryEntries( filter );
 
