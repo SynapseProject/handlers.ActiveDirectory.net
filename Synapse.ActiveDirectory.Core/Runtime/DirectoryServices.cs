@@ -89,7 +89,10 @@ namespace Synapse.ActiveDirectory.Core
             if ( results.Count > 1 )
                 throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
 
-            return results[0];
+            if ( results.Count > 0 )
+                return results[0];
+            else
+                return null;
 
         }
 

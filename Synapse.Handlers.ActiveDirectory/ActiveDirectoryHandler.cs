@@ -334,6 +334,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     GroupPrincipal gp = null;
                     if ( config.UseUpsert && DirectoryServices.IsExistingGroup( obj.Identity ) )
                     {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
@@ -342,6 +343,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
                     else if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                     {
+                        String path = DirectoryServices.GetParentPath( obj.Identity );
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                         gp = group.CreateGroupPrincipal();
                     }
                     else
@@ -382,11 +385,16 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
                     {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
                         statusAction = "Modified";
                     }
                     else if ( DirectoryServices.IsDistinguishedName( ou.Identity ) )
+                    {
+                        String path = DirectoryServices.GetParentPath( obj.Identity );
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                         DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
+                    }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
 
