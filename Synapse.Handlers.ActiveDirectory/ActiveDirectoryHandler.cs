@@ -196,7 +196,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch (AdException ade)
         {
-            ProcessActiveDirectoryException( result, ade, ActionType.Get, obj );
+            ProcessActiveDirectoryException( result, ade, ActionType.Get );
         }
 
         results.Add( result );
@@ -238,14 +238,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "GetObject", e.Message );
             OnLogMessage( "GetObject", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
     }
 
@@ -412,14 +412,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
 
         results.Add( result );
@@ -572,14 +572,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
 
         results.Add( result );
@@ -630,14 +630,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessDelete", e.Message );
             OnLogMessage( "ProcessDelete", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
 
         results.Add( result );
@@ -673,6 +673,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         try
         {
+            roleManager.CanPerformActionOrException( requestUser, config.Action, obj.Identity );
+
             // Get Target DirectoryEntry For Rules
             DirectoryEntry de = null;
             if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
@@ -719,14 +721,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessDelete", e.Message );
             OnLogMessage( "ProcessDelete", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
 
         if ( returnObject )
@@ -768,6 +770,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         {
                             try
                             {
+                                roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, userGroup );
                                 DirectoryServices.AddUserToGroup( user.Identity, userGroup, isDryRun );
                                 String userMessage = $"{obj.Type} [{user.Identity}] Added To Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", userMessage );
@@ -776,7 +779,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch ( AdException ldeUserEx )
                             {
-                                ProcessActiveDirectoryException( result, ldeUserEx, status.Action, obj );
+                                ProcessActiveDirectoryException( result, ldeUserEx, status.Action );
                             }
                         }
                     }
@@ -789,6 +792,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         {
                             try
                             {
+                                roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, groupGroup );
                                 DirectoryServices.AddGroupToGroup( group.Identity, groupGroup, isDryRun );
                                 String groupMessage = $"{obj.Type} [{group.Identity}] Added To Group [{groupGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", groupMessage );
@@ -797,7 +801,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch ( AdException ldeGroupEx )
                             {
-                                ProcessActiveDirectoryException( result, ldeGroupEx, status.Action, obj );
+                                ProcessActiveDirectoryException( result, ldeGroupEx, status.Action );
                             }
                         }
                     }
@@ -811,14 +815,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupAdd", e.Message );
             OnLogMessage( "ProcessGroupAdd", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
 
     }
@@ -854,11 +858,19 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     {
                         foreach ( string userGroup in user.Groups )
                         {
-                            DirectoryServices.RemoveUserFromGroup( user.Identity, userGroup, isDryRun );
-                            String userMessage = $"{obj.Type} [{user.Identity}] Removed From Group [{userGroup}].";
-                            OnLogMessage( "ProcessGroupRemove", userMessage );
-                            status.Message = userMessage;
-                            result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                            try
+                            {
+                                roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, userGroup );
+                                DirectoryServices.RemoveUserFromGroup( user.Identity, userGroup, isDryRun );
+                                String userMessage = $"{obj.Type} [{user.Identity}] Removed From Group [{userGroup}].";
+                                OnLogMessage( "ProcessGroupRemove", userMessage );
+                                status.Message = userMessage;
+                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                            }
+                            catch (AdException ade)
+                            {
+                                ProcessActiveDirectoryException( result, ade, status.Action );
+                            }
                         }
                     }
                     break;
@@ -868,11 +880,20 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     {
                         foreach ( string groupGroup in group.Groups )
                         {
-                            DirectoryServices.RemoveGroupFromGroup( group.Identity, groupGroup, isDryRun );
-                            String groupMessage = $"{obj.Type} [{group.Identity}] Removed From Group [{groupGroup}].";
-                            OnLogMessage( "ProcessGroupRemove", groupMessage );
-                            status.Message = groupMessage;
-                            result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                            try
+                            {
+                                roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, groupGroup );
+                                DirectoryServices.RemoveGroupFromGroup( group.Identity, groupGroup, isDryRun );
+                                String groupMessage = $"{obj.Type} [{group.Identity}] Removed From Group [{groupGroup}].";
+                                OnLogMessage( "ProcessGroupRemove", groupMessage );
+                                status.Message = groupMessage;
+                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                            }
+                            catch ( AdException ade )
+                            {
+                                ProcessActiveDirectoryException( result, ade, status.Action );
+                            }
+
                         }
                     }
                     break;
@@ -885,18 +906,18 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action, obj );
+            ProcessActiveDirectoryException( result, ex, status.Action );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupRemove", e.Message );
             OnLogMessage( "ProcessGroupRemove", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action, obj );
+            ProcessActiveDirectoryException( result, le, status.Action );
         }
     }
 
-    private void ProcessActiveDirectoryException(ActiveDirectoryObjectResult result, AdException ex, ActionType action, AdObject obj)
+    private void ProcessActiveDirectoryException(ActiveDirectoryObjectResult result, AdException ex, ActionType action)
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
@@ -941,17 +962,28 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             Type = AdObjectType.None,
         };
 
-        String filter = request.Filter;
-        if (request.Parameters != null)
-            foreach ( RegexParameters param in request.Parameters )
-                filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
+        try
+        {
+            string searchBase = request.SearchBase;
+            if ( String.IsNullOrWhiteSpace( request.SearchBase ) )
+                searchBase = DirectoryServices.GetDomainDistinguishedName();
+            roleManager.CanPerformActionOrException( requestUser, ActionType.Search, searchBase );
 
-        OnLogMessage( "ProcessSearchRequest", $"Executing Search : [{filter}]." );
-        if (request.SearchBase != null)
-            OnLogMessage( "ProcessSearchRequest", $"Search Base : [{request.SearchBase}]." );
-        SearchResults searchResults = DirectoryServices.Search( request.SearchBase, filter, request.ReturnAttributes?.ToArray() );
-        result.SearchResults = searchResults;
-        result.Statuses.Add( status );
+            String filter = request.Filter;
+            if ( request.Parameters != null )
+                foreach ( RegexParameters param in request.Parameters )
+                    filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
+
+            OnLogMessage( "ProcessSearchRequest", $"Executing Search.  Filter String: [{filter}].  Search Base: [{searchBase}]." );
+            SearchResults searchResults = DirectoryServices.Search( searchBase, filter, request.ReturnAttributes?.ToArray() );
+            result.SearchResults = searchResults;
+            result.Statuses.Add( status );
+        } 
+        catch (AdException ade)
+        {
+            ProcessActiveDirectoryException( result, ade, ActionType.Search );
+        }
+
         results.Add( result );
     }
 
