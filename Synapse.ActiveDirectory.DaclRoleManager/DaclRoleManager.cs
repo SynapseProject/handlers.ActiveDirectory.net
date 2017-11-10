@@ -155,9 +155,13 @@ public class DaclRoleManager : IRoleManager
     {
         ActiveDirectoryRights myRights = 0;
         Principal p = DirectoryServices.GetPrincipal( principal );
+        if ( p == null )
+            throw new AdException( $"Principal [{principal}] Does Not Exist.", AdStatusType.DoesNotExist );
         List<DirectoryEntry> groups = DirectoryServices.GetGroupMembership( p, true );
 
         DirectoryEntry de = DirectoryServices.GetDirectoryEntry( adObject );
+        if ( de == null )
+            throw new AdException( $"Object [{adObject}]  Does Not Exist.", AdStatusType.DoesNotExist );
         List<AccessRuleObject> rules = DirectoryServices.GetAccessRules( de );
 
         Dictionary<string, ActiveDirectoryRights> rights = new Dictionary<string, ActiveDirectoryRights>();

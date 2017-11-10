@@ -444,6 +444,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         try
         {
             object adObject = null;
+            string statusAction = "Modified";
 
             switch ( obj.Type )
             {
@@ -453,12 +454,18 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( config.UseUpsert && !DirectoryServices.IsExistingUser( obj.Identity ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        {
+                            String path = DirectoryServices.GetParentPath( obj.Identity );
+                            roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                             up = user.CreateUserPrincipal();
+                            statusAction = "Created";
+                        }
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
                     }
                     else
                     {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         up = DirectoryServices.GetUserPrincipal( obj.Identity );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
@@ -467,7 +474,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     DirectoryServices.SaveUser( up, isDryRun );
 
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
                     result.Statuses.Add( status );
@@ -483,12 +490,18 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( obj.Identity ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        {
+                            String path = DirectoryServices.GetParentPath( obj.Identity );
+                            roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                             gp = group.CreateGroupPrincipal();
+                            statusAction = "Created";
+                        }
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
                     }
                     else
                     {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
@@ -496,7 +509,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
                     result.Statuses.Add( status );
@@ -527,16 +540,25 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         }
                     }
 
-                    if ( config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        {
+                            String path = DirectoryServices.GetParentPath( obj.Identity );
+                            roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
                             DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Description, ou.Properties, isDryRun );
+                            statusAction = "Created";
+                        }
                         else
                             throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
                     }
                     else
+                    {
+                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] Modified." );
+                    }
+
+                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( returnObject )
                     {
@@ -581,6 +603,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         try
         {
+            roleManager.CanPerformActionOrException( requestUser, ActionType.Delete, obj.Identity );
             switch ( obj.Type )
             {
                 case AdObjectType.User:

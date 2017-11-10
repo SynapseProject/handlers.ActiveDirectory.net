@@ -412,7 +412,7 @@ namespace Synapse.ActiveDirectory.Core
         public static string GetDistinguishedName(string identity)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            return principal.DistinguishedName;
+            return principal?.DistinguishedName;
         }
 
         public static List<AccessRuleObject> GetAccessRules(Principal principal)
@@ -428,7 +428,7 @@ namespace Synapse.ActiveDirectory.Core
             List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
             Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
 
-            AuthorizationRuleCollection rules = de.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
+            AuthorizationRuleCollection rules = de?.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
             if ( rules != null )
             {
                 foreach ( AuthorizationRule rule in rules )
