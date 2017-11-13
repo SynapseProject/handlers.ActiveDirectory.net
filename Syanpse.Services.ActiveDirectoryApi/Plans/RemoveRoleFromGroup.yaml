@@ -1,0 +1,43 @@
+Name: RemoveRoleFromGroup
+Description: Remove A Role From A Group
+IsActive: true
+Actions:
+- Name: RemoveRole
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: RemoveRole
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Identity: 
+        Roles:
+        - Name: 
+          Principal: 
+    Dynamic:
+    - Name: identity
+      Path: Groups[0]:Identity
+    - Name: role
+      Path: Groups[0]:Roles[0]:Name
+    - Name: principal
+      Path: Groups[0]:Roles[0]:Principal

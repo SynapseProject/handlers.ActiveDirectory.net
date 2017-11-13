@@ -111,5 +111,29 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "role/user/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults AddRoleToUser(string identity, string principal, string role)
+    {
+        string planName = config.Plans.User.AddRole;
 
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "role/user/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults RemoveRoleFromUser(string identity, string principal, string role)
+    {
+        string planName = config.Plans.User.RemoveRole;
+
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
 }
