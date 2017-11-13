@@ -118,7 +118,7 @@ public class DaclRoleManager : IRoleManager
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
 
         if ( Roles.ContainsKey( role ) )
-            DirectoryServices.AddAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow );
+            DirectoryServices.AddAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.All );
         else
             throw new AdException( $"Role [{role}] Does Not Exist.", AdStatusType.DoesNotExist );
     }
@@ -143,7 +143,7 @@ public class DaclRoleManager : IRoleManager
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
 
         if ( Roles.ContainsKey( role ) )
-            DirectoryServices.DeleteAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow );
+            DirectoryServices.DeleteAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.All );
         else
             throw new AdException( $"Role [{role}] Does Not Exist.", AdStatusType.DoesNotExist );
     }

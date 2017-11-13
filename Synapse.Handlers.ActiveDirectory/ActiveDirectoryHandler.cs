@@ -123,6 +123,16 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
                         ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
                         break;
+                    case ActionType.AddRole:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessRoles );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessRoles );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessRoles );
+                        break;
+                    case ActionType.RemoveRole:
+                        ProcessActiveDirectoryObjects( parameters.Users, ProcessRoles );
+                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessRoles );
+                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessRoles );
+                        break;
                     case ActionType.Search:
                         ProcessSearchRequests( parameters.SearchRequests );
                         break;
@@ -749,6 +759,66 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
     }
 
+    private void ProcessRoles(AdObject obj, bool returnObject = false)
+    {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = obj.Type,
+            Identity = obj.Identity
+        };
+
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            Action = config.Action,
+            Status = AdStatusType.Success,
+            Message = "Success",
+        };
+
+        try
+        {
+            roleManager.CanPerformActionOrException( requestUser, config.Action, obj.Identity );
+            foreach (AdRole role in obj.Roles)
+            {
+                string message = string.Empty;
+                switch ( config.Action )
+                {
+                    case ActionType.AddRole:
+                        roleManager.AddRole( role.Principal, role.Name, obj.Identity );
+                        message = $"Role [{role.Name}] Has Been Added To {obj.Type} [{obj.Identity}] For Principal [{role.Principal}].";
+                        break;
+                    case ActionType.RemoveRole:
+                        roleManager.RemoveRole( role.Principal, role.Name, obj.Identity );
+                        message = $"Role [{role.Name}] Has Been Removed From {obj.Type} [{obj.Identity}] For Principal [{role.Principal}].";
+                        break;
+                }
+
+                result.Statuses.Add( status );
+                OnLogMessage( "ProcessAccessRules", message );
+            }
+        }
+        catch (AdException ade)
+        {
+            ProcessActiveDirectoryException( result, ade, config.Action );
+        }
+
+        if ( returnObject )
+        {
+            object adObject = GetActiveDirectoryObject( obj );
+            Type returnType = obj.GetType();
+            if ( returnType == typeof( AdUser ) )
+                result.User = (UserPrincipalObject)adObject;
+            else if ( returnType == typeof( AdGroup ) )
+                result.Group = (GroupPrincipalObject)adObject;
+            else if ( returnType == typeof( AdOrganizationalUnit ) )
+                result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
+            else
+                throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
+        }
+
+        results.Add( result );
+
+    }
+
     private void AddToGroup(ActiveDirectoryObjectResult result, AdObject obj, bool returnObject = true)
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
@@ -998,6 +1068,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         if ( user.Contains( @"\" ) )
             user = user.Substring( user.IndexOf(@"\") + 1 );
 
-        return "steve";
+        return user;
     }
 }
