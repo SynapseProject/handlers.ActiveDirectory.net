@@ -154,6 +154,7 @@ public class DaclRoleManager : IRoleManager
     private ActiveDirectoryRights GetAdAccessRights(string principal, string adObject)
     {
         ActiveDirectoryRights myRights = 0;
+        ActiveDirectoryRights myDenyRights = 0;
         Principal p = DirectoryServices.GetPrincipal( principal );
         if ( p == null )
             throw new AdException( $"Principal [{principal}] Does Not Exist.", AdStatusType.DoesNotExist );
@@ -165,15 +166,29 @@ public class DaclRoleManager : IRoleManager
         List<AccessRuleObject> rules = DirectoryServices.GetAccessRules( de );
 
         Dictionary<string, ActiveDirectoryRights> rights = new Dictionary<string, ActiveDirectoryRights>();
+        Dictionary<string, ActiveDirectoryRights> denyRights = new Dictionary<string, ActiveDirectoryRights>();
 
+        // Accumulate Allow and Deny Rights By Idenetity Reference
         foreach ( AccessRuleObject rule in rules )
         {
-            if ( rights.Keys.Contains( rule.IdentityReference ) )
+            if ( rule.ControlType == System.Security.AccessControl.AccessControlType.Allow )
             {
-                rights[rule.IdentityReference] |= rule.Rights;
+                if ( rights.Keys.Contains( rule.IdentityReference ) )
+                {
+                    rights[rule.IdentityReference] |= rule.Rights;
+                }
+                else
+                    rights.Add( rule.IdentityReference, rule.Rights );
             }
             else
-                rights.Add( rule.IdentityReference, rule.Rights );
+            {
+                if ( rights.Keys.Contains( rule.IdentityReference ) )
+                {
+                    denyRights[rule.IdentityReference] |= rule.Rights;
+                }
+                else
+                    denyRights.Add( rule.IdentityReference, rule.Rights );
+            }
         }
 
         foreach ( DirectoryEntry entry in groups )
@@ -183,8 +198,14 @@ public class DaclRoleManager : IRoleManager
                 string sid = DirectoryServices.ConvertByteToStringSid( (byte[])entry.Properties["objectSid"].Value );
                 if ( rights.ContainsKey( sid ) )
                     myRights |= rights[sid];
+                if ( denyRights.ContainsKey( sid ) )
+                    myDenyRights |= denyRights[sid];
             }
         }
+
+        // Apply Deny Rights
+        myDenyRights = myRights & myDenyRights;
+        myRights = myRights ^ myDenyRights;
 
         return myRights;
 
