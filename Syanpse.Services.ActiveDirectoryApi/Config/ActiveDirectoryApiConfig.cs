@@ -51,6 +51,8 @@ public class ActiveDirectoryApiConfig
             config.Plans.User.RemoveAccessRule = @"RemoveAccessRuleFromUser";
             config.Plans.User.SetAccessRule = @"SetAccessRuleOnUser";
             config.Plans.User.PurgeAccessRules = @"PurgeAccessRulesOnUser";
+            config.Plans.User.AddRole = @"AddRoleToUser";
+            config.Plans.User.RemoveRole = @"RemoveRoleFromUser";
 
             config.Plans.Group.Get = @"GetGroup";
             config.Plans.Group.Create = @"CreateGroup";
@@ -62,6 +64,8 @@ public class ActiveDirectoryApiConfig
             config.Plans.Group.RemoveAccessRule = @"RemoveAccessRuleFromGroup";
             config.Plans.Group.SetAccessRule = @"SetAccessRuleOnGroup";
             config.Plans.Group.PurgeAccessRules = @"PurgeAccessRulesOnGroup";
+            config.Plans.Group.AddRole = @"AddRoleToGroup";
+            config.Plans.Group.RemoveRole = @"RemoveRoleFromGroup";
 
             config.Plans.OrganizationalUnit.Get = @"GetOrgUnit";
             config.Plans.OrganizationalUnit.Create = @"CreateOrgUnit";
@@ -71,6 +75,8 @@ public class ActiveDirectoryApiConfig
             config.Plans.OrganizationalUnit.RemoveAccessRule = @"RemoveAccessRuleFromOrgUnit";
             config.Plans.OrganizationalUnit.SetAccessRule = @"SetAccessRuleOnOrgUnit";
             config.Plans.OrganizationalUnit.PurgeAccessRules = @"PurgeAccessRulesOnOrgUnit";
+            config.Plans.OrganizationalUnit.AddRole = @"AddRoleToOrgUnit";
+            config.Plans.OrganizationalUnit.RemoveRole = @"RemoveRoleFromOrgUnit";
 
             config.Plans.Search = @"Search";
 
@@ -103,6 +109,8 @@ public class AllPlans
     public string RemoveAccessRule { get; set; }
     public string SetAccessRule { get; set; }
     public string PurgeAccessRules { get; set; }
+    public string AddRole { get; set; }
+    public string RemoveRole { get; set; }
 }
 
 public class UserPlans : AllPlans

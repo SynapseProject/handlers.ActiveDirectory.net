@@ -108,4 +108,29 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPost]
+    [Route( "role/group/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults AddRoleToGroup(string identity, string principal, string role)
+    {
+        string planName = config.Plans.Group.AddRole;
+
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "role/group/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults RemoveRoleFromGroup(string identity, string principal, string role)
+    {
+        string planName = config.Plans.Group.RemoveRole;
+
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
 }

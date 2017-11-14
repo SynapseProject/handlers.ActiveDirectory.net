@@ -19,7 +19,7 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         public bool ReturnGroupMembership { get; set; } = true;
         [XmlElement]
-        public bool ReturnAccessRules { get; set; } = true;
+        public bool ReturnAccessRules { get; set; } = false;
         [XmlElement]
         public bool ReturnObjectProperties { get; set; } = true;
         [XmlElement]

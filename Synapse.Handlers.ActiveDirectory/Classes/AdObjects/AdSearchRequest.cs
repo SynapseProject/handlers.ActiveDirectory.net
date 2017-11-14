@@ -9,6 +9,7 @@ namespace Synapse.Handlers.ActiveDirectory
 {
     public class AdSearchRequest
     {
+        public string SearchBase { get; set; }
         public string Filter { get; set; }
         public List<RegexParameters> Parameters {get; set;}
         public List<string> ReturnAttributes { get; set; }

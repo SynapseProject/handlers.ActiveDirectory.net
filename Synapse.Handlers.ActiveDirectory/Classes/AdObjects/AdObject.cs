@@ -18,8 +18,10 @@ namespace Synapse.Handlers.ActiveDirectory
         public string Identity { get; set; }
         [XmlArrayItem(ElementName = "Property")]
         public Dictionary<String, List<String>> Properties { get; set; }
-        [XmlArrayItem(ElementName = "AccessRule")]
+        [XmlArrayItem( ElementName = "AccessRule" )]
         public List<AdAccessRule> AccessRules { get; set; }
+        [XmlArrayItem( ElementName = "Role" )]
+        public List<AdRole> Roles { get; set; }
 
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace Synapse.ActiveDirectory.Core
 {
@@ -67,41 +68,56 @@ namespace Synapse.ActiveDirectory.Core
             return principal;
         }
 
-        public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = "organizationalUnit")
+        public static DirectoryEntry GetDirectoryEntry(string identity, string objectClass = null)
         {
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
             string searchString = null;
 
             if ( IsDistinguishedName( identity ) )
                 searchString = $"(distinguishedName={identity})";
             else if ( IsGuid( identity ) )
                 searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
+            else if ( IsSid( identity ) )
+                searchString = $"(objectSid={identity}";
             else
-                searchString = $"(name={identity})";
+                searchString = $"(|(name={identity})(userPrincipalName={identity})(sAMAccountName={identity}))";
+
+            if ( objectClass != null )
+                searchString = $"(&(objectClass={objectClass}){searchString})";
+
+            List<DirectoryEntry> results = GetDirectoryEntries( searchString );
+
+            if ( results.Count > 1 )
+                throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
+
+            if ( results.Count > 0 )
+                return results[0];
+            else
+                return null;
+
+        }
 
 
-            DirectoryEntry de = null;
-            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+        public static List<DirectoryEntry> GetDirectoryEntries(string filter, string searchBase = null)
+        {
+            List<DirectoryEntry> entries = new List<DirectoryEntry>();
+            if (String.IsNullOrWhiteSpace( searchBase ) )
+                searchBase = GetDomainDistinguishedName();
+            if ( !searchBase.StartsWith( "LDAP://" ) )
+                searchBase = "LDAP://" + searchBase;
+
+            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
-                searcher.Filter = $"(&(objectClass={objectClass}){searchString})";
+                searcher.Filter = filter;
                 searcher.SearchScope = SearchScope.Subtree;
-                searcher.PropertiesToLoad.Add( "name" );
-                searcher.PropertiesToLoad.Add( "distinguishedname" );
-                searcher.PropertiesToLoad.Add( "objectGuid" );
                 searcher.ReferralChasing = ReferralChasingOption.All;
 
                 SearchResultCollection results = searcher.FindAll();
-                if ( results.Count > 1 )
-                    throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );
-                else if ( results.Count == 1 )
-                    de = results[0].GetDirectoryEntry();
-
+                foreach ( SearchResult result in results )
+                    entries.Add( result.GetDirectoryEntry() );
             }
 
-            return de;
+            return entries;
         }
 
         public static string GetDomainDistinguishedName()
@@ -127,6 +143,19 @@ namespace Synapse.ActiveDirectory.Core
             try
             {
                 Guid.Parse( identity );
+                rc = true;
+            }
+            catch ( Exception ) { }
+
+            return rc;
+        }
+
+        public static bool IsSid(String identity)
+        {
+            bool rc = false;
+            try
+            {
+                SecurityIdentifier sid = new SecurityIdentifier( identity );
                 rc = true;
             }
             catch ( Exception ) { }
@@ -383,7 +412,7 @@ namespace Synapse.ActiveDirectory.Core
         public static string GetDistinguishedName(string identity)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            return principal.DistinguishedName;
+            return principal?.DistinguishedName;
         }
 
         public static List<AccessRuleObject> GetAccessRules(Principal principal)
@@ -399,7 +428,7 @@ namespace Synapse.ActiveDirectory.Core
             List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
             Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
 
-            AuthorizationRuleCollection rules = de.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
+            AuthorizationRuleCollection rules = de?.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
             if ( rules != null )
             {
                 foreach ( AuthorizationRule rule in rules )
@@ -432,11 +461,11 @@ namespace Synapse.ActiveDirectory.Core
             return accessRules;
         }
 
-        public static List<DirectoryEntryObject> Search(string filter, bool getAccessRules = false, bool getObjectProperties = true)
+        public static List<DirectoryEntryObject> Search(string searchBase, string filter, bool getAccessRules = false, bool getObjectProperties = true)
         {
             List<DirectoryEntryObject> searchResults = new List<DirectoryEntryObject>();
 
-            SearchResultCollection results = DoSearch( filter, null );
+            SearchResultCollection results = DoSearch( filter, null, searchBase );
             foreach ( SearchResult result in results )
             {
                 DirectoryEntry de = result.GetDirectoryEntry();
@@ -447,15 +476,11 @@ namespace Synapse.ActiveDirectory.Core
             return searchResults;
         }
 
-        public static SearchResults Search(string filter, string[] returnProperties)
+        public static SearchResults Search(string searchBase, string filter, string[] returnProperties)
         {
             SearchResults searchResults = new SearchResults();
 
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
-
-            SearchResultCollection results = DoSearch( filter, returnProperties );
+            SearchResultCollection results = DoSearch( filter, returnProperties, searchBase );
             searchResults.Results = new List<SearchResultRow>();
 
             foreach ( SearchResult result in results )
@@ -489,13 +514,14 @@ namespace Synapse.ActiveDirectory.Core
             return searchResults;
         }
 
-        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null)
+        private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null, string searchBase = null)
         {
-            string rootName = GetDomainDistinguishedName();
-            if ( !rootName.StartsWith( "LDAP://" ) )
-                rootName = "LDAP://" + rootName;
+            if (String.IsNullOrWhiteSpace(searchBase))
+            searchBase = GetDomainDistinguishedName();
+            if ( !searchBase.StartsWith( "LDAP://" ) )
+                searchBase = "LDAP://" + searchBase;
 
-            using ( DirectoryEntry root = new DirectoryEntry( rootName ) )
+            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;
@@ -511,6 +537,14 @@ namespace Synapse.ActiveDirectory.Core
                 return results;
             }
 
+        }
+
+        public static string GetParentPath(string distinguishedName)
+        {
+            Regex regex = new Regex( @",(.*)" );
+            Match match = regex.Match( distinguishedName );
+
+            return match.Groups[1].Value;
         }
     }
 }

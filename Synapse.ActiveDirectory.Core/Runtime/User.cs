@@ -132,37 +132,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-/*
-        public static void ModifyUser( UserPrincipal user, bool isDryRun = false )
-        {
-            try
-            {
-                if ( user == null )
-                    throw new AdException( $"User [{user.Name}] Not Found.", AdStatusType.DoesNotExist );
-                if ( !isDryRun )
-                {
-                    user.Save();
-                }
-            }
-            catch ( PrincipalOperationException ex )
-            {
-                if ( ex.Message.Contains( "There is no such object on the server." ) )
-                {
-                    throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
-                }
-                throw;
-            }
-            catch ( PasswordException ex )
-            {
-                if ( ex.Message.Contains( "The password does not meet the password policy requirements." ) )
-                {
-                    throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
-                }
-                throw;
-            }
-
-        }
-*/
         // TODO : Delete Me.  Only used in Create Method marked for deletion.
         public static void ModifyUser(string username, string ouPath, string password, string givenName, string surname, string description, bool isEnabled = true, bool isDryRun = false)
         {
@@ -232,6 +201,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        // TODO : Delete Me
         public static void SetUserPassword(string username, string newPassword, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -269,6 +239,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        // TODO : Delete Me
         public static void UnlockUserAccount(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -288,39 +259,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-/*
-        public static bool IsUserLocked(string username)
-        {
-            bool isLocked = false;
-
-            if ( String.IsNullOrWhiteSpace( username ) )
-            {
-                throw new AdException( "Username is not specified.", AdStatusType.MissingInput );
-            }
-
-            PrincipalContext context = new PrincipalContext( ContextType.Domain );
-            UserPrincipal userDn = UserPrincipal.FindByIdentity( context, IdentityType.SamAccountName, username );
-
-            if ( userDn == null )
-            {
-                throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
-            }
-
-            try
-            {
-                using ( DirectoryEntry uEntry = new DirectoryEntry( $"LDAP://{userDn.DistinguishedName}" ) )
-                {
-                    isLocked = Convert.ToBoolean( uEntry.InvokeGet( "IsAccountLocked" ) );
-                }
-            }
-            catch ( DirectoryServicesCOMException ex )
-            {
-                throw ex;
-            }
-
-            return isLocked;
-        }
-*/
         public static void DeleteUser(string identity, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( identity ) )
@@ -342,6 +280,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        // TODO : Delete Me
         public static void EnableUserAccount(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -364,6 +303,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        // TODO : Delete Me
         public static void ExpireUserPassword(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -386,6 +326,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        //TODO : Delete Me
         public static void DisableUserAccount(string username, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -406,6 +347,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
+        //TODO : Delete Me
         public static void UpdateUserAttribute(string username, string attribute, string value, bool dryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( username ) )
@@ -479,6 +421,7 @@ namespace Synapse.ActiveDirectory.Core
             };
         }
 
+        //TODO : Delete Me
         public static bool IsValidUserAttribute(string attribute)
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>()

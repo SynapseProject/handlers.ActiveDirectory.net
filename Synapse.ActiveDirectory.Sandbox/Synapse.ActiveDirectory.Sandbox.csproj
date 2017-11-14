@@ -66,6 +66,10 @@
       <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
       <Name>Synapse.ActiveDirectory.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synapse.ActiveDirectory.DaclRoleManager\Synapse.ActiveDirectory.DaclRoleManager.csproj">
+      <Project>{638d97b0-74fc-49e4-b523-db9e661c04d9}</Project>
+      <Name>Synapse.ActiveDirectory.DaclRoleManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
       <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
       <Name>Synapse.Handlers.ActiveDirectory</Name>

@@ -92,4 +92,30 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
         return CallPlan( planName, pe );
     }
+
+    [HttpPost]
+    [Route( "role/ou/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults AddRoleToOrgUnit(string identity, string principal, string role)
+    {
+        string planName = config.Plans.OrganizationalUnit.AddRole;
+
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
+
+    [HttpDelete]
+    [Route( "role/ou/{identity}/{principal}/{role}" )]
+    public ActiveDirectoryHandlerResults RemoveRoleFromOrgUnit(string identity, string principal, string role)
+    {
+        string planName = config.Plans.OrganizationalUnit.RemoveRole;
+
+        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        pe.DynamicParameters.Add( nameof( principal ), principal );
+        pe.DynamicParameters.Add( nameof( role ), role );
+
+        return CallPlan( planName, pe );
+    }
 }

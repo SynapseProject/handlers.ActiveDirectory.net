@@ -85,6 +85,9 @@
     <None Include="Plans\AddAccessRuleToOrgUnit.yaml" />
     <None Include="Plans\AddAccessRuleToUser.yaml" />
     <None Include="Plans\AddGroupToGroup.yaml" />
+    <None Include="Plans\AddRoleToGroup.yaml" />
+    <None Include="Plans\AddRoleToOrgUnit.yaml" />
+    <None Include="Plans\AddRoleToUser.yaml" />
     <None Include="Plans\GetAllGroups.yaml" />
     <None Include="Plans\ModifyGroup.yaml" />
     <None Include="Plans\ModifyOrgUnit.yaml" />
@@ -96,6 +99,9 @@
     <None Include="Plans\RemoveAccessRuleFromOrgUnit.yaml" />
     <None Include="Plans\RemoveAccessRuleFromUser.yaml" />
     <None Include="Plans\RemoveGroupFromGroup.yaml" />
+    <None Include="Plans\RemoveRoleFromGroup.yaml" />
+    <None Include="Plans\RemoveRoleFromOrgUnit.yaml" />
+    <None Include="Plans\RemoveRoleFromUser.yaml" />
     <None Include="Plans\RemoveUserFromGroup.yaml" />
     <None Include="Plans\AddUserToGroup.yaml" />
     <None Include="Plans\CreateOrgUnit.yaml" />
