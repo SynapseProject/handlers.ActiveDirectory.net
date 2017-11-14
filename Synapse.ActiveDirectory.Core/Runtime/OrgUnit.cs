@@ -27,7 +27,7 @@ namespace Synapse.ActiveDirectory.Core
         }
 
         // TODO : Make "private" after removed from all the OrgUnit Tests.
-        public static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
+        private static void CreateOrganizationUnit(string newOrgUnitName, string parentOrgUnitPath, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
         {
             if ( string.IsNullOrWhiteSpace( newOrgUnitName ) )
             {
@@ -137,98 +137,6 @@ namespace Synapse.ActiveDirectory.Core
             return DirectoryEntry.Exists( ouPath );
         }
 
-        public static void MoveUserToOrganizationUnit(string username, string orgUnitDistName, bool isDryRun = false)
-        {
-            if ( string.IsNullOrWhiteSpace( username ) )
-            {
-                throw new AdException( "User is not specified.", AdStatusType.MissingInput );
-            }
-
-            if ( string.IsNullOrWhiteSpace( orgUnitDistName ) )
-            {
-                throw new AdException( "Organization unit is not specified.", AdStatusType.MissingInput );
-            }
-
-            if ( !IsExistingUser( username ) )
-            {
-                throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
-            }
-
-            if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
-            {
-                throw new AdException( "Organization unit cannot be found.", AdStatusType.DoesNotExist );
-            }
-
-            UserPrincipal userPrincipal = GetUserPrincipal( username );
-            userPrincipal.GetUnderlyingObject();
-            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
-
-            try
-            {
-                using ( DirectoryEntry userLocation = (DirectoryEntry)userPrincipal.GetUnderlyingObject() )
-                {
-                    using ( DirectoryEntry ouLocation = new DirectoryEntry( orgUnitDistName ) )
-                    {
-                        if ( !isDryRun )
-                        {
-                            userLocation.MoveTo( ouLocation );
-                        }
-                    }
-                }
-            }
-            catch ( DirectoryServicesCOMException ex )
-            {
-                throw ex;
-                //               throw new Exception($"Encountered exception while trying to move user to another organization unit: {ex.Message}");
-            }
-        }
-
-        public static void MoveGroupToOrganizationUnit(string groupName, string orgUnitDistName, bool isDryRun = false)
-        {
-            if ( string.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new AdException( "Group is not specified.", AdStatusType.MissingInput );
-            }
-
-            if ( string.IsNullOrWhiteSpace( orgUnitDistName ) )
-            {
-                throw new AdException( "Organization unit is not specified.", AdStatusType.MissingInput );
-            }
-
-            if ( !IsExistingGroup( groupName ) )
-            {
-                throw new AdException( "Group cannot be found.", AdStatusType.DoesNotExist );
-            }
-
-            if ( !IsExistingOrganizationUnit( orgUnitDistName ) )
-            {
-                throw new AdException( "Organization unit cannot be found.", AdStatusType.DoesNotExist );
-            }
-
-            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName );
-            groupPrincipal.GetUnderlyingObject();
-            orgUnitDistName = $"LDAP://{orgUnitDistName.Replace( "LDAP://", "" )}";
-
-            try
-            {
-                using ( DirectoryEntry groupLocation = (DirectoryEntry)groupPrincipal.GetUnderlyingObject() )
-                {
-                    using ( DirectoryEntry ouLocation = new DirectoryEntry( orgUnitDistName ) )
-                    {
-                        if ( !isDryRun )
-                        {
-                            groupLocation.MoveTo( ouLocation );
-                        }
-                    }
-                }
-            }
-            catch ( DirectoryServicesCOMException ex )
-            {
-                throw ex;
-                //                throw new Exception($"Encountered exception while trying to move group to another organization unit: {ex.Message}");
-            }
-        }
-
         public static OrganizationalUnitObject GetOrganizationalUnit(string identity, bool getAccessRules, bool getObjectProperties)
         {
             string searchString = null;
@@ -247,6 +155,16 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( $"Organizational Unit [{identity}] Not Found.", AdStatusType.DoesNotExist );
             else
                 return new OrganizationalUnitObject( entries[0], getAccessRules, getObjectProperties );
+        }
+
+        public static DirectoryEntry Move(string identity, string destination)
+        {
+            DirectoryEntry source = GetDirectoryEntry( identity );
+            DirectoryEntry target = GetDirectoryEntry( destination );
+
+            source.MoveTo( target );
+
+            return GetDirectoryEntry( identity );
         }
     }
 }

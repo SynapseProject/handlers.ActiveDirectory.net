@@ -12,16 +12,6 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        private static string GetCommonName(String distinguishedName)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-                return match.Groups[1]?.Value?.Trim();
-            else
-                return distinguishedName;
-        }
-
         public static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
             if ( String.IsNullOrWhiteSpace( domainName ) )
@@ -243,42 +233,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void AddProperty(DirectoryEntry de, String name, String value, bool commitChanges = false)
-        {
-            SetProperty( de, name, value, commitChanges, false );
-        }
-
-        public static void AddProperties(DirectoryEntry de, String name, List<String> values, bool commitChanges = false)
-        {
-            SetProperty( de, name, values, commitChanges, false );
-        }
-
-        public static void DeleteProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
-        {
-            List<String> values = new List<string>();
-            values.Add( value );
-            DeleteProperty( de, name, values, commitChanges, replaceExisting );
-        }
-
-        public static void DeleteProperty(DirectoryEntry de, String name, List<String> values, bool commitChanges = false, bool replaceExisting = true)
-        {
-            if ( values != null )
-            {
-                foreach ( String value in values )
-                    de.Properties[name].Remove( value );
-            }
-
-            if ( commitChanges )
-                de.CommitChanges();
-        }
-
-        public static void ClearProperty(DirectoryEntry de, String name, bool commitChanges = false)
-        {
-            de.Properties[name].Clear();
-            if ( commitChanges )
-                de.CommitChanges();
-        }
-
         public static SerializableDictionary<string, List<string>> GetProperties(DirectoryEntry de)
         {
             SerializableDictionary<string, List<string>> properties = null;
@@ -459,21 +413,6 @@ namespace Synapse.ActiveDirectory.Core
             }
 
             return accessRules;
-        }
-
-        public static List<DirectoryEntryObject> Search(string searchBase, string filter, bool getAccessRules = false, bool getObjectProperties = true)
-        {
-            List<DirectoryEntryObject> searchResults = new List<DirectoryEntryObject>();
-
-            SearchResultCollection results = DoSearch( filter, null, searchBase );
-            foreach ( SearchResult result in results )
-            {
-                DirectoryEntry de = result.GetDirectoryEntry();
-                DirectoryEntryObject deo = new DirectoryEntryObject( de, false, false, true );
-                searchResults.Add( deo );
-            }
-
-            return searchResults;
         }
 
         public static SearchResults Search(string searchBase, string filter, string[] returnProperties)

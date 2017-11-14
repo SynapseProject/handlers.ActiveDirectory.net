@@ -53,9 +53,7 @@
     <Reference Include="System.DirectoryServices.AccountManagement" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GroupTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="OrganizationUnitTests.cs" />
     <Compile Include="UserTests.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>

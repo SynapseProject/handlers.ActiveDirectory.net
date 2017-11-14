@@ -205,86 +205,6 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void UpdateGroupAttribute(string groupName, string attribute, string value, bool dryRun = false, string domainName = null)
-        {
-            GroupPrincipal gp = GetGroupPrincipal( groupName, domainName );
-            if ( gp == null )
-            {
-                throw new AdException( "Group does not exist.", AdStatusType.DoesNotExist );
-            }
-
-            if ( !IsValidGroupAttribute( attribute ) )
-            {
-                throw new AdException( "The attribute is not supported.", AdStatusType.NotSupported );
-            }
-
-            string ldapPath = $"LDAP://{GetDomainDistinguishedName()}";
-
-            using ( DirectoryEntry entry = new DirectoryEntry( ldapPath ) )
-            {
-                using ( DirectorySearcher mySearcher = new DirectorySearcher( entry )
-                {
-                    Filter = "(sAMAccountName=" + groupName + ")"
-                } )
-                {
-                    try
-                    {
-                        mySearcher.PropertiesToLoad.Add( "" + attribute + "" );
-                        SearchResult result = mySearcher.FindOne();
-                        if ( result != null )
-                        {
-                            if ( !dryRun )
-                            {
-                                DirectoryEntry entryToUpdate = result.GetDirectoryEntry();
-
-                                if ( result.Properties.Contains( "" + attribute + "" ) )
-                                {
-                                    if ( !(String.IsNullOrEmpty( value )) )
-                                    {
-                                        entryToUpdate.Properties["" + attribute + ""].Value = value;
-                                    }
-                                    else
-                                    {
-                                        entryToUpdate.Properties["" + attribute + ""].Clear();
-                                    }
-                                }
-                                else
-                                {
-                                    entryToUpdate.Properties["" + attribute + ""].Add( value );
-                                }
-                                entryToUpdate.CommitChanges();
-                                entryToUpdate.Close();
-                            }
-                        }
-                        else
-                        {
-                            throw new AdException( "Group cannot be found.", AdStatusType.DoesNotExist );
-                        }
-                    }
-                    catch ( DirectoryServicesCOMException ex )
-                    {
-                        if ( ex.Message.Contains( "The attribute syntax specified to the directory service is invalid." ) )
-                        {
-                            throw new AdException( "The attribute value is invalid.", AdStatusType.InvalidAttribute );
-                        }
-                        if ( ex.Message.Contains( "A constraint violation occurred." ) )
-                        {
-                            throw new AdException( "The attribute value is invalid.", AdStatusType.InvalidAttribute );
-                        }
-                        throw ex;
-                    }
-                    catch ( COMException ex )
-                    {
-                        if ( ex.Message.Contains( "The server is not operational." ) )
-                        {
-                            throw new AdException( "LDAP path specifieid is not valid.", AdStatusType.ConnectionError );
-                        }
-                        throw;
-                    }
-                }
-            };
-        }
-
         public static void AddUserToGroup(string userIdentity, string groupIdentity, bool isDryRun = false, string domainName = null)
         {
             if ( String.IsNullOrWhiteSpace( userIdentity ) )
@@ -511,36 +431,5 @@ namespace Synapse.ActiveDirectory.Core
                 filter = $"(|(member:1.2.840.113556.1.4.1941:={principal.DistinguishedName})(distinguishedName={principal.DistinguishedName}))";
             return GetDirectoryEntries( filter );
         }
-
-        #region Helper Methods
-        public static List<String> GetUserGroups(string username, string domainName = null)
-        {
-            List<String> myItems = new List<string>();
-            UserPrincipal userPrincipal = GetUserPrincipal( username, domainName );
-
-            PrincipalSearchResult<Principal> searchResult = userPrincipal.GetGroups();
-
-            foreach ( Principal result in searchResult )
-            {
-                myItems.Add( result.Name );
-            }
-            return myItems;
-        }
-
-        public static bool IsValidGroupAttribute(string attribute)
-        {
-            Dictionary<string, string> attributes = new Dictionary<string, string>()
-            {
-                { "description", "Description" },
-                { "displayName", "Display Name" },
-                { "mail", "E-mail" },
-                { "managedBy", "Managed By" },
-                { "sAMAccountName", "Sam Account Name"}
-            };
-
-            return attributes.ContainsKey( attribute );
-        }
-
-        #endregion
     }
 }
