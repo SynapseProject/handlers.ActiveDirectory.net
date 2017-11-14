@@ -14,6 +14,7 @@ public class DefaultRoleManager : IRoleManager
 
     public void AddRole(string principal, string role, string adObject)
     {
+        throw new NotImplementedException( "AddRole is not supported in the DefaultRoleManager." );
     }
 
     public bool CanPerformAction(string principal, ActionType action, string adObject)
@@ -37,5 +38,6 @@ public class DefaultRoleManager : IRoleManager
 
     public void RemoveRole(string principal, string role, string adObject)
     {
+        throw new NotImplementedException( "RemoveRole is not supported in the DefaultRoleManager." );
     }
 }

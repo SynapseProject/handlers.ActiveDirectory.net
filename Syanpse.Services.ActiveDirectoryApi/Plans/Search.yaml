@@ -19,12 +19,15 @@ Actions:
     Values:
       SearchRequests:
       - Filter: xxxxxxxx
+        SearchBase: 
         ReturnAttributes:
         - distinguishedName
         - objectGUID
     Dynamic:
     - Name: filter
       Path: SearchRequests[0]:Filter
+    - Name: searchbase
+      Path: SearchRequests[0]:SearchBase
     - Name: attributes
       Path: SearchRequests[0]:ReturnAttributes
       Parse: true
