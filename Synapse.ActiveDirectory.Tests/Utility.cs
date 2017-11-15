@@ -1,6 +1,9 @@
 ﻿using System;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
+using Synapse.ActiveDirectory.Core;
+
+using NUnit.Framework;
 
 namespace Synapse.ActiveDirectory.Tests
 {
@@ -13,6 +16,47 @@ namespace Synapse.ActiveDirectory.Tests
             var bytes = new byte[length];
             random.NextBytes( bytes );
             return Convert.ToBase64String( bytes ).Replace( "=", "e" ).Replace( "+", "p" ).Replace( "/", "s" );
+        }
+
+        public static DirectoryEntry CreateWorkspace()
+        {
+            String domainRoot = DirectoryServices.GetDomainDistinguishedName();
+            String orgUnitName = $"OU=SynUnitTests_User_{Utility.GenerateToken( 8 )},{domainRoot}";
+
+            // Setup Test Workspace
+            Console.WriteLine( $"Creating Workspace : [{orgUnitName}]" );
+            DirectoryServices.CreateOrganizationUnit( orgUnitName, "NUnit Test Area", null );
+            DirectoryEntry workspace = DirectoryServices.GetDirectoryEntry( orgUnitName );
+            Assert.That( workspace, Is.Not.Null );
+            return workspace;
+        }
+
+        public static void DeleteWorkspace(string workspaceName)
+        {
+            Console.WriteLine( $"Deleting Workspace : [{workspaceName}]" );
+            DirectoryServices.DeleteOrganizationUnit( workspaceName );
+            Assert.Throws<AdException>( () => DirectoryServices.GetOrganizationalUnit( workspaceName, false, false ) );
+        }
+
+        public static UserPrincipal CreateUser(string workspaceName)
+        {
+            String name = $"testuser_{Utility.GenerateToken( 8 )}";
+            String testUserName = $"CN={name},{workspaceName}";
+            Console.WriteLine( $"Creating User : [{testUserName}]" );
+            UserPrincipal testUser = DirectoryServices.CreateUserPrincipal( testUserName );
+            DirectoryServices.SaveUser( testUser );
+            Assert.That( testUser.Name, Is.EqualTo( name ) );
+
+            return testUser;
+        }
+
+        public static void DeleteUser(string identity)
+        {
+            Console.WriteLine( $"Deleting User [{identity}]" );
+            DirectoryServices.DeleteUser( identity );
+
+            UserPrincipalObject upo = DirectoryServices.GetUser( identity, false, false, false );
+            Assert.That( upo, Is.Null );
         }
 
         public static string GetGroupOrganizationUnit(string groupName)

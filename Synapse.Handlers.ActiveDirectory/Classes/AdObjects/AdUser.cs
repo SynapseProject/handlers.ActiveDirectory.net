@@ -56,27 +56,11 @@ namespace Synapse.Handlers.ActiveDirectory
             String path = DirectoryServices.GetDomainDistinguishedName();
             String domain = DirectoryServices.GetDomain( path );
 
+            UserPrincipal user = null;
+
             if ( DirectoryServices.IsDistinguishedName(this.Identity) )
-            {
-                Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-                Match match = regex.Match( this.Identity );
-                if ( match.Success )
-                {
-                    name = match.Groups[1]?.Value?.Trim();
-                    path = match.Groups[2]?.Value?.Trim();
-                }
-                domain = DirectoryServices.GetDomain( this.Identity );
-            }
-            else if ( String.IsNullOrWhiteSpace( this.Identity ) )
-                throw new AdException( "Unable To Create User Principal From Given Input.", AdStatusType.MissingInput );
+                user = DirectoryServices.CreateUserPrincipal( this.Identity, this.UserPrincipalName, this.SamAccountName );
 
-            path = path.Replace( "LDAP://", "" );
-            PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
-            UserPrincipal user = new UserPrincipal( context );
-
-            user.Name = name;
-            this.UserPrincipalName = this.UserPrincipalName ?? $"{name}@{domain}";
-            this.SamAccountName = this.SamAccountName ?? name;
             if (this.Properties?.Count > 0)
                 user.Save();    // User Must Exist Before Properties Can Be Updated.
 

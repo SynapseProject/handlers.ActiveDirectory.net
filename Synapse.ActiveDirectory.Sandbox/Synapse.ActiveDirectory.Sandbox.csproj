@@ -70,6 +70,10 @@
       <Project>{638d97b0-74fc-49e4-b523-db9e661c04d9}</Project>
       <Name>Synapse.ActiveDirectory.DaclRoleManager</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synapse.ActiveDirectory.Tests\Synapse.ActiveDirectory.Tests.csproj">
+      <Project>{dcc30523-9f8d-4843-b5ef-b18fbc958b6c}</Project>
+      <Name>Synapse.ActiveDirectory.Tests</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
       <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
       <Name>Synapse.Handlers.ActiveDirectory</Name>

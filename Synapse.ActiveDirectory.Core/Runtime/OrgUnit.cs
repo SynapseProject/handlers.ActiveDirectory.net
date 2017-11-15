@@ -151,8 +151,10 @@ namespace Synapse.ActiveDirectory.Core
 
             List<DirectoryEntry> entries = GetDirectoryEntries( filter );
 
-            if (entries.Count > 1)
+            if ( entries.Count < 1 )
                 throw new AdException( $"Organizational Unit [{identity}] Not Found.", AdStatusType.DoesNotExist );
+            else if ( entries.Count > 1 )
+                throw new AdException( $"Multiple Organizational Unites Contain The Identity [{identity}].", AdStatusType.MultipleMatches );
             else
                 return new OrganizationalUnitObject( entries[0], getAccessRules, getObjectProperties );
         }

@@ -44,139 +44,6 @@ namespace Synapse.ActiveDirectory.Core
                 throw;
             }
         }
-
-        public static GroupPrincipal CreateGroup(string distinguishedName, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true)
-        {
-            Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-            Match match = regex.Match( distinguishedName );
-            if ( match.Success )
-            {
-                String groupName = match.Groups[1]?.Value?.Trim();
-                String parentPath = match.Groups[2]?.Value?.Trim();
-                return CreateGroup( groupName, parentPath, description, groupScope, isSecurityGroup, dryRun, upsert );
-            }
-            else
-                throw new AdException( $"Unable To Locate Group Name In Distinguished Name [{distinguishedName}]." );
-        }
-
-        public static GroupPrincipal CreateGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true, string domainName = null)
-        {
-            if ( String.IsNullOrWhiteSpace( ouPath ) )
-            {
-                throw new AdException( "OU path is not specified.", AdStatusType.InvalidPath );
-            }
-
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new AdException( "Group name is not specified.", AdStatusType.MissingInput );
-            }
-
-            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName, domainName );
-            if ( groupPrincipal == null )
-            {
-                try
-                {
-                    // OU path here cannot have the LDAP prefix.
-                    ouPath = ouPath.Replace( "LDAP://", "" );
-                    PrincipalContext principalContext = GetPrincipalContext( ouPath );
-
-                    groupPrincipal = new GroupPrincipal( principalContext, groupName )
-                    {
-                        Description = !String.IsNullOrWhiteSpace( description ) ? description : null, // Description cannot be empty string.
-                        GroupScope = groupScope,
-                        IsSecurityGroup = isSecurityGroup
-                    };
-                    if ( !dryRun )
-                    {
-                        groupPrincipal.Save();
-                    }
-                }
-                catch ( PrincipalServerDownException ex )
-                {
-                    if ( ex.Message.Contains( "The server is not operational." ) )
-                    {
-                        throw new AdException( "Unable to connect to the domain controller. Check the OU path.", AdStatusType.ConnectionError );
-                    }
-                    throw;
-                }
-                catch ( PrincipalExistsException ex )
-                {
-                    if ( ex.Message.Contains( "The object already exists." ) )
-                    {
-                        throw new AdException( "The group already exists.", AdStatusType.AlreadyExists );
-                    }
-                }
-                catch ( PrincipalOperationException ex )
-                {
-                    if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
-                    {
-                        throw new AdException( "The OU path is not valid.", AdStatusType.InvalidPath );
-                    }
-                    throw;
-                }
-            }
-            else if ( upsert )
-            {
-                ModifyGroup( groupName, ouPath, description, groupScope, isSecurityGroup, false );
-            }
-            else
-            {
-                throw new AdException( "The group already exists.", AdStatusType.AlreadyExists );
-            }
-
-            return groupPrincipal;
-        }
-
-        public static GroupPrincipal ModifyGroup(string groupName, string ouPath, string description, GroupScope groupScope = GroupScope.Universal, bool isSecurityGroup = true, bool dryRun = false, bool upsert = true, string domainName = null)
-        {
-            if ( String.IsNullOrWhiteSpace( groupName ) )
-            {
-                throw new AdException( "Group name is not specified.", AdStatusType.MissingInput );
-            }
-
-            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupName, domainName );
-            if ( groupPrincipal != null )
-            {
-                try
-                {
-                    groupPrincipal.Description = !String.IsNullOrWhiteSpace( description ) ? description : null;
-                    groupPrincipal.GroupScope = groupScope;
-                    groupPrincipal.IsSecurityGroup = isSecurityGroup;
-
-                    if ( !dryRun )
-                    {
-                        groupPrincipal.Save();
-                    }
-                }
-                catch ( PrincipalServerDownException ex )
-                {
-                    if ( ex.Message.Contains( "The server is not operational." ) )
-                    {
-                        throw new AdException( "Unable to connect to the domain controller. Check the OU path.", AdStatusType.ConnectionError );
-                    }
-                    throw;
-                }
-                catch ( PrincipalOperationException ex )
-                {
-                    if ( ex.Message.Contains( "Unknown error (0x80005000)" ) || ex.Message.Contains( "An operations error occurred." ) )
-                    {
-                        throw new AdException( "The OU path is not valid.", AdStatusType.InvalidPath );
-                    }
-                    throw;
-                }
-            }
-            else if ( upsert )
-            {
-                CreateGroup( groupName, ouPath, description, groupScope, isSecurityGroup, dryRun, upsert );
-            }
-            else
-            {
-                throw new AdException( "The group does not exist.", AdStatusType.DoesNotExist );
-            }
-
-            return groupPrincipal;
-        }
-
         public static void DeleteGroup(string identity, bool dryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( identity ) )
@@ -402,25 +269,31 @@ namespace Synapse.ActiveDirectory.Core
         public static GroupPrincipalObject GetGroup(string identity, bool getGroups, bool getAccessRules, bool getObjectProperties)
         {
             GroupPrincipalObject g = null;
-            using ( PrincipalContext context = new PrincipalContext( ContextType.Domain ) )
+            try
             {
-                try
-                {
-                    GroupPrincipal group = GroupPrincipal.FindByIdentity( context, identity );
-                    if ( group == null )
-                        throw new AdException( $"Group [{identity}] Not Found.", AdStatusType.DoesNotExist );
+                GroupPrincipal group = GetGroupPrincipal( identity );
 
-                    g = new GroupPrincipalObject( group, getAccessRules, getObjectProperties );
-                    if ( getGroups )
-                        g.GetGroups();
-                }
-                catch ( MultipleMatchesException mme )
-                {
-                    throw new AdException( $"Multiple Groups Contain The Identity [{identity}].", mme, AdStatusType.MultipleMatches );
-                }
-
+                g = new GroupPrincipalObject( group, getAccessRules, getObjectProperties );
+                if ( getGroups )
+                    g.GetGroups();
             }
+            catch ( MultipleMatchesException mme )
+            {
+                throw new AdException( $"Multiple Groups Contain The Identity [{identity}].", mme, AdStatusType.MultipleMatches );
+            }
+
             return g;
+        }
+
+        public static GroupPrincipal GetGroupPrincipal(string identity, string domainName = null)
+        {
+            if ( String.IsNullOrWhiteSpace( identity ) )
+                return null;
+
+            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
+
+            GroupPrincipal groupPrincipal = GroupPrincipal.FindByIdentity( principalContext, identity );
+            return groupPrincipal;
         }
 
         // Returns all groups a Principal is a member of, either directly, or thru group nesting
