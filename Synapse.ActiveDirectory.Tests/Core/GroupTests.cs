@@ -15,13 +15,13 @@ namespace Synapse.ActiveDirectory.Tests
         GroupPrincipal group = null;
 
         [Test]
-        public void GroupTest()
+        public void Core_GroupTest()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
             String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
 
-            // Create User
+            // Create Group
             group = Utility.CreateGroup( workspaceName );
 
             // Get Group By Distinguished Name
@@ -70,25 +70,25 @@ namespace Synapse.ActiveDirectory.Tests
             UserPrincipal accessRuleUser = Utility.CreateUser( workspaceName );
             int ruleCount = DirectoryServices.GetAccessRules( group ).Count;
 
-            // Add Access Rule To User
+            // Add Access Rule To Group
             Console.WriteLine( $"Adding AccessRule For User [{accessRuleUser.Name}] To Group [{group.Name}]." );
             DirectoryServices.AddAccessRule( group, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             int newRuleCount = DirectoryServices.GetAccessRules( group ).Count;
             Assert.That( newRuleCount, Is.GreaterThan( ruleCount ) );
 
-            // Removing Access Rule From User
+            // Removing Access Rule From Group
             Console.WriteLine( $"Removing AccessRule For User [{accessRuleUser.Name}] From Group [{group.Name}]." );
             DirectoryServices.DeleteAccessRule( group, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             newRuleCount = DirectoryServices.GetAccessRules( group ).Count;
             Assert.That( newRuleCount, Is.EqualTo( ruleCount ) );
 
-            // Seting Access Rule From User
+            // Seting Access Rule From Group
             Console.WriteLine( $"Setting AccessRule For User [{accessRuleUser.Name}] On Group [{group.Name}]." );
             DirectoryServices.SetAccessRule( group, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             newRuleCount = DirectoryServices.GetAccessRules( group ).Count;
             Assert.That( newRuleCount, Is.GreaterThan( ruleCount ) );
 
-            // Purge Access Rule From User
+            // Purge Access Rule From Group
             Console.WriteLine( $"Purging AccessRules For User [{accessRuleUser.Name}] From Group [{group.Name}]." );
             DirectoryServices.PurgeAccessRules( group, accessRuleUser );
             newRuleCount = DirectoryServices.GetAccessRules( group ).Count;

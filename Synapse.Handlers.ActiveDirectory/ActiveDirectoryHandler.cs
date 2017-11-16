@@ -396,14 +396,18 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
+                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
+                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
+                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
                         statusAction = "Modified";
                     }
                     else if ( DirectoryServices.IsDistinguishedName( ou.Identity ) )
                     {
                         String path = DirectoryServices.GetParentPath( obj.Identity );
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
-                        DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
+                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
+                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
+                        DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
                     }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
@@ -556,7 +560,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         {
                             String path = DirectoryServices.GetParentPath( obj.Identity );
                             roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
-                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Description, ou.Properties, isDryRun );
+                            if ( !String.IsNullOrWhiteSpace( ou.Description ) )
+                                DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
+                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Properties, isDryRun );
                             statusAction = "Created";
                         }
                         else
@@ -565,7 +571,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Description, ou.Properties, isDryRun );
+                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
+                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
+                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
                     }
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );

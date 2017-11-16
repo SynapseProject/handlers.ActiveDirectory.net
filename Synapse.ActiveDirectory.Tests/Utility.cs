@@ -2,6 +2,7 @@
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using Synapse.ActiveDirectory.Core;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -25,8 +26,9 @@ namespace Synapse.ActiveDirectory.Tests
 
             // Setup Test Workspace
             Console.WriteLine( $"Creating Workspace : [{orgUnitName}]" );
-            DirectoryServices.CreateOrganizationUnit( orgUnitName, "NUnit Test Area", null );
-            DirectoryEntry workspace = DirectoryServices.GetDirectoryEntry( orgUnitName );
+            Dictionary<string, List<string>> properties = new Dictionary<string, List<string>>();
+            DirectoryServices.AddProperty( properties, "description", "UnitTest Workspace" );
+            DirectoryEntry workspace = DirectoryServices.CreateDirectoryEntry( "OrganizationalUnit", orgUnitName, properties );
             Assert.That( workspace, Is.Not.Null );
             return workspace;
         }
@@ -34,8 +36,9 @@ namespace Synapse.ActiveDirectory.Tests
         public static void DeleteWorkspace(string workspaceName)
         {
             Console.WriteLine( $"Deleting Workspace : [{workspaceName}]" );
-            DirectoryServices.DeleteOrganizationUnit( workspaceName );
-            Assert.Throws<AdException>( () => DirectoryServices.GetOrganizationalUnit( workspaceName, false, false ) );
+            DirectoryServices.DeleteDirectoryEntry( "OrganizationalUnit", workspaceName );
+            DirectoryEntry de = DirectoryServices.GetDirectoryEntry( workspaceName, "OrganizationalUnit" );
+            Assert.That( de, Is.Null );
         }
 
         public static UserPrincipal CreateUser(string workspaceName)

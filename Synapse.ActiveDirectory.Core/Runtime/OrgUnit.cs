@@ -11,14 +11,13 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
-        public static void CreateOrganizationUnit(string distinguishedName, string description, Dictionary<String, List<String>> properties, bool isDryRun = false )
+        public static void CreateOrganizationUnit(string distinguishedName, Dictionary<String, List<String>> properties, bool isDryRun = false )
         {
             CreateDirectoryEntry( AdObjectType.OrganizationalUnit.ToString(), distinguishedName, properties );
         }
 
-        public static void ModifyOrganizationUnit(string identity, string description, Dictionary<String, List<String>> properties, bool isDryRun = false)
+        public static void ModifyOrganizationUnit(string identity, Dictionary<String, List<String>> properties, bool isDryRun = false)
         {
-            AddProperty( properties, "description", description );
             ModifyDirectoryEntry( AdObjectType.OrganizationalUnit.ToString(), identity, properties );
         }
 
@@ -29,8 +28,13 @@ namespace Synapse.ActiveDirectory.Core
 
         public static OrganizationalUnitObject GetOrganizationalUnit(string identity, bool getAccessRules, bool getObjectProperties)
         {
+            OrganizationalUnitObject ouo = null;
+
             DirectoryEntry orgUnit = GetDirectoryEntry( identity, AdObjectType.OrganizationalUnit.ToString() );
-            return new OrganizationalUnitObject( orgUnit, getAccessRules, getObjectProperties );
+            if (orgUnit != null)
+                ouo = new OrganizationalUnitObject( orgUnit, getAccessRules, getObjectProperties );
+
+            return ouo;
         }
 
     }

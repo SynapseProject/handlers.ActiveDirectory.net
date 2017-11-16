@@ -41,7 +41,7 @@ namespace Synapse.ActiveDirectory.Core
             parentPath = string.IsNullOrWhiteSpace( parentPath ) ? GetDomainDistinguishedName() : parentPath.Replace( "LDAP://", "" );
             string childPath = $"{name},{parentPath}";
 
-            DirectoryEntry parent = GetDirectoryEntry( parentPath, schemaClassName );
+            DirectoryEntry parent = GetDirectoryEntry( parentPath );
 
             if ( parent != null )
             {

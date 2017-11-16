@@ -15,7 +15,7 @@ namespace Synapse.ActiveDirectory.Tests
         UserPrincipal user = null;
 
         [Test]
-        public void UserTest()
+        public void Core_UserTest()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
