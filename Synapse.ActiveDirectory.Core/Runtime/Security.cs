@@ -11,6 +11,53 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
+        // Get Access Rules - Retrieves AccessRules Associated With A DirectoryEntry
+        public static List<AccessRuleObject> GetAccessRules(Principal principal)
+        {
+            if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                return GetAccessRules( (DirectoryEntry)principal.GetUnderlyingObject() );
+            else
+                throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
+        }
+
+        public static List<AccessRuleObject> GetAccessRules(DirectoryEntry de)
+        {
+            List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
+            Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
+
+            AuthorizationRuleCollection rules = de?.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
+            if ( rules != null )
+            {
+                foreach ( AuthorizationRule rule in rules )
+                {
+                    ActiveDirectoryAccessRule accessRule = (ActiveDirectoryAccessRule)rule;
+                    AccessRuleObject aro = new AccessRuleObject()
+                    {
+                        ControlType = accessRule.AccessControlType,
+                        Rights = accessRule.ActiveDirectoryRights,
+                        IdentityReference = accessRule.IdentityReference.Value,
+                        InheritanceFlags = accessRule.InheritanceFlags,
+                        IsInherited = accessRule.IsInherited,
+                    };
+
+                    Principal principal = null;
+                    if ( principals.ContainsKey( aro.IdentityReference ) )
+                        principal = principals[aro.IdentityReference];
+                    else
+                    {
+                        principal = DirectoryServices.GetPrincipal( aro.IdentityReference );
+                        principals.Add( aro.IdentityReference, principal );
+                    }
+
+                    aro.IdentityName = principal.Name;
+                    accessRules.Add( aro );
+
+                }
+            }
+
+            return accessRules;
+        }
+
         // Add Access Rule - Adds Rule For The Given Principal
         public static void AddAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {

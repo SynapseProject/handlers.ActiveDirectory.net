@@ -54,6 +54,7 @@
     <Compile Include="Classes\SerializableDictionary.cs" />
     <Compile Include="Classes\UserPrincipalObject.cs" />
     <Compile Include="Interfaces\IRoleManager.cs" />
+    <Compile Include="Runtime\DirectoryEntry.cs" />
     <Compile Include="Runtime\Group.cs" />
     <Compile Include="Runtime\OrgUnit.cs" />
     <Compile Include="Runtime\Security.cs" />

@@ -40,6 +40,8 @@ namespace Synapse.ActiveDirectory.Core
         {
             string searchString = null;
 
+            identity = identity.Replace( "LDAP://", "" );
+
             if ( IsDistinguishedName( identity ) )
                 searchString = $"(distinguishedName={identity})";
             else if ( IsGuid( identity ) )
@@ -347,52 +349,6 @@ namespace Synapse.ActiveDirectory.Core
             return principal?.DistinguishedName;
         }
 
-        public static List<AccessRuleObject> GetAccessRules(Principal principal)
-        {
-            if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
-                return GetAccessRules( (DirectoryEntry)principal.GetUnderlyingObject() );
-            else
-                throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
-        }
-
-        public static List<AccessRuleObject> GetAccessRules(DirectoryEntry de)
-        {
-            List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
-            Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
-
-            AuthorizationRuleCollection rules = de?.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
-            if ( rules != null )
-            {
-                foreach ( AuthorizationRule rule in rules )
-                {
-                    ActiveDirectoryAccessRule accessRule = (ActiveDirectoryAccessRule)rule;
-                    AccessRuleObject aro = new AccessRuleObject()
-                    {
-                        ControlType = accessRule.AccessControlType,
-                        Rights = accessRule.ActiveDirectoryRights,
-                        IdentityReference = accessRule.IdentityReference.Value,
-                        InheritanceFlags = accessRule.InheritanceFlags,
-                        IsInherited = accessRule.IsInherited,
-                    };
-
-                    Principal principal = null;
-                    if ( principals.ContainsKey( aro.IdentityReference ) )
-                        principal = principals[aro.IdentityReference];
-                    else
-                    {
-                        principal = DirectoryServices.GetPrincipal( aro.IdentityReference );
-                        principals.Add( aro.IdentityReference, principal );
-                    }
-
-                    aro.IdentityName = principal.Name;
-                    accessRules.Add( aro );
-
-                }
-            }
-
-            return accessRules;
-        }
-
         public static SearchResults Search(string searchBase, string filter, string[] returnProperties)
         {
             SearchResults searchResults = new SearchResults();
@@ -462,6 +418,34 @@ namespace Synapse.ActiveDirectory.Core
             Match match = regex.Match( distinguishedName );
 
             return match.Groups[1].Value;
+        }
+
+        public static void AddProperty(Dictionary<String, List<String>> properties, string name, string value, bool overwriteExisting = false)
+        {
+            if ( !String.IsNullOrWhiteSpace( name ) && value != null )
+            {
+                if ( properties == null )
+                    properties = new Dictionary<string, List<string>>();
+
+                List<String> values = new List<string>();
+                values.Add( value );
+                AddProperty( properties, name, values, overwriteExisting );
+            }
+        }
+
+        public static void AddProperty(Dictionary<String, List<String>> properties, string name, List<String> values, bool overwriteExisting = false)
+        {
+            if ( !String.IsNullOrWhiteSpace(name) && values != null )
+            {
+                if ( properties == null )
+                    properties = new Dictionary<string, List<string>>();
+
+                bool exists = properties.ContainsKey( name );
+                if ( exists && overwriteExisting )
+                    properties[name] = values;
+                else if ( !exists )
+                    properties.Add( name, values );
+            }
         }
     }
 }
