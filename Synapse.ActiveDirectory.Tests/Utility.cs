@@ -21,7 +21,7 @@ namespace Synapse.ActiveDirectory.Tests
         public static DirectoryEntry CreateWorkspace()
         {
             String domainRoot = DirectoryServices.GetDomainDistinguishedName();
-            String orgUnitName = $"OU=SynUnitTests_User_{Utility.GenerateToken( 8 )},{domainRoot}";
+            String orgUnitName = $"OU=SynUnitTests_{Utility.GenerateToken( 8 )},{domainRoot}";
 
             // Setup Test Workspace
             Console.WriteLine( $"Creating Workspace : [{orgUnitName}]" );
@@ -57,6 +57,27 @@ namespace Synapse.ActiveDirectory.Tests
 
             UserPrincipalObject upo = DirectoryServices.GetUser( identity, false, false, false );
             Assert.That( upo, Is.Null );
+        }
+
+        public static GroupPrincipal CreateGroup(string workspaceName)
+        {
+            String name = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String testGroupName = $"CN={name},{workspaceName}";
+            Console.WriteLine( $"Creating Group : [{testGroupName}]" );
+            GroupPrincipal testGroup = DirectoryServices.CreateGroupPrincipal( testGroupName );
+            DirectoryServices.SaveGroup( testGroup );
+            Assert.That( testGroup.Name, Is.EqualTo( name ) );
+
+            return testGroup;
+        }
+
+        public static void DeleteGroup(string identity)
+        {
+            Console.WriteLine( $"Deleting Group [{identity}]" );
+            DirectoryServices.DeleteGroup( identity );
+
+            GroupPrincipalObject gpo = DirectoryServices.GetGroup( identity, false, false, false );
+            Assert.That( gpo, Is.Null );
         }
 
         public static string GetGroupOrganizationUnit(string groupName)

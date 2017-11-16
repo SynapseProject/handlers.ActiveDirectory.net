@@ -8,9 +8,6 @@ using Synapse.ActiveDirectory.Core;
 
 namespace Synapse.ActiveDirectory.Tests
 {
-    /// <summary>
-    /// Summary description for UserTests
-    /// </summary>
     [TestFixture]
     public class UserTests
     {
@@ -85,25 +82,25 @@ namespace Synapse.ActiveDirectory.Tests
             int ruleCount = DirectoryServices.GetAccessRules( user ).Count;
 
             // Add Access Rule To User
-            Console.WriteLine( $"Adding AccessRule For User [{accessRuleUser.Name}] To User [{accessRuleUser.Name}]." );
+            Console.WriteLine( $"Adding AccessRule For User [{accessRuleUser.Name}] To User [{user.Name}]." );
             DirectoryServices.AddAccessRule( user, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             int newRuleCount = DirectoryServices.GetAccessRules( user ).Count;
             Assert.That( newRuleCount, Is.GreaterThan( ruleCount ) );
 
             // Removing Access Rule From User
-            Console.WriteLine( $"Removing AccessRule For User [{accessRuleUser.Name}] From User [{accessRuleUser.Name}]." );
+            Console.WriteLine( $"Removing AccessRule For User [{accessRuleUser.Name}] From User [{user.Name}]." );
             DirectoryServices.DeleteAccessRule( user, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             newRuleCount = DirectoryServices.GetAccessRules( user ).Count;
             Assert.That( newRuleCount, Is.EqualTo( ruleCount ) );
 
             // Seting Access Rule From User
-            Console.WriteLine( $"Setting AccessRule For User [{accessRuleUser.Name}] On User [{accessRuleUser.Name}]." );
+            Console.WriteLine( $"Setting AccessRule For User [{accessRuleUser.Name}] On User [{user.Name}]." );
             DirectoryServices.SetAccessRule( user, accessRuleUser, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None );
             newRuleCount = DirectoryServices.GetAccessRules( user ).Count;
             Assert.That( newRuleCount, Is.GreaterThan( ruleCount ) );
 
             // Purge Access Rule From User
-            Console.WriteLine( $"Purging AccessRules For User [{accessRuleUser.Name}] From User [{accessRuleUser.Name}]." );
+            Console.WriteLine( $"Purging AccessRules For User [{accessRuleUser.Name}] From User [{user.Name}]." );
             DirectoryServices.PurgeAccessRules( user, accessRuleUser );
             newRuleCount = DirectoryServices.GetAccessRules( user ).Count;
             Assert.That( newRuleCount, Is.EqualTo( ruleCount ) );

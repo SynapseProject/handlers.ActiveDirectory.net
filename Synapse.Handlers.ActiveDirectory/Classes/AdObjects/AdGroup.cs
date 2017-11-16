@@ -34,29 +34,7 @@ namespace Synapse.Handlers.ActiveDirectory
 
         public GroupPrincipal CreateGroupPrincipal()
         {
-            String name = this.Identity;
-            String path = DirectoryServices.GetDomainDistinguishedName();
-
-            if ( DirectoryServices.IsDistinguishedName(this.Identity) )
-            {
-                Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
-                Match match = regex.Match( this.Identity );
-                if ( match.Success )
-                {
-                    name = match.Groups[1]?.Value?.Trim();
-                    path = match.Groups[2]?.Value?.Trim();
-                }
-            }
-            else if ( String.IsNullOrWhiteSpace( this.Identity ) )
-                throw new AdException( "Unable To Create Group Principal From Given Input.", AdStatusType.MissingInput );
-
-
-            path = path.Replace( "LDAP://", "" );
-            PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
-            GroupPrincipal group = new GroupPrincipal( context );
-
-            group.Name = name;
-            this.SamAccountName = this.SamAccountName ?? name;
+            GroupPrincipal group = DirectoryServices.CreateGroupPrincipal( this.Identity, this.SamAccountName );
             if (this.Properties?.Count > 0)
                 group.Save();   // Group Must Exist Before Properties Can Be Updated
 

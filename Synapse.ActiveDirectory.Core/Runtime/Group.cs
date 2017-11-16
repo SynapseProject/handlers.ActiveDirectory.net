@@ -44,6 +44,47 @@ namespace Synapse.ActiveDirectory.Core
                 throw;
             }
         }
+
+        public static GroupPrincipal CreateGroupPrincipal(string distinguishedName, string samAccountName = null)
+        {
+            String name = distinguishedName;
+            String path = DirectoryServices.GetDomainDistinguishedName();
+
+            if ( DirectoryServices.IsDistinguishedName( distinguishedName ) )
+            {
+                Regex regex = new Regex( @"cn=(.*?),(.*)$", RegexOptions.IgnoreCase );
+                Match match = regex.Match( distinguishedName );
+                if ( match.Success )
+                {
+                    name = match.Groups[1]?.Value?.Trim();
+                    path = match.Groups[2]?.Value?.Trim();
+                }
+            }
+            else if ( String.IsNullOrWhiteSpace( distinguishedName ) )
+                throw new AdException( "Unable To Create Group Principal From Given Input.", AdStatusType.MissingInput );
+
+
+            path = path.Replace( "LDAP://", "" );
+            PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
+            GroupPrincipal group = new GroupPrincipal( context );
+
+            group.Name = name;
+            if ( samAccountName != null )
+            {
+                if ( samAccountName.Length < 20 )
+                    group.SamAccountName = samAccountName;
+                else
+                    throw new AdException( $"SamAccountName [{samAccountName}] Is Longer than 20 Characters.", AdStatusType.InvalidAttribute );
+            }
+            else if ( name.Length < 20 )
+                group.SamAccountName = name;
+
+            group.Save();
+
+            return group;
+
+        }
+
         public static void DeleteGroup(string identity, bool dryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( identity ) )
@@ -273,9 +314,12 @@ namespace Synapse.ActiveDirectory.Core
             {
                 GroupPrincipal group = GetGroupPrincipal( identity );
 
-                g = new GroupPrincipalObject( group, getAccessRules, getObjectProperties );
-                if ( getGroups )
-                    g.GetGroups();
+                if ( group != null )
+                {
+                    g = new GroupPrincipalObject( group, getAccessRules, getObjectProperties );
+                    if ( getGroups )
+                        g.GetGroups();
+                }
             }
             catch ( MultipleMatchesException mme )
             {
