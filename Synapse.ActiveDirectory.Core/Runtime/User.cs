@@ -44,7 +44,7 @@ namespace Synapse.ActiveDirectory.Core
             return userPrincipal;
         }
 
-        public static UserPrincipal CreateUserPrincipal(string distinguishedName, string userPrincipalName = null, string samAccountName = null)
+        public static UserPrincipal CreateUserPrincipal(string distinguishedName, string userPrincipalName = null, string samAccountName = null, bool saveOnCreate = true)
         {
             String name = distinguishedName;
             String path = DirectoryServices.GetDomainDistinguishedName();
@@ -81,7 +81,8 @@ namespace Synapse.ActiveDirectory.Core
             else if ( name.Length < 20 )
                 user.SamAccountName = name;
 
-            user.Save();
+            if ( saveOnCreate )
+                SaveUser( user );
 
             return user;
         }

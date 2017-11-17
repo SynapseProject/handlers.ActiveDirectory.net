@@ -105,7 +105,6 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( $"DeleteAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
         }
 
-
         public static void DeleteAccessRule(String target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             DirectoryEntry de = GetDirectoryEntry( target );
