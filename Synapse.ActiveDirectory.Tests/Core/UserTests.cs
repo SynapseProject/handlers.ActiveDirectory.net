@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 using Synapse.ActiveDirectory.Core;
 
-namespace Synapse.ActiveDirectory.Tests
+namespace Synapse.ActiveDirectory.Tests.Core
 {
     [TestFixture]
     public class UserTests

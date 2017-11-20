@@ -267,16 +267,22 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
                 upo = DirectoryServices.GetUser( user.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+                if ( upo == null )
+                    throw new AdException( $"User [{user.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return upo;
             case AdObjectType.Group:
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
                 gpo = DirectoryServices.GetGroup( group.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+                if ( gpo == null )
+                    throw new AdException( $"Group [{group.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
                 ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties );
+                if ( ouo == null )
+                    throw new AdException( $"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return ouo;
             default:
                 throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );

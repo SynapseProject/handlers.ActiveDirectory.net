@@ -47,16 +47,23 @@
     <Reference Include="nunit.framework, Version=3.7.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.7.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Core.Signed.0.1.17305.0-beta\lib\net45\Synapse.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\GroupManagementTests.cs" />
     <Compile Include="Core\GroupTests.cs" />
     <Compile Include="Core\OrgUnitTests.cs" />
     <Compile Include="Core\SearchTests.cs" />
+    <Compile Include="Handler\UserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Core\UserTests.cs" />
     <Compile Include="Utility.cs" />
@@ -69,8 +76,14 @@
       <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
       <Name>Synapse.ActiveDirectory.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
+      <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
+      <Name>Synapse.Handlers.ActiveDirectory</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Handler\plans\" />
+  </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

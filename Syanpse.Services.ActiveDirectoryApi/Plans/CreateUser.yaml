@@ -145,6 +145,7 @@ Actions:
 #   Other Fields
     - Name: password
       Path: Users[0]:Password
+#   Properties
     - Name: initials
       Path: Users[0]:Properties:initials
       Parse: true

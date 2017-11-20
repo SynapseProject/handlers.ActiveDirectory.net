@@ -3,8 +3,13 @@ using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using Synapse.ActiveDirectory.Core;
 using System.Collections.Generic;
+using System.IO;
 
 using NUnit.Framework;
+
+using Synapse.Core;
+using Synapse.Core.Utilities;
+using Synapse.Handlers.ActiveDirectory;
 
 namespace Synapse.ActiveDirectory.Tests
 {
@@ -145,6 +150,54 @@ namespace Synapse.ActiveDirectory.Tests
             }
 
             return null;
+        }
+
+        private static string FindPlanFile(string planName)
+        {
+            if ( !planName.EndsWith( ".yaml", StringComparison.OrdinalIgnoreCase ) )
+                planName = $"{planName}.yaml";
+
+            string plansDirectory = $"{TestContext.CurrentContext.TestDirectory}\\..\\..\\Handler\\Plans";
+            DirectoryInfo plansDir = new DirectoryInfo( plansDirectory );
+            plansDirectory = plansDir.FullName;
+
+            String fileName = $"{plansDirectory}\\{planName}";
+            // If Not In Folder Under "Tests", Check Under "ActiveDirectoryApi" Folder
+            if ( !File.Exists( fileName ) )
+            {
+                plansDirectory = $"{TestContext.CurrentContext.TestDirectory}\\..\\..\\..\\Syanpse.Services.ActiveDirectoryApi\\Plans";
+                plansDir = new DirectoryInfo( plansDirectory );
+                plansDirectory = plansDir.FullName;
+                fileName = $"{plansDirectory}\\{planName}";
+            }
+
+            return fileName;
+        }
+
+        private static object CallRawPlan(string planName, Dictionary<string, string> dynamicParameters = null)
+        {
+            String planFullPath = Utility.FindPlanFile( planName );
+            Console.WriteLine( $"Executing Plan : {planFullPath}" );
+            if (dynamicParameters != null)
+            {
+                Console.WriteLine( $"Dynamic Parameters :" );
+                foreach ( KeyValuePair<string, string> param in dynamicParameters )
+                    Console.WriteLine( $"  {param.Key} : {param.Value}" );
+            }
+            Console.WriteLine( "" );
+            Plan plan = Plan.FromYaml( planFullPath );
+            plan.Start( dynamicParameters, false, true );
+            object output = (String)(plan.ResultPlan.Actions[0].Result.ExitData);
+
+            return output;
+        }
+
+        public static ActiveDirectoryHandlerResults CallPlan(string planName, Dictionary<string, string> dynamicParameters = null)
+        {
+            object output = CallRawPlan( planName, dynamicParameters );
+            ActiveDirectoryHandlerResults result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( output.ToString() );
+            Console.WriteLine( YamlHelpers.Serialize( result ) );
+            return result;
         }
 
     }
