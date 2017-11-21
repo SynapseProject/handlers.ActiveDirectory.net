@@ -35,6 +35,10 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             // Create User
             Console.WriteLine( $"Creating User : [{userDistinguishedName}]" );
             parameters.Clear();
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+
+
             parameters.Add( "identity", userDistinguishedName );
             parameters.Add( "displayName", $"Test User {userName}" );
             parameters.Add( "description", $"Test User {userName} Description" );
@@ -92,6 +96,165 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.DistinguishedName, Is.EqualTo( userDistinguishedName ) );
+            Assert.That( result.Results[0].User.Properties["st"][0], Is.EqualTo( "Louisiana" ) );
+            Assert.That( result.Results[0].User.Groups, Is.Not.Null );
+            Assert.That( result.Results[0].User.AccessRules, Is.Not.Null );
+
+            string userPrincipalName = result.Results[0].User.UserPrincipalName;
+            string samAccountName = result.Results[0].User.SamAccountName;
+            string sid = result.Results[0].User.Sid;
+            string guid = result.Results[0].User.Guid.ToString();
+
+            // Get User By Name
+            Console.WriteLine( $"Getting User By Name : [{userName}]" );
+            parameters.Clear();
+            parameters.Add( "returngroupmembership", "false" );
+            parameters.Add( "returnaccessrules", "false" );
+            parameters.Add( "returnobjectproperties", "false" );
+            parameters.Add( "returnobjects", "false" );
+
+            parameters.Add( "identity", userName );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User, Is.Null );
+
+            // Get User By DistinguishedName
+            Console.WriteLine( $"Getting User By DistinguishedName : [{userDistinguishedName}]" );
+            parameters.Clear();
+            parameters.Add( "returngroupmembership", "false" );
+            parameters.Add( "returnaccessrules", "false" );
+            parameters.Add( "returnobjectproperties", "false" );
+            parameters.Add( "returnobjects", "true" );
+
+            parameters.Add( "identity", userDistinguishedName );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.Groups, Is.Null );
+            Assert.That( result.Results[0].User.AccessRules, Is.Null );
+            Assert.That( result.Results[0].User.Properties, Is.Null );
+
+            // Get User By UserPrincipalName
+            Console.WriteLine( $"Getting User By UserPrincipalName : [{userPrincipalName}]" );
+            parameters.Clear();
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "returnobjectproperties", "true" );
+            parameters.Add( "returnobjects", "true" );
+
+            parameters.Add( "identity", userPrincipalName );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.Groups, Is.Not.Null );
+            Assert.That( result.Results[0].User.AccessRules, Is.Not.Null );
+            Assert.That( result.Results[0].User.Properties, Is.Not.Null );
+
+            // Get User By SamAccountName
+            Console.WriteLine( $"Getting User By SamAccountName : [{samAccountName}]" );
+            parameters.Clear();
+            parameters.Add( "identity", samAccountName );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User, Is.Not.Null );
+            Assert.That( result.Results[0].User.SamAccountName, Is.EqualTo( samAccountName ) );
+
+            // Get User By Sid
+            Console.WriteLine( $"Getting User By SecurityId : [{sid}]" );
+            parameters.Clear();
+            parameters.Add( "identity", sid );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User, Is.Not.Null );
+            Assert.That( result.Results[0].User.Sid, Is.EqualTo( sid ) );
+
+            // Get User By Guid
+            Console.WriteLine( $"Getting User By Guid : [{guid}]" );
+            parameters.Clear();
+            parameters.Add( "identity", guid );
+            result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User, Is.Not.Null );
+            Assert.That( result.Results[0].User.Guid.ToString(), Is.EqualTo( guid ) );
+
+            // Modify User
+            Console.WriteLine( $"Modifying User" );
+            parameters.Clear();
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "employeeid", "84" );
+            parameters.Add( "manager", $"[ \"~null~\" ]" );
+            parameters.Add( "otheripphone", @"[ ""504-555-7777"", ""~null~"", ""504-555-8888"" ]" );
+            result = Utility.CallPlan( "ModifyUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.EmployeeId, Is.EqualTo( "84" ) );
+            Assert.That( result.Results[0].User.Properties.ContainsKey("manager"), Is.False );
+            Assert.That( result.Results[0].User.Properties.ContainsKey("otheripphone"), Is.False );
+
+            // AccessRules
+            int initialRuleCount = result.Results[0].User.AccessRules.Count;
+
+            // Add Access Rule
+            Console.WriteLine( $"Add Access Rule To User [{userDistinguishedName}]." );
+            parameters.Clear();
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+            result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
+
+            // Remove Access Rule
+            Console.WriteLine( $"Remove Access Rule From User [{userDistinguishedName}]." );
+            parameters.Clear();
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+            result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
+
+            // Set Access Rule
+            Console.WriteLine( $"Set Access Rule On User [{userDistinguishedName}]." );
+            parameters.Clear();
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+            result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
+
+            // Purge Access Rule
+            Console.WriteLine( $"Purge Access Rules On User [{userDistinguishedName}]." );
+            parameters.Clear();
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+            result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
+
+
+
+            // Delete User
+            Console.WriteLine( $"Deleting User" );
+            parameters.Clear();
+            parameters.Add( "identity", userDistinguishedName );
+            result = Utility.CallPlan( "DeleteUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+
+
+            // Cleanup Workspace
+            Utility.DeleteUser( manager.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+
         }
     }
 }
