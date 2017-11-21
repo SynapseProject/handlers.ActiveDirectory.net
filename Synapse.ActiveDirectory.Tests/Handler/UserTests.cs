@@ -40,6 +40,8 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
 
             parameters.Add( "identity", userDistinguishedName );
+            parameters.Add("userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}");
+            parameters.Add( "samaccountname", userName.Substring( 0, 19 ) );
             parameters.Add( "displayName", $"Test User {userName}" );
             parameters.Add( "description", $"Test User {userName} Description" );
             parameters.Add( "password", "bi@02LL49_VWQ{b" );
