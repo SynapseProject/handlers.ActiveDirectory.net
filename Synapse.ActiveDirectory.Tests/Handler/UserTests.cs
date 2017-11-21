@@ -38,7 +38,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "returnaccessrules", "true" );
 
-
             parameters.Add( "identity", userDistinguishedName );
             parameters.Add("userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}");
             parameters.Add( "samaccountname", userName.Substring( 0, 19 ) );
@@ -243,15 +242,12 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
-
-
             // Delete User
             Console.WriteLine( $"Deleting User" );
             parameters.Clear();
             parameters.Add( "identity", userDistinguishedName );
             result = Utility.CallPlan( "DeleteUser", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
-
 
             // Cleanup Workspace
             Utility.DeleteUser( manager.DistinguishedName );
