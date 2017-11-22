@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
-            // Create User
+            // Create Group
             Console.WriteLine( $"Creating Group : [{groupDistinguishedName}]" );
             parameters.Clear();
             parameters.Add( "returngroupmembership", "true" );
@@ -179,7 +179,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
-            // Delete User
+            // Delete Group
             Console.WriteLine( $"Deleting Group" );
             parameters.Clear();
             parameters.Add( "identity", groupDistinguishedName );
