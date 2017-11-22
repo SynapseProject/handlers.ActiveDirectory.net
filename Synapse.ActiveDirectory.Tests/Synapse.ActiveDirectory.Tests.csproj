@@ -63,6 +63,7 @@
     <Compile Include="Core\GroupTests.cs" />
     <Compile Include="Core\OrgUnitTests.cs" />
     <Compile Include="Core\SearchTests.cs" />
+    <Compile Include="Handler\GroupManagementTests.cs" />
     <Compile Include="Handler\GroupTests.cs" />
     <Compile Include="Handler\OrgUnitTets.cs" />
     <Compile Include="Handler\UserTests.cs" />
