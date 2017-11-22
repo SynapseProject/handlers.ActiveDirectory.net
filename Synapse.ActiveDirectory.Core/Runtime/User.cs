@@ -99,7 +99,12 @@ namespace Synapse.ActiveDirectory.Core
                 {
                     throw new AdException( "OU path specified is not valid.", AdStatusType.InvalidPath );
                 }
-                throw;
+                else if (ex.Message.Contains("A device attached to the system is not functioning."))
+                {
+                    throw new AdException( "Invalid Input.  Check SamAccountName length (max length = 20) as this might be the cause.", ex, AdStatusType.InvalidInput );
+                }
+                else
+                    throw new AdException( ex, AdStatusType.Unknown );
             }
             catch ( PasswordException ex )
             {
@@ -108,6 +113,10 @@ namespace Synapse.ActiveDirectory.Core
                     throw new AdException( "The password does not meet the password policy requirements.", AdStatusType.PasswordPolicyNotMet );
                 }
                 throw;
+            }
+            catch ( InvalidOperationException ioe )
+            {
+                throw new AdException( ioe, AdStatusType.InvalidInput );
             }
 
         }
@@ -129,7 +138,7 @@ namespace Synapse.ActiveDirectory.Core
             }
             else
             {
-                throw new AdException( $"User [{identity}]cannot be found.", AdStatusType.DoesNotExist );
+                throw new AdException( $"User [{identity}] cannot be found.", AdStatusType.DoesNotExist );
             }
         }
 

@@ -118,5 +118,56 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete AccessRule User 
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
         }
+
+        [Test, Category( "Core" )]
+        public void Core_UserNotFound()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Getting User [{userName}] Which Should Not Exist." );
+            UserPrincipalObject user = DirectoryServices.GetUser( userName, true, true, true );
+            Assert.That( user, Is.Null );
+
+            Console.WriteLine( $"Getting User Principal [{userName}] Which Should Not Exist." );
+            UserPrincipal up = DirectoryServices.GetUserPrincipal( userDistinguishedName );
+            Assert.That( user, Is.Null );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_CreateUserBadDistName()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"GW={userName},{workspaceName}";
+
+            Console.WriteLine( $"Create User [{userDistinguishedName}] With Bad DistinguishedName" );
+            UserPrincipal user = null;
+            Assert.Throws<AdException>( () => user = DirectoryServices.CreateUserPrincipal( userDistinguishedName ) );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_ModifyUserBadData()
+        {
+            UserPrincipal user = Utility.CreateUser( workspaceName );
+
+            user.SamAccountName = $"{user.Name}abcdefghij1234567890";       // SamAccountName Is Limited To 20 Characters
+            Console.WriteLine( $"Modify User [{user.DistinguishedName}] With Bad SamAccountName [{user.SamAccountName}]" );
+            Assert.Throws<AdException>( () => DirectoryServices.SaveUser( user ));
+
+            Utility.DeleteUser( user.DistinguishedName );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_DeleteUserDoesNotExist()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting User [{userDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteUser( userName ) ).Message.Contains( "cannot be found" );
+        }
     }
 }
