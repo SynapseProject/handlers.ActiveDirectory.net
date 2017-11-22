@@ -12,20 +12,30 @@ namespace Synapse.ActiveDirectory.Tests.Core
     public class UserTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
         UserPrincipal user = null;
 
-        [Test]
-        public void Core_UserTest()
+        [SetUp]
+        public void Setup()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            // Create User
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
             user = Utility.CreateUser( workspaceName );
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteUser( user.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
 
-            
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_UserTest()
+        {
             // Get User By Distinguished Name
             Console.WriteLine( $"Getting User By DisginguishedName : [{user.DistinguishedName}]" );
             UserPrincipalObject upo = DirectoryServices.GetUser( user.DistinguishedName, true, true, true );
@@ -107,14 +117,6 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             // Delete AccessRule User 
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
-
-
-
-            // Delete User
-            Utility.DeleteUser( user.DistinguishedName );
-
-            // Cleanup Workspace
-            Utility.DeleteWorkspace( workspaceName );
         }
     }
 }

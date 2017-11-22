@@ -17,16 +17,29 @@ namespace Synapse.ActiveDirectory.Tests.Handler
     public class OrgUnitTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
+        GroupPrincipal managedBy = null;
 
-        [Test]
+        [SetUp]
+        public void Setup()
+        {
+            // Setup Workspace
+            workspace = Utility.CreateWorkspace();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+            managedBy = Utility.CreateGroup( workspaceName );
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteGroup( managedBy.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category("Handler")]
         public void Handler_OrgUnitTests()
         {
-            // Setup Tests
-            workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            GroupPrincipal managedBy = Utility.CreateGroup( workspaceName );
-
             String ouName = $"testorgunit_{Utility.GenerateToken( 8 )}";
             String ouDistinguishedName = $"OU={ouName},{workspaceName}";
 
@@ -157,13 +170,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", ouDistinguishedName );
             result = Utility.CallPlan( "DeleteOrgUnit", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
-
-            // Cleanup Workspace
-            Utility.DeleteGroup( managedBy.DistinguishedName );
-            Utility.DeleteWorkspace( workspaceName );
-
         }
-
-
     }
 }

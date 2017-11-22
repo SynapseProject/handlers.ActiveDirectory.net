@@ -12,14 +12,26 @@ namespace Synapse.ActiveDirectory.Tests.Core
     public class SearchTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
 
-        [Test]
-        public void Core_SearchTest()
+        [SetUp]
+        public void Setup()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category("Core")]
+        public void Core_SearchTest()
+        {
             // Create Users
             UserPrincipal up1 = Utility.CreateUser( workspaceName );
             UserPrincipal up2 = Utility.CreateUser( workspaceName );
@@ -60,7 +72,6 @@ namespace Synapse.ActiveDirectory.Tests.Core
                 Assert.That( row.Properties["objectSid"], Is.Not.Null );
             }
 
-
             // Delete Users
             Utility.DeleteUser( up1.DistinguishedName );
             Utility.DeleteUser( up2.DistinguishedName );
@@ -69,10 +80,6 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete Groups
             Utility.DeleteGroup( gp1.DistinguishedName );
             Utility.DeleteGroup( gp2.DistinguishedName );
-
-            // Cleanup Workspace
-            Utility.DeleteWorkspace( workspaceName );
-
         }
 
     }

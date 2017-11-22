@@ -12,18 +12,29 @@ namespace Synapse.ActiveDirectory.Tests.Core
     public class GroupManagementTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
         GroupPrincipal group = null;
 
-        [Test]
-        public void Core_GroupManagementTest()
+        [SetUp]
+        public void Setup()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            // Create Group
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
             group = Utility.CreateGroup( workspaceName );
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteGroup( group.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_GroupManagementTest()
+        {
             // Add User To Group
             UserPrincipal user = Utility.CreateUser( workspaceName );
             UserPrincipalObject upo = DirectoryServices.GetUser( user.DistinguishedName, true, false, false );
@@ -65,10 +76,6 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             // Delete Groups
             Utility.DeleteGroup( newGroup.DistinguishedName );
-            Utility.DeleteGroup( group.DistinguishedName );
-
-            // Cleanup Workspace
-            Utility.DeleteWorkspace( workspaceName );
         }
     }
 }

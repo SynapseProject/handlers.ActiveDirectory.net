@@ -17,16 +17,29 @@ namespace Synapse.ActiveDirectory.Tests.Handler
     public class UserTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
+        UserPrincipal manager = null;
 
-        [Test]
+        [SetUp]
+        public void Setup()
+        {
+            // Setup Workspace
+            workspace = Utility.CreateWorkspace();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+            manager = Utility.CreateUser( workspaceName );
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteUser( manager.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category("Handler")]
         public void Handler_UserTests()
         {
-            // Setup Tests
-            workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            UserPrincipal manager = Utility.CreateUser( workspaceName );
-
             String userName = $"testuser_{Utility.GenerateToken( 8 )}";
             String userDistinguishedName = $"CN={userName},{workspaceName}";
 
@@ -248,11 +261,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", userDistinguishedName );
             result = Utility.CallPlan( "DeleteUser", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
-
-            // Cleanup Workspace
-            Utility.DeleteUser( manager.DistinguishedName );
-            Utility.DeleteWorkspace( workspaceName );
-
         }
     }
 }

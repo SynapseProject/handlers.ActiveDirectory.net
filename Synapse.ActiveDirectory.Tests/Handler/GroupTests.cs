@@ -17,16 +17,29 @@ namespace Synapse.ActiveDirectory.Tests.Handler
     public class GroupTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
+        UserPrincipal managedBy = null;
 
-        [Test]
+        [SetUp]
+        public void Setup()
+        {
+            // Setup Workspace
+            workspace = Utility.CreateWorkspace();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+            managedBy = Utility.CreateUser( workspaceName );
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteUser( managedBy.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category("Handler")]
         public void Handler_GroupTests()
         {
-            // Setup Tests
-            workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            UserPrincipal managedBy = Utility.CreateUser( workspaceName );
-
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
@@ -185,11 +198,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", groupDistinguishedName );
             result = Utility.CallPlan( "DeleteGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
-
-            // Cleanup Workspace
-            Utility.DeleteUser( managedBy.DistinguishedName );
-            Utility.DeleteWorkspace( workspaceName );
-
         }
     }
 }

@@ -12,18 +12,29 @@ namespace Synapse.ActiveDirectory.Tests.Core
     public class GroupTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
         GroupPrincipal group = null;
 
-        [Test]
-        public void Core_GroupTest()
+        [SetUp]
+        public void Setup()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
-
-            // Create Group
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
             group = Utility.CreateGroup( workspaceName );
+        }
 
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteGroup( group.DistinguishedName );
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_GroupTest()
+        {
             // Get Group By Distinguished Name
             Console.WriteLine( $"Getting Group By DisginguishedName : [{group.DistinguishedName}]" );
             GroupPrincipalObject gpo = DirectoryServices.GetGroup( group.DistinguishedName, true, true, true );
@@ -96,17 +107,6 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             // Delete AccessRule User 
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
-
-
-
-
-
-            // Delete Group
-            Utility.DeleteGroup( group.DistinguishedName );
-
-            // Cleanup Workspace
-            Utility.DeleteWorkspace( workspaceName );
-
         }
     }
 }

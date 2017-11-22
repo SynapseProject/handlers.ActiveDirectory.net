@@ -13,16 +13,29 @@ namespace Synapse.ActiveDirectory.Tests.Core
     public class OrgUnitTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
 
-        [Test]
-        public void Core_OrgUnitTest()
+        [SetUp]
+        public void Setup()
         {
             // Setup Workspace
             workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category( "Core" )]
+        public void Core_OrgUnitTest()
+        {
+            // Setup Test
             String name = $"testou_{Utility.GenerateToken( 8 )}";
             String distinguishedName = $"OU={name},{workspaceName}";
-
             Dictionary<string, List<string>> properties = new Dictionary<string, List<string>>();
             DirectoryServices.AddProperty( properties, "description", "Test OU" );
 
@@ -86,17 +99,11 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete AccessRule User 
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
 
-
             // Delete OrgUnit
             Console.WriteLine( $"Deleting OrgUnit : [{distinguishedName}]" );
             DirectoryServices.DeleteOrganizationUnit( distinguishedName );
             ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, false );
             Assert.That( ouo, Is.Null );
-
-            // Cleanup Workspace
-            Utility.DeleteWorkspace( workspaceName );
-
-
         }
     }
 }

@@ -17,13 +17,26 @@ namespace Synapse.ActiveDirectory.Tests.Handler
     public class SearchTests
     {
         DirectoryEntry workspace = null;
+        String workspaceName = null;
 
-        [Test]
+        [SetUp]
+        public void Setup()
+        {
+            // Setup Workspace
+            workspace = Utility.CreateWorkspace();
+            workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            // Cleanup Workspace
+            Utility.DeleteWorkspace( workspaceName );
+        }
+
+        [Test, Category("Handler")]
         public void Handler_SearchTests()
         {
-            // Setup Tests
-            workspace = Utility.CreateWorkspace();
-            String workspaceName = workspace.Properties["distinguishedName"].Value.ToString();
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
             // Create Objects To Search
@@ -70,17 +83,13 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].SearchResults.Results.Count, Is.EqualTo( 3 ) );
 
-
-
-
-            // Cleanup Workspace
+            // Delete Search Objects
             Utility.DeleteUser( up1.DistinguishedName );
             Utility.DeleteUser( up2.DistinguishedName );
             Utility.DeleteUser( up3.DistinguishedName );
             Utility.DeleteUser( up4.DistinguishedName );
             Utility.DeleteGroup( gp1.DistinguishedName );
             Utility.DeleteGroup( gp2.DistinguishedName );
-            Utility.DeleteWorkspace( workspaceName );
         }
 
     }
