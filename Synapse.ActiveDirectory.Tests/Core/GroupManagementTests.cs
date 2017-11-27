@@ -77,5 +77,122 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete Groups
             Utility.DeleteGroup( newGroup.DistinguishedName );
         }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_AddUserToNonExistantGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            UserPrincipal up = Utility.CreateUser( workspaceName );
+
+            Console.WriteLine( $"Adding User [{up.DistinguishedName}] To Group [{groupDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddUserToGroup( up.DistinguishedName, groupDistinguishedName ) ).Message.Contains( "cannot be found" );
+
+            Utility.DeleteUser( up.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_AddGroupToNonExistantGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            GroupPrincipal gp = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Adding Group [{gp.DistinguishedName}] To Group [{groupDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( gp.DistinguishedName, groupDistinguishedName ) ).Message.Contains( "cannot be found" );
+
+            Utility.DeleteGroup( gp.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_AddNonExistantUserToGroup()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"OU={userName},{workspaceName}";
+
+            Console.WriteLine( $"Adding User [{userDistinguishedName}] Which Should Not Exist To Group [{group.DistinguishedName}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( userDistinguishedName, group.DistinguishedName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_AddNonExistantGroupToGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Adding Group [{groupDistinguishedName}] Which Should Not Exist To Group [{group.DistinguishedName}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( groupDistinguishedName, group.DistinguishedName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveUserFromNonExistantGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            UserPrincipal up = Utility.CreateUser( workspaceName );
+
+            Console.WriteLine( $"Removing User [{up.DistinguishedName}] From Group [{groupDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( up.DistinguishedName, groupDistinguishedName ) ).Message.Contains( "cannot be found" );
+
+            Utility.DeleteUser( up.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveGroupFromNonExistantGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            GroupPrincipal gp = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Removing Group [{gp.DistinguishedName}] From Group [{groupDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( gp.DistinguishedName, groupDistinguishedName ) ).Message.Contains( "cannot be found" );
+
+            Utility.DeleteGroup( gp.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveNonExistantUserFromGroup()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"OU={userName},{workspaceName}";
+
+            Console.WriteLine( $"Removing User [{userDistinguishedName}] Which Should Not Exist From Group [{group.DistinguishedName}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( userDistinguishedName, group.DistinguishedName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveNonExistantGroupFromGroup()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Removing Group [{groupDistinguishedName}] Which Should Not Exist From Group [{group.DistinguishedName}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( groupDistinguishedName, group.DistinguishedName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveUserFromGroupWhenNotMember()
+        {
+            UserPrincipal up = Utility.CreateUser( workspaceName );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( up.DistinguishedName, group.DistinguishedName ) ).Message.Contains( "does not exist in the group" );
+            Utility.DeleteUser( up.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
+        public void Core_RemoveGroupFromGroupWhenNotMember()
+        {
+            GroupPrincipal gp = Utility.CreateGroup( workspaceName );
+            Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( gp.DistinguishedName, group.DistinguishedName ) ).Message.Contains( "does not exist in the group" );
+            Utility.DeleteGroup( gp.DistinguishedName );
+        }
+
     }
 }
