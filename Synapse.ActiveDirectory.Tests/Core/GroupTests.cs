@@ -134,7 +134,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             Console.WriteLine( $"Create Group [{groupDistinguishedName}] With Bad DistinguishedName" );
             GroupPrincipal group = null;
-            Assert.Throws<AdException>( () => group = DirectoryServices.CreateGroupPrincipal( groupDistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>( () => group = DirectoryServices.CreateGroupPrincipal( groupDistinguishedName ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -144,7 +144,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             badGroup.GroupScope = 0;       // Set To Invalid Group Scope
             Console.WriteLine( $"Modify Group [{badGroup.DistinguishedName}] With Bad GroupScope [{badGroup.GroupScope}]" );
-            Assert.Throws<AdException>( () => DirectoryServices.SaveGroup( badGroup ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SaveGroup( badGroup ) );
 
             Utility.DeleteGroup( badGroup.Name );
         }
@@ -157,7 +157,10 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Deleting Group [{groupDistinguishedName}] Which Should Not Exist." );
-            Assert.Throws<AdException>( () => DirectoryServices.DeleteGroup( groupName ) ).Message.Contains( "cannot be found" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteGroup( groupName ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "does not exist" ) );
+
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -168,7 +171,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To Group [{groupName}] Which Should Not Exist." );
-            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -179,7 +184,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To Group [{group.Name}]." );
-            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -190,7 +197,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Deleting AccessRule For Group [{group.Name}] From Group [{groupName}] Which Should Not Exist." );
-            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -201,7 +210,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From Group [{group.Name}]." );
-            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -212,7 +223,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Setting AccessRule For Group [{group.Name}] On Group [{groupName}] Which Should Not Exist." );
-            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -223,7 +236,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On Group [{group.Name}]." );
-            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -234,7 +249,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Purging AccessRule For Group [{group.Name}] From Group [{groupName}] Which Should Not Exist." );
-            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( groupName, group.Name ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( groupName, group.Name ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
@@ -245,7 +262,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
             Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On Group [{group.Name}]." );
-            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( group.Name, groupName ) ).Message.Contains( "Can Not Be NULL" );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( group.Name, groupName ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
         }
 
 

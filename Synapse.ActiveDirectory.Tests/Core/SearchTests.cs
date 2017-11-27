@@ -82,5 +82,35 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteGroup( gp2.DistinguishedName );
         }
 
+        [Test, Category( "Core" ), Category( "Search" )]
+        public void Core_SearchTestBadFilter()
+        {
+            string[] properties = new string[] { "name", "objectGUID", "objectSid" };
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.Search( workspaceName, @"((objectClass=GuyWaguespack)", properties ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "search filter is invalid" ) );
+        }
+
+        [Test, Category( "Core" ), Category( "Search" )]
+        public void Core_SearchTestBadSearchBase()
+        {
+            string[] properties = new string[] { "name", "objectGUID", "objectSid" };
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.Search( $"ou=BadOuName,{workspaceName}", @"(objectClass=User)", properties ) );
+            Console.WriteLine( $"Exception Message : {ex.Message}" );
+            Assert.That( ex.Message, Contains.Substring( "no such object on the server" ) );
+        }
+
+        [Test, Category( "Core" ), Category( "Search" )]
+        public void Core_SearchTestBadProperty()
+        {
+            string[] properties = new string[] { "name", "objectGUID", "doesNotExist" };
+            UserPrincipal up = Utility.CreateUser( workspaceName );
+            SearchResults results = DirectoryServices.Search( workspaceName, @"(objectClass=User)", properties );
+            Assert.That( results.Results[0].Properties["doesNotExist"], Is.Null );
+
+            Utility.DeleteUser( up.DistinguishedName );
+        }
+
+
     }
 }

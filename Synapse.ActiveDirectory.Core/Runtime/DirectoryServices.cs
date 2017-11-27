@@ -159,35 +159,46 @@ namespace Synapse.ActiveDirectory.Core
         {
             SearchResults searchResults = new SearchResults();
 
-            SearchResultCollection results = DoSearch( filter, returnProperties, searchBase );
-            searchResults.Results = new List<SearchResultRow>();
-
-            foreach ( SearchResult result in results )
+            try
             {
-                SearchResultRow row = new SearchResultRow();
-                row.Path = result.Path;
+                SearchResultCollection results = DoSearch( filter, returnProperties, searchBase );
+                searchResults.Results = new List<SearchResultRow>();
 
-                if ( returnProperties != null )
+                foreach ( SearchResult result in results )
                 {
-                    row.Properties = new SerializableDictionary<string, List<string>>();
-                    foreach ( string key in returnProperties )
-                    {
-                        List<string> values = new List<string>();
-                        if ( result.Properties.Contains( key ) )
-                        {
-                            foreach ( object value in result.Properties[key] )
-                            {
-                                string valueStr = GetPropertyValueString( value );
-                                values.Add( valueStr );
-                            }
-                            row.Properties.Add( key, values );
-                        }
-                        else
-                            row.Properties.Add( key, null );
-                    }
-                }
+                    SearchResultRow row = new SearchResultRow();
+                    row.Path = result.Path;
 
-                searchResults.Results.Add( row );
+                    if ( returnProperties != null )
+                    {
+                        row.Properties = new SerializableDictionary<string, List<string>>();
+                        foreach ( string key in returnProperties )
+                        {
+                            List<string> values = new List<string>();
+                            if ( result.Properties.Contains( key ) )
+                            {
+                                foreach ( object value in result.Properties[key] )
+                                {
+                                    string valueStr = GetPropertyValueString( value );
+                                    values.Add( valueStr );
+                                }
+                                row.Properties.Add( key, values );
+                            }
+                            else
+                                row.Properties.Add( key, null );
+                        }
+                    }
+
+                    searchResults.Results.Add( row );
+                }
+            }
+            catch (ArgumentException argEx)
+            {
+                throw new AdException( argEx, AdStatusType.InvalidInput );
+            }
+            catch ( DirectoryServicesCOMException comEx )
+            {
+                throw new AdException( comEx, AdStatusType.DoesNotExist );
             }
 
             return searchResults;
@@ -195,8 +206,8 @@ namespace Synapse.ActiveDirectory.Core
 
         private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null, string searchBase = null)
         {
-            if (String.IsNullOrWhiteSpace(searchBase))
-            searchBase = GetDomainDistinguishedName();
+            if ( String.IsNullOrWhiteSpace( searchBase ) )
+                searchBase = GetDomainDistinguishedName();
             if ( !searchBase.StartsWith( "LDAP://" ) )
                 searchBase = "LDAP://" + searchBase;
 
@@ -215,7 +226,6 @@ namespace Synapse.ActiveDirectory.Core
                 SearchResultCollection results = searcher.FindAll();
                 return results;
             }
-
         }
 
         public static string GetParentPath(string distinguishedName)
