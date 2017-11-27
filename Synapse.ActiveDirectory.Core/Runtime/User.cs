@@ -66,10 +66,11 @@ namespace Synapse.ActiveDirectory.Core
 
             path = path.Replace( "LDAP://", "" );
             PrincipalContext context = DirectoryServices.GetPrincipalContext( path );
-            UserPrincipal user = new UserPrincipal( context );
-
-            user.Name = name;
-            user.UserPrincipalName = userPrincipalName ?? $"{name}@{domain}";
+            UserPrincipal user = new UserPrincipal( context )
+            {
+                Name = name,
+                UserPrincipalName = userPrincipalName ?? $"{name}@{domain}"
+            };
 
             if ( samAccountName != null )
             {

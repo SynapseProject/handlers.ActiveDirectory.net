@@ -166,8 +166,10 @@ namespace Synapse.ActiveDirectory.Core
 
                 foreach ( SearchResult result in results )
                 {
-                    SearchResultRow row = new SearchResultRow();
-                    row.Path = result.Path;
+                    SearchResultRow row = new SearchResultRow()
+                    {
+                        Path = result.Path
+                    };
 
                     if ( returnProperties != null )
                     {

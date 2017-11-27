@@ -304,9 +304,12 @@ public partial class ActiveDirectoryApiController : ApiController
 
     private AdAccessRule CreateAccessRule(string principal, string type, string rights)
     {
-        AdAccessRule rule = new AdAccessRule();
-        rule.Identity = principal;
-        if (!String.IsNullOrWhiteSpace(type))
+        AdAccessRule rule = new AdAccessRule()
+        {
+            Identity = principal
+        };
+
+        if ( !String.IsNullOrWhiteSpace(type))
             rule.Type = (AccessControlType)Enum.Parse( typeof( AccessControlType ), type );
 
         if ( !String.IsNullOrWhiteSpace( rights ) )

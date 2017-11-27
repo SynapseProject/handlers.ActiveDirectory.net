@@ -393,8 +393,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             if ( distinguishedName == null )
                                 distinguishedName = ou.ManagedBy;
 
-                            List<String> values = new List<string>();
-                            values.Add( distinguishedName );
+                            List<String> values = new List<string>() { distinguishedName };
                             ou.Properties.Add( "managedBy", values );
                         }
                     }
@@ -554,8 +553,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             if ( distinguishedName == null )
                                 distinguishedName = ou.ManagedBy;
 
-                            List<String> values = new List<string>();
-                            values.Add( distinguishedName );
+                            List<String> values = new List<string>() { distinguishedName };
                             ou.Properties.Add( "managedBy", values );
                         }
                     }

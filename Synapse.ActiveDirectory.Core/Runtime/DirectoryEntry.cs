@@ -197,8 +197,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void SetProperty(DirectoryEntry de, String name, String value, bool commitChanges = false, bool replaceExisting = true)
         {
-            List<String> values = new List<string>();
-            values.Add( value );
+            List<String> values = new List<string>() { value };
             SetProperty( de, name, values, commitChanges, replaceExisting );
         }
 
@@ -333,8 +332,7 @@ namespace Synapse.ActiveDirectory.Core
                 if ( properties == null )
                     properties = new Dictionary<string, List<string>>();
 
-                List<String> values = new List<string>();
-                values.Add( value );
+                List<String> values = new List<string>() { value };
                 AddProperty( properties, name, values, overwriteExisting );
             }
         }
