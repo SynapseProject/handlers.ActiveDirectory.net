@@ -39,27 +39,34 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "New {schemaClassName} name is not specified.", AdStatusType.MissingInput );
             }
 
-            parentPath = string.IsNullOrWhiteSpace( parentPath ) ? GetDomainDistinguishedName() : parentPath.Replace( "LDAP://", "" );
-            string childPath = $"{name},{parentPath}";
-
-            DirectoryEntry parent = GetDirectoryEntry( parentPath );
-
-            if ( parent != null )
+            try
             {
-                if ( !IsExistingDirectoryEntry( childPath ) )
+                parentPath = string.IsNullOrWhiteSpace( parentPath ) ? GetDomainDistinguishedName() : parentPath.Replace( "LDAP://", "" );
+                string childPath = $"{name},{parentPath}";
+
+                DirectoryEntry parent = GetDirectoryEntry( parentPath );
+
+                if ( parent != null )
                 {
-                    child = parent.Children.Add( name, schemaClassName );
-                    SetProperties( child, properties );
-                    if (saveOnCreate)
-                        child.CommitChanges();
+                    if ( !IsExistingDirectoryEntry( childPath ) )
+                    {
+                        child = parent.Children.Add( name, schemaClassName );
+                        SetProperties( child, properties );
+                        if ( saveOnCreate )
+                            child.CommitChanges();
+                    }
+                    else
+                        throw new AdException( $"New {schemaClassName} already exists.", AdStatusType.AlreadyExists );
+
                 }
                 else
-                    throw new AdException( $"New {schemaClassName} already exists.", AdStatusType.AlreadyExists );
-
+                {
+                    throw new AdException( $"Parent {schemaClassName} does not exist.", AdStatusType.DoesNotExist );
+                }
             }
-            else
+            catch ( System.DirectoryServices.DirectoryServicesCOMException comEx )
             {
-                throw new AdException( $"Parent {schemaClassName} does not exist.", AdStatusType.DoesNotExist );
+                throw new AdException( comEx, AdStatusType.Unknown );
             }
 
             return child;
@@ -73,9 +80,17 @@ namespace Synapse.ActiveDirectory.Core
 
         public static DirectoryEntry ModifyDirectoryEntry(DirectoryEntry entry, Dictionary<String, List<String>> properties = null, bool saveOnModify = true)
         {
-            SetProperties( entry, properties );
-            if (saveOnModify)
-                entry.CommitChanges();
+            try
+            {
+                SetProperties( entry, properties );
+                if ( saveOnModify )
+                    entry.CommitChanges();
+            }
+            catch ( System.DirectoryServices.DirectoryServicesCOMException comEx )
+            {
+                throw new AdException( comEx, AdStatusType.Unknown );
+            }
+
             return entry;
         }
 

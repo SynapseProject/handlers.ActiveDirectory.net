@@ -105,5 +105,180 @@ namespace Synapse.ActiveDirectory.Tests.Core
             ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, false );
             Assert.That( ouo, Is.Null );
         }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_OrgUnitNotFound()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+
+            Console.WriteLine( $"Getting OrgUnit [{ouName}] Which Should Not Exist." );
+            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( ouName, true, true );
+            Assert.That( badOrgUnit, Is.Null );
+
+            Console.WriteLine( $"Getting OrgUnit Principal [{ouName}] Which Should Not Exist." );
+            DirectoryEntry de = DirectoryServices.GetDirectoryEntry( ouDistinguishedName );
+            Assert.That( de, Is.Null );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_CreateOrgUnitBadDistName()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+
+            Console.WriteLine( $"Create OrgUnit [{ouDistinguishedName}] With Bad DistinguishedName" );
+            Assert.Throws<AdException>( () => DirectoryServices.CreateOrganizationUnit( ouDistinguishedName, null ) );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_ModifyOrgUnitBadData()
+        {
+            String badOuName = $"ou=BadOrgUnit,{workspaceName}";
+            DirectoryServices.CreateOrganizationUnit( badOuName, null );
+            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( badOuName, false, true );
+            Dictionary <string, List<string>> properties = new Dictionary<string, List<string>>();
+
+            DirectoryServices.AddProperty( properties, "managedBy", "BadManager" );
+            Console.WriteLine( $"Modify OrgUnit [{badOrgUnit.Name}] With Bad Property [ManagedBy]" );
+            Assert.Throws<AdException>( () => DirectoryServices.ModifyOrganizationUnit( badOrgUnit.Properties["distinguishedName"][0].ToString(), properties ) );
+
+            DirectoryServices.DeleteOrganizationUnit( badOrgUnit.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_DeleteOrgUnitDoesNotExist()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting OrgUnuit [{ouDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteOrganizationUnit( ouDistinguishedName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_AddRuleBadTarget()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+            GroupPrincipal group = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To OrgUnit [{ouName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_AddRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
+            DirectoryServices.CreateOrganizationUnit( testOuName, null );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+
+            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+
+            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_DeleteRuleBadTarget()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+            GroupPrincipal group = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Deleting AccessRule For Group [{group.Name}] From OrgUnit [{ouName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_DeleteRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
+            DirectoryServices.CreateOrganizationUnit( testOuName, null );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+
+            Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+
+            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_SetRuleBadTarget()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+            GroupPrincipal group = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Setting AccessRule For Group [{group.Name}] On OrgUnit [{ouName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_SetRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
+            DirectoryServices.CreateOrganizationUnit( testOuName, null );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+
+            Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On OrgUnit [{ouo.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+
+            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_PurgeRuleBadTarget()
+        {
+            // Get OrgUnit That Does Not Exist
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+            GroupPrincipal group = Utility.CreateGroup( workspaceName );
+
+            Console.WriteLine( $"Purging AccessRule For Group [{group.Name}] From OrgUnit [{ouName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouName, group.Name ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
+        public void Core_PurgeRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
+            DirectoryServices.CreateOrganizationUnit( testOuName, null );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+
+            Console.WriteLine( $"Purging AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.Name, groupName ) ).Message.Contains( "Can Not Be NULL" );
+
+            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
+        }
+
+
+
+
+
     }
 }

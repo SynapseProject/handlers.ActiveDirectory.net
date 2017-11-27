@@ -112,7 +112,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         [Test, Category( "Core" ), Category( "Group" )]
         public void Core_GroupNotFound()
         {
-            // Get User That Does Not Exist
+            // Get Group That Does Not Exist
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
@@ -167,7 +167,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
 
-            Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To User [{groupName}] Which Should Not Exist." );
+            Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To Group [{groupName}] Which Should Not Exist." );
             Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
         }
 
