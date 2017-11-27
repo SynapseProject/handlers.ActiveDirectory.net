@@ -37,7 +37,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Handler")]
+        [Test, Category("Handler"), Category( "OrgUnit" )]
         public void Handler_OrgUnitTests()
         {
             String ouName = $"testorgunit_{Utility.GenerateToken( 8 )}";

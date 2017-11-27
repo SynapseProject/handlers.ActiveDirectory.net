@@ -37,7 +37,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Handler")]
+        [Test, Category("Handler"), Category( "User" )]
         public void Handler_UserTests()
         {
             String userName = $"testuser_{Utility.GenerateToken( 8 )}";

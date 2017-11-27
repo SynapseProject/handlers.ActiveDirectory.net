@@ -43,6 +43,10 @@ namespace Synapse.ActiveDirectory.Core
                 }
                 throw;
             }
+            catch ( InvalidOperationException ioe )
+            {
+                throw new AdException( ioe, AdStatusType.InvalidInput );
+            }
         }
 
         public static GroupPrincipal CreateGroupPrincipal(string distinguishedName, string samAccountName = null, bool saveOnCreate = true)

@@ -14,7 +14,9 @@ namespace Synapse.ActiveDirectory.Core
         // Get Access Rules - Retrieves AccessRules Associated With A DirectoryEntry
         public static List<AccessRuleObject> GetAccessRules(Principal principal)
         {
-            if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( principal == null )
+                throw new AdException( $"Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 return GetAccessRules( (DirectoryEntry)principal.GetUnderlyingObject() );
             else
                 throw new AdException( $"GetAccessRules Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -22,6 +24,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static List<AccessRuleObject> GetAccessRules(DirectoryEntry de)
         {
+            if ( de == null )
+                throw new AdException( $"DirectoryEntry Can Not Be NULL", AdStatusType.MissingInput );
+
             List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
             Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
 
@@ -61,7 +66,9 @@ namespace Synapse.ActiveDirectory.Core
         // Add Access Rule - Adds Rule For The Given Principal
         public static void AddAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Pricinpal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 AddAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"AddAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -76,7 +83,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void AddAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Pricinpal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 AddAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"AddAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -90,16 +99,26 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void AddAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
+            if ( principal == null )
+                throw new AdException( $"Principal Can Not Be NULL", AdStatusType.MissingInput );
+
             ActiveDirectoryAccessRule newRule = new ActiveDirectoryAccessRule( principal.Sid, rights, type, inherit );
 
-            de.ObjectSecurity.AddAccessRule( newRule );
-            de.CommitChanges();
+            if ( de != null )
+            {
+                de.ObjectSecurity.AddAccessRule( newRule );
+                de.CommitChanges();
+            }
+            else
+                throw new AdException( $"Target DirectoryEntry Can Not Be NULL", AdStatusType.MissingInput );
         }
 
         // Delete Access Rule - Deletes Rule For The Principal
         public static void DeleteAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 DeleteAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"DeleteAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -114,7 +133,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void DeleteAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 DeleteAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"DeleteAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -128,16 +149,26 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void DeleteAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
+            if ( principal == null )
+                throw new AdException( "Principal Can Not Be NULL", AdStatusType.MissingInput );
+
             ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule( principal.Sid, rights, type, inherit );
 
-            de.ObjectSecurity.RemoveAccessRule( rule );
-            de.CommitChanges();
+            if ( de != null )
+            {
+                de.ObjectSecurity.RemoveAccessRule( rule );
+                de.CommitChanges();
+            }
+            else
+                throw new AdException( "Directory Entry Can Not Be NULL", AdStatusType.MissingInput );
         }
 
         // Set Access Rights - Removes Any Existing Rules For The Principal And Sets Rules To Rights Passed In
         public static void SetAccessRule(Principal target, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"SetAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -146,7 +177,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void SetAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
             else
                 throw new AdException( $"SetAccessRule Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -166,16 +199,32 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void SetAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
+            if ( principal == null )
+                throw new AdException( "Principal Can Not Be NULL", AdStatusType.MissingInput );
+
             ActiveDirectoryAccessRule rule = new ActiveDirectoryAccessRule( principal.Sid, rights, type, inherit );
 
-            de.ObjectSecurity.SetAccessRule( rule );
-            de.CommitChanges();
+            if ( de != null )
+            {
+                de.ObjectSecurity.SetAccessRule( rule );
+                de.CommitChanges();
+            }
+            else
+                throw new AdException( "DirectoryEntry Can Not Be NULL", AdStatusType.MissingInput );
         }
 
         // Purge Access Rights - Removes All Rights For A Given Principal
+        public static void PurgeAccessRules(string target, string principal)
+        {
+            DirectoryEntry de = GetDirectoryEntry( target );
+            PurgeAccessRules( de, principal );
+        }
+
         public static void PurgeAccessRules(Principal target, Principal principal)
         {
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 PurgeAccessRules( (DirectoryEntry)target.GetUnderlyingObject(), principal );
             else
                 throw new AdException( $"PurgeAccessRules Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -184,7 +233,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void PurgeAccessRules(Principal target, String identity)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+            if ( target == null )
+                throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 PurgeAccessRules( (DirectoryEntry)target.GetUnderlyingObject(), principal );
             else
                 throw new AdException( $"PurgeAccessRules Not Available For Object Type [{target.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -198,8 +249,15 @@ namespace Synapse.ActiveDirectory.Core
 
         public static void PurgeAccessRules(DirectoryEntry de, Principal principal)
         {
-            de.ObjectSecurity.PurgeAccessRules( principal.Sid );
-            de.CommitChanges();
+            if ( principal == null )
+                throw new AdException( "Principal Can Not Be NULL", AdStatusType.MissingInput );
+            else if ( de != null )
+            {
+                de.ObjectSecurity.PurgeAccessRules( principal.Sid );
+                de.CommitChanges();
+            }
+            else
+                throw new AdException( "DirectoryEntry Can Not Be NULL", AdStatusType.MissingInput );
         }
 
     }

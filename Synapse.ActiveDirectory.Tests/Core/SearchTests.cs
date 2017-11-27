@@ -29,7 +29,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Core")]
+        [Test, Category("Core"), Category( "Search" )]
         public void Core_SearchTest()
         {
             // Create Users

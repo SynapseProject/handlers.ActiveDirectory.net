@@ -37,7 +37,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Handler")]
+        [Test, Category("Handler"), Category( "GroupManagement" )]
         public void Handler_GroupManagementTests()
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();

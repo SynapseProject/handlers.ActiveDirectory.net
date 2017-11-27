@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "Group" )]
         public void Core_GroupTest()
         {
             // Get Group By Distinguished Name
@@ -108,5 +108,147 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete AccessRule User 
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
         }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_GroupNotFound()
+        {
+            // Get User That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Getting Group [{groupName}] Which Should Not Exist." );
+            GroupPrincipalObject group = DirectoryServices.GetGroup( groupName, true, true, true );
+            Assert.That( group, Is.Null );
+
+            Console.WriteLine( $"Getting Group Principal [{groupName}] Which Should Not Exist." );
+            GroupPrincipal gp = DirectoryServices.GetGroupPrincipal( groupDistinguishedName );
+            Assert.That( gp, Is.Null );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_CreateGroupBadDistName()
+        {
+            // Get User That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"GW={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Create Group [{groupDistinguishedName}] With Bad DistinguishedName" );
+            GroupPrincipal group = null;
+            Assert.Throws<AdException>( () => group = DirectoryServices.CreateGroupPrincipal( groupDistinguishedName ) );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_ModifyGroupBadData()
+        {
+            GroupPrincipal badGroup = Utility.CreateGroup( workspaceName );
+
+            badGroup.GroupScope = 0;       // Set To Invalid Group Scope
+            Console.WriteLine( $"Modify Group [{badGroup.DistinguishedName}] With Bad GroupScope [{badGroup.GroupScope}]" );
+            Assert.Throws<AdException>( () => DirectoryServices.SaveGroup( badGroup ) );
+
+            Utility.DeleteGroup( badGroup.Name );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_DeleteGroupDoesNotExist()
+        {
+            // Get User That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting Group [{groupDistinguishedName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteGroup( groupName ) ).Message.Contains( "cannot be found" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_AddRuleBadTarget()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To User [{groupName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_AddRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To Group [{group.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_DeleteRuleBadTarget()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting AccessRule For Group [{group.Name}] From Group [{groupName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_DeleteRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From Group [{group.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_SetRuleBadTarget()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For Group [{group.Name}] On Group [{groupName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( groupName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_SetRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On Group [{group.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( group.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_PurgeRuleBadTarget()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Purging AccessRule For Group [{group.Name}] From Group [{groupName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( groupName, group.Name ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "Group" )]
+        public void Core_PurgeRuleBadUser()
+        {
+            // Get Group That Does Not Exist
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On Group [{group.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( group.Name, groupName ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+
+
     }
 }

@@ -33,7 +33,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "User" )]
         public void Core_UserTest()
         {
             // Get User By Distinguished Name
@@ -119,7 +119,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteUser( accessRuleUser.DistinguishedName );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "User" )]
         public void Core_UserNotFound()
         {
             // Get User That Does Not Exist
@@ -132,10 +132,10 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             Console.WriteLine( $"Getting User Principal [{userName}] Which Should Not Exist." );
             UserPrincipal up = DirectoryServices.GetUserPrincipal( userDistinguishedName );
-            Assert.That( user, Is.Null );
+            Assert.That( up, Is.Null );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "User" )]
         public void Core_CreateUserBadDistName()
         {
             // Get User That Does Not Exist
@@ -147,19 +147,19 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Assert.Throws<AdException>( () => user = DirectoryServices.CreateUserPrincipal( userDistinguishedName ) );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "User" )]
         public void Core_ModifyUserBadData()
         {
-            UserPrincipal user = Utility.CreateUser( workspaceName );
+            UserPrincipal badUser = Utility.CreateUser( workspaceName );
 
-            user.SamAccountName = $"{user.Name}abcdefghij1234567890";       // SamAccountName Is Limited To 20 Characters
-            Console.WriteLine( $"Modify User [{user.DistinguishedName}] With Bad SamAccountName [{user.SamAccountName}]" );
-            Assert.Throws<AdException>( () => DirectoryServices.SaveUser( user ));
+            badUser.SamAccountName = $"{badUser.Name}abcdefghij1234567890";       // SamAccountName Is Limited To 20 Characters
+            Console.WriteLine( $"Modify User [{badUser.DistinguishedName}] With Bad SamAccountName [{badUser.SamAccountName}]" );
+            Assert.Throws<AdException>( () => DirectoryServices.SaveUser( badUser ));
 
-            Utility.DeleteUser( user.DistinguishedName );
+            Utility.DeleteUser( badUser.DistinguishedName );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "User" )]
         public void Core_DeleteUserDoesNotExist()
         {
             // Get User That Does Not Exist
@@ -169,5 +169,95 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting User [{userDistinguishedName}] Which Should Not Exist." );
             Assert.Throws<AdException>( () => DirectoryServices.DeleteUser( userName ) ).Message.Contains( "cannot be found" );
         }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_AddRuleBadTarget()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Adding AccessRule For User [{user.Name}] To User [{userName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_AddRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Adding AccessRule For User [{userName}] Which Should Not Exist To User [{user.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_DeleteRuleBadTarget()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting AccessRule For User [{user.Name}] From User [{userName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_DeleteRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Deleting AccessRule For User [{userName}] Which Should Not Exist From User [{user.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_SetRuleBadTarget()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For User [{user.Name}] On User [{userName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_SetRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For User [{userName}] Which Should Not Exist On User [{user.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_PurgeRuleBadTarget()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Purging AccessRule For User [{user.Name}] From User [{userName}] Which Should Not Exist." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( userName, user.Name ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+        [Test, Category( "Core" ), Category( "User" )]
+        public void Core_PurgeRuleBadUser()
+        {
+            // Get User That Does Not Exist
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+
+            Console.WriteLine( $"Setting AccessRule For User [{userName}] Which Should Not Exist On User [{user.Name}]." );
+            Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( user.Name, userName ) ).Message.Contains( "Can Not Be NULL" );
+        }
+
+
     }
 }

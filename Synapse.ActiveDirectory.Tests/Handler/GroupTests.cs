@@ -37,7 +37,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Handler")]
+        [Test, Category("Handler"), Category( "Group" )]
         public void Handler_GroupTests()
         {
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";

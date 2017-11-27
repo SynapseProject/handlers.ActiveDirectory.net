@@ -30,7 +30,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "OrgUnit" )]
         public void Core_OrgUnitTest()
         {
             // Setup Test

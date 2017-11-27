@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category( "Core" )]
+        [Test, Category( "Core" ), Category( "GroupManagement" )]
         public void Core_GroupManagementTest()
         {
             // Add User To Group

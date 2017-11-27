@@ -119,6 +119,9 @@ namespace Synapse.ActiveDirectory.Core
         {
             string searchString = null;
 
+            if ( String.IsNullOrWhiteSpace( identity ) )
+                return null;
+
             identity = identity.Replace( "LDAP://", "" );
 
             if ( IsDistinguishedName( identity ) )
