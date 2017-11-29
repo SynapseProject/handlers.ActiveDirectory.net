@@ -182,7 +182,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Adding AccessRule For User [{user.Name}] To User [{userName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -195,7 +195,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Adding AccessRule For User [{userName}] Which Should Not Exist To User [{user.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -208,7 +208,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting AccessRule For User [{user.Name}] From User [{userName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -221,7 +221,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting AccessRule For User [{userName}] Which Should Not Exist From User [{user.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -234,7 +234,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Setting AccessRule For User [{user.Name}] On User [{userName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( userName, user.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -247,7 +247,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Setting AccessRule For User [{userName}] Which Should Not Exist On User [{user.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( user.Name, userName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -260,7 +260,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Purging AccessRule For User [{user.Name}] From User [{userName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( userName, user.Name ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "User" )]
@@ -273,7 +273,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Setting AccessRule For User [{userName}] Which Should Not Exist On User [{user.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( user.Name, userName ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
 

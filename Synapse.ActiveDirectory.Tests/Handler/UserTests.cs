@@ -52,7 +52,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "returnaccessrules", "true" );
 
             parameters.Add( "identity", userDistinguishedName );
-            parameters.Add("userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}");
+            parameters.Add( "userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}" );
             parameters.Add( "samaccountname", userName.Substring( 0, 19 ) );
             parameters.Add( "displayName", $"Test User {userName}" );
             parameters.Add( "description", $"Test User {userName} Description" );
@@ -262,5 +262,263 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             result = Utility.CallPlan( "DeleteUser", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
         }
+
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_CreateUserBadDistName()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"GW={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Create User With Bad Distinguished Name [{userDistinguishedName}]" );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.MissingInput ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_CreateUserSimplePassword()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Creating User [{userDistinguishedName}] With A Simple Password." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "password", "password" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Unknown ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "The password does not meet the password policy requirements" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_CreateUserBadProperty()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Creating User [{userDistinguishedName}] With A Bad Property." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
+
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateUser", parameters ) );
+            Console.WriteLine( $"Exception Message : {e.Message}" );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_ModifyUserBadProperty()
+        {
+            UserPrincipal up = Utility.CreateUser( workspaceName );
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Modifying User [{up.DistinguishedName}] With A Bad Property." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", up.DistinguishedName );
+            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
+
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateUser", parameters ) );
+            Console.WriteLine( $"Exception Message : {e.Message}" );
+
+            Utility.DeleteUser( up.DistinguishedName );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_GetUserDoesNotExist()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Getting User [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "GetUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Was Not Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_DeleteUserDoesNotExist()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Getting User [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "DeleteUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "cannot be found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_AddAccessRuleBadUser()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Adding AccessRule For User [{userDistinguishedName}] Which Should Not Exist To Target [{manager.DistinguishedName}]" );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_AddAccessRuleBadTarget()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Adding AccessRule For User [{manager.DistinguishedName}] To Target [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", manager.DistinguishedName );
+            parameters.Add( "ruleidentity", userDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_RemoveAccessRuleBadUser()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Deleting AccessRule For User [{userDistinguishedName}] Which Should Not Exist From Target [{manager.DistinguishedName}]" );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_RemoveAccessRuleBadTarget()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Deleting AccessRule For User [{manager.DistinguishedName}] From Target [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", manager.DistinguishedName );
+            parameters.Add( "ruleidentity", userDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_SetAccessRuleBadUser()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Settomg AccessRule For User [{userDistinguishedName}] Which Should Not Exist On Target [{manager.DistinguishedName}]" );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_SetAccessRuleBadTarget()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Setting AccessRule For User [{manager.DistinguishedName}] On Target [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", manager.DistinguishedName );
+            parameters.Add( "ruleidentity", userDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_PurgeAccessRuleBadUser()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Purging AccessRule For User [{userDistinguishedName}] Which Should Not Exist On Target [{manager.DistinguishedName}]" );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", userDistinguishedName );
+            parameters.Add( "ruleidentity", manager.DistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "User" )]
+        public void Handler_PurgeAccessRuleBadTarget()
+        {
+            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userDistinguishedName = $"CN={userName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Purging AccessRule For User [{manager.DistinguishedName}] On Target [{userDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", manager.DistinguishedName );
+            parameters.Add( "ruleidentity", userDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+
+
+
+
     }
 }

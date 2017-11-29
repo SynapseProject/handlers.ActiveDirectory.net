@@ -53,16 +53,16 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         requestUser = WhoAmI();
         isDryRun = startInfo.IsDryRun;
 
-        //deserialize the Parameters from the Action declaration
-        Synapse.Handlers.ActiveDirectory.ActiveDirectoryHandlerParameters parameters = base.DeserializeOrNew<Synapse.Handlers.ActiveDirectory.ActiveDirectoryHandlerParameters>( startInfo.Parameters );
-
-        OnLogMessage( "Execute", $"Running Handler As User [{System.Security.Principal.WindowsIdentity.GetCurrent().Name}]" );
-        OnLogMessage( "Execute", $"Request User : [{requestUser}]" );
-
         try
         {
+            //deserialize the Parameters from the Action declaration
+            ActiveDirectoryHandlerParameters parameters = YamlHelpers.Deserialize<ActiveDirectoryHandlerParameters>( startInfo.Parameters );
+
+            OnLogMessage( "Execute", $"Running Handler As User [{System.Security.Principal.WindowsIdentity.GetCurrent().Name}]" );
+            OnLogMessage( "Execute", $"Request User : [{requestUser}]" );
+
             //TODO : if IsDryRun == true, test if ConnectionString is valid and works.
-            if( startInfo.IsDryRun )
+            if ( startInfo.IsDryRun )
             {
                 OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
 
@@ -702,7 +702,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
             {
                 Principal principal = DirectoryServices.GetPrincipal( obj.Identity );
-                if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
+                if ( principal == null )
+                    throw new AdException( $"Principal [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+                else if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                     de = (DirectoryEntry)principal.GetUnderlyingObject();
                 else
                     throw new AdException( $"AddAccessRule Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
@@ -740,6 +742,19 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 OnLogMessage( "ProcessAccessRules", message );
             }
 
+            if ( returnObject )
+            {
+                object adObject = GetActiveDirectoryObject( obj );
+                Type returnType = obj.GetType();
+                if ( returnType == typeof( AdUser ) )
+                    result.User = (UserPrincipalObject)adObject;
+                else if ( returnType == typeof( AdGroup ) )
+                    result.Group = (GroupPrincipalObject)adObject;
+                else if ( returnType == typeof( AdOrganizationalUnit ) )
+                    result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
+                else
+                    throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
+            }
         }
         catch ( AdException ex )
         {
@@ -751,20 +766,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             OnLogMessage( "ProcessDelete", e.StackTrace );
             AdException le = new AdException( e );
             ProcessActiveDirectoryException( result, le, status.Action );
-        }
-
-        if ( returnObject )
-        {
-            object adObject = GetActiveDirectoryObject( obj );
-            Type returnType = obj.GetType();
-            if ( returnType == typeof( AdUser ) )
-                result.User = (UserPrincipalObject)adObject;
-            else if ( returnType == typeof( AdGroup ) )
-                result.Group = (GroupPrincipalObject)adObject;
-            else if ( returnType == typeof( AdOrganizationalUnit ) )
-                result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-            else
-                throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
         }
 
         results.Add( result );

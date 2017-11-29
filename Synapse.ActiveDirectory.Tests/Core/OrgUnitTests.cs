@@ -172,7 +172,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Adding AccessRule For Group [{group.Name}] To OrgUnit [{ouName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "OrgUnit" )]
@@ -189,7 +189,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
             DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
         }
@@ -205,7 +205,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting AccessRule For Group [{group.Name}] From OrgUnit [{ouName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "OrgUnit" )]
@@ -223,7 +223,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
             DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
         }
@@ -239,7 +239,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Setting AccessRule For Group [{group.Name}] On OrgUnit [{ouName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouName, group.Name, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "OrgUnit" )]
@@ -256,7 +256,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On OrgUnit [{ouo.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
             DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
         }
@@ -272,7 +272,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Purging AccessRule For Group [{group.Name}] From OrgUnit [{ouName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouName, group.Name ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
         [Test, Category( "Core" ), Category( "OrgUnit" )]
@@ -289,7 +289,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Purging AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.Name, groupName ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "Can Not Be NULL" ) );
+            Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
             DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
         }

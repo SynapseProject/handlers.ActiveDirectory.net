@@ -77,13 +77,17 @@ namespace Synapse.ActiveDirectory.Core
         public static void AddAccessRule(String target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             DirectoryEntry de = GetDirectoryEntry( target );
+            if ( de == null )
+                throw new AdException( $"Target [{target}] Can Not Be Found.", AdStatusType.DoesNotExist );
             AddAccessRule( de, identity, rights, type, inherit );
         }
 
         public static void AddAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target == null )
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+            else if ( target == null )
                 throw new AdException( $"Target Pricinpal Can Not Be NULL", AdStatusType.MissingInput );
             else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 AddAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
@@ -94,6 +98,8 @@ namespace Synapse.ActiveDirectory.Core
         public static void AddAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             AddAccessRule( de, principal, rights, type );
         }
 
@@ -127,13 +133,17 @@ namespace Synapse.ActiveDirectory.Core
         public static void DeleteAccessRule(String target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             DirectoryEntry de = GetDirectoryEntry( target );
+            if ( de == null )
+                throw new AdException( $"Target [{target}] Can Not Be Found.", AdStatusType.DoesNotExist );
             DeleteAccessRule( de, identity, rights, type, inherit);
         }
 
         public static void DeleteAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target == null )
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+            else if ( target == null )
                 throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
             else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 DeleteAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
@@ -144,6 +154,8 @@ namespace Synapse.ActiveDirectory.Core
         public static void DeleteAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             DeleteAccessRule( de, principal, rights, type, inherit );
         }
 
@@ -177,7 +189,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void SetAccessRule(Principal target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target == null )
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+            else if ( target == null )
                 throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
             else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 SetAccessRule( (DirectoryEntry)target.GetUnderlyingObject(), principal, rights, type, inherit );
@@ -188,12 +202,16 @@ namespace Synapse.ActiveDirectory.Core
         public static void SetAccessRule(String target, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             DirectoryEntry de = GetDirectoryEntry( target );
+            if ( de == null )
+                throw new AdException( $"Target [{target}] Can Not Be Found.", AdStatusType.DoesNotExist );
             SetAccessRule( de, identity, rights, type, inherit );
         }
 
         public static void SetAccessRule(DirectoryEntry de, String identity, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             SetAccessRule( de, principal, rights, type, inherit );
         }
 
@@ -217,6 +235,8 @@ namespace Synapse.ActiveDirectory.Core
         public static void PurgeAccessRules(string target, string principal)
         {
             DirectoryEntry de = GetDirectoryEntry( target );
+            if ( de == null )
+                throw new AdException( $"Target [{target}] Can Not Be Found.", AdStatusType.DoesNotExist );
             PurgeAccessRules( de, principal );
         }
 
@@ -233,7 +253,9 @@ namespace Synapse.ActiveDirectory.Core
         public static void PurgeAccessRules(Principal target, String identity)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
-            if ( target == null )
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+            else if ( target == null )
                 throw new AdException( $"Target Principal Can Not Be NULL", AdStatusType.MissingInput );
             else if ( target.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
                 PurgeAccessRules( (DirectoryEntry)target.GetUnderlyingObject(), principal );
@@ -244,6 +266,8 @@ namespace Synapse.ActiveDirectory.Core
         public static void PurgeAccessRules(DirectoryEntry de, String identity)
         {
             Principal principal = DirectoryServices.GetPrincipal( identity );
+            if ( principal == null )
+                throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             PurgeAccessRules( de, principal );
         }
 
