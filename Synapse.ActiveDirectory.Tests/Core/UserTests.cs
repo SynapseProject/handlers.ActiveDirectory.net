@@ -34,7 +34,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         }
 
         [Test, Category( "Core" ), Category( "User" )]
-        public void Core_UserTest()
+        public void Core_UserTestSuccess()
         {
             // Get User By Distinguished Name
             Console.WriteLine( $"Getting User By DisginguishedName : [{user.DistinguishedName}]" );

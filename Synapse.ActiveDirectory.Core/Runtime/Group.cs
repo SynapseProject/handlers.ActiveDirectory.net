@@ -109,7 +109,7 @@ namespace Synapse.ActiveDirectory.Core
                 }
                 else
                 {
-                    throw new AdException( "Group does not exist.", AdStatusType.DoesNotExist );
+                    throw new AdException( $"Group [{identity}] cannot be found.", AdStatusType.DoesNotExist );
                 }
             }
             catch ( InvalidOperationException e )

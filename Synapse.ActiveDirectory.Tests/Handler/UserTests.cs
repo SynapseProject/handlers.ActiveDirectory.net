@@ -38,7 +38,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
         }
 
         [Test, Category("Handler"), Category( "User" )]
-        public void Handler_UserTests()
+        public void Handler_UserTestsSuccess()
         {
             String userName = $"testuser_{Utility.GenerateToken( 8 )}";
             String userDistinguishedName = $"CN={userName},{workspaceName}";
@@ -358,7 +358,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             String userDistinguishedName = $"CN={userName},{workspaceName}";
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
-            Console.WriteLine( $"Getting User [{userDistinguishedName}] Which Should Not Exist." );
+            Console.WriteLine( $"Deleting User [{userDistinguishedName}] Which Should Not Exist." );
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "returnaccessrules", "true" );
             parameters.Add( "identity", userDistinguishedName );

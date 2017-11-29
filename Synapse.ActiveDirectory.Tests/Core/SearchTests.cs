@@ -30,7 +30,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         }
 
         [Test, Category("Core"), Category( "Search" )]
-        public void Core_SearchTest()
+        public void Core_SearchTestSuccess()
         {
             // Create Users
             UserPrincipal up1 = Utility.CreateUser( workspaceName );

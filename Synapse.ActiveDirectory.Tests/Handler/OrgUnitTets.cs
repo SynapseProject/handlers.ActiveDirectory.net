@@ -38,7 +38,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
         }
 
         [Test, Category("Handler"), Category( "OrgUnit" )]
-        public void Handler_OrgUnitTests()
+        public void Handler_OrgUnitTestsSuccess()
         {
             String ouName = $"testorgunit_{Utility.GenerateToken( 8 )}";
             String ouDistinguishedName = $"OU={ouName},{workspaceName}";

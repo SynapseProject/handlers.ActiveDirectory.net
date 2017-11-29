@@ -31,7 +31,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         }
 
         [Test, Category( "Core" ), Category( "OrgUnit" )]
-        public void Core_OrgUnitTest()
+        public void Core_OrgUnitTestSuccess()
         {
             // Setup Test
             String name = $"testou_{Utility.GenerateToken( 8 )}";

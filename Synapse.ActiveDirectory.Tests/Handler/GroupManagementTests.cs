@@ -38,7 +38,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
         }
 
         [Test, Category("Handler"), Category( "GroupManagement" )]
-        public void Handler_GroupManagementTests()
+        public void Handler_GroupManagementTestsSuccess()
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 

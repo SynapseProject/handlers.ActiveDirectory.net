@@ -33,7 +33,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         }
 
         [Test, Category( "Core" ), Category( "GroupManagement" )]
-        public void Core_GroupManagementTest()
+        public void Core_GroupManagementTestSuccess()
         {
             // Add User To Group
             UserPrincipal user = Utility.CreateUser( workspaceName );

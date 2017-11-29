@@ -35,7 +35,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
         }
 
         [Test, Category("Handler"), Category( "Search" )]
-        public void Handler_SearchTests()
+        public void Handler_SearchTestsSuccess()
         {
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 

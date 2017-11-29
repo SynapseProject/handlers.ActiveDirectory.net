@@ -33,7 +33,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         }
 
         [Test, Category( "Core" ), Category( "Group" )]
-        public void Core_GroupTest()
+        public void Core_GroupTestSuccess()
         {
             // Get Group By Distinguished Name
             Console.WriteLine( $"Getting Group By DisginguishedName : [{group.DistinguishedName}]" );
@@ -159,7 +159,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             Console.WriteLine( $"Deleting Group [{groupDistinguishedName}] Which Should Not Exist." );
             AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteGroup( groupName ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "does not exist" ) );
+            Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
         }
 
