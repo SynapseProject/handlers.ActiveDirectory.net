@@ -246,7 +246,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", gp.DistinguishedName );
             parameters.Add( "mail", "badformat@company.com" );   // Properties Should Be An Array Of Values
 
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateGroup", parameters ) );
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyGroup", parameters ) );
             Console.WriteLine( $"Exception Message : {e.Message}" );
 
             Utility.DeleteGroup( gp.DistinguishedName );

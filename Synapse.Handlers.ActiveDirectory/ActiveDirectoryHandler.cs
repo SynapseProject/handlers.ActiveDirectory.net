@@ -710,7 +710,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     throw new AdException( $"AddAccessRule Not Available For Object Type [{principal.GetUnderlyingObjectType()}]", AdStatusType.NotSupported );
             }
             else
+            {
                 de = DirectoryServices.GetDirectoryEntry( obj.Identity );
+                if ( de == null )
+                    throw new AdException( $"DirectoryEntry [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
+            }
 
             // Add Rules To Target DirectoryEntry
             foreach ( AdAccessRule rule in obj.AccessRules )

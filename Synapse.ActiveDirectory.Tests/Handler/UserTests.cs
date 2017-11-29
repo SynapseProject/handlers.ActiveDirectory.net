@@ -328,7 +328,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", up.DistinguishedName );
             parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
 
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateUser", parameters ) );
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyUser", parameters ) );
             Console.WriteLine( $"Exception Message : {e.Message}" );
 
             Utility.DeleteUser( up.DistinguishedName );
@@ -515,10 +515,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
-
-
-
-
 
     }
 }

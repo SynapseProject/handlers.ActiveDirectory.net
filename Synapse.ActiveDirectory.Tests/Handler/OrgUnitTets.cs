@@ -171,5 +171,243 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             result = Utility.CallPlan( "DeleteOrgUnit", parameters );
             Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
         }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_CreateOrgUnitBadDistName()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"GW={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Create OrgUnit With Bad Distinguished Name [{ouDistinguishedName}]" );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.MissingInput ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_CreateOrgUnitBadProperty()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Creating OrgUnit [{ouDistinguishedName}] With A Bad Property." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
+
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateOrgUnit", parameters ) );
+            Console.WriteLine( $"Exception Message : {e.Message}" );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_ModifyOrgUnitBadProperty()
+        {
+            DirectoryServices.CreateOrganizationUnit( $"ou=OuDoesNotExist,{workspaceName}", null );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( $"ou=OuDoesNotExist,{workspaceName}", false, true );
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Modifying OrgUnit [{ouo.DistinguishedName}] With A Bad Property." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", ouo.DistinguishedName );
+            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
+
+            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyOrgUnit", parameters ) );
+            Console.WriteLine( $"Exception Message : {e.Message}" );
+
+            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_GetOrgUnitDoesNotExist()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Getting OrgUnit [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "GetOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Was Not Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_DeleteUserDoesNotExist()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Deleting OrgUnit [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returngroupmembership", "true" );
+            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "DeleteOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "cannot be found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_AddAccessRuleBadGroup()
+        {
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Adding AccessRule For Group [{groupDistinguishedName}] Which Should Not Exist To Target [{workspaceName}]." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", workspaceName );
+            parameters.Add( "ruleidentity", groupDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_AddAccessRuleBadTarget()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Adding AccessRule For Group [{managedBy.DistinguishedName}] To Target [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+            parameters.Add( "ruleidentity", managedBy.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_RemoveAccessRuleBadGroup()
+        {
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Removing AccessRule For Group [{groupDistinguishedName}] Which Should Not Exist From Target [{workspaceName}]." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", workspaceName );
+            parameters.Add( "ruleidentity", groupDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void HandlerRemoveAccessRuleBadTarget()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Removing AccessRule For Group [{managedBy.DistinguishedName}] From Target [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+            parameters.Add( "ruleidentity", managedBy.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_SetAccessRuleBadGroup()
+        {
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Setting AccessRule For Group [{groupDistinguishedName}] Which Should Not Exist On Target [{workspaceName}]." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", workspaceName );
+            parameters.Add( "ruleidentity", groupDistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_SetAccessRuleBadTarget()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Setting AccessRule For Group [{managedBy.DistinguishedName}] On Target [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+            parameters.Add( "ruleidentity", managedBy.DistinguishedName );
+            parameters.Add( "ruletype", "Allow" );
+            parameters.Add( "rulerights", "GenericAll" );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_PurgeAccessRulesBadGroup()
+        {
+            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
+            String groupDistinguishedName = $"OU={groupName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Purging AccessRules For Group [{groupDistinguishedName}] Which Should Not Exist On Target [{workspaceName}]." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", workspaceName );
+            parameters.Add( "ruleidentity", groupDistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+        [Test, Category( "Handler" ), Category( "OrgUnit" )]
+        public void Handler_PurgeAccessRulesBadTarget()
+        {
+            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
+            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
+            Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+            Console.WriteLine( $"Purging AccessRules For Group [{managedBy.DistinguishedName}] On Target [{ouDistinguishedName}] Which Should Not Exist." );
+            parameters.Add( "returnobjects", "true" );
+            parameters.Add( "identity", ouDistinguishedName );
+            parameters.Add( "ruleidentity", managedBy.DistinguishedName );
+
+            ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnOrgUnit", parameters );
+            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
+        }
+
+
+
     }
 }
