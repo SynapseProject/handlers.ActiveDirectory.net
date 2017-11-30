@@ -8,6 +8,7 @@ using System.Xml;
 using Synapse.Core.Utilities;
 using Synapse.ActiveDirectory.Core;
 
+using Newtonsoft.Json;
 using YamlDotNet.Serialization;
 
 namespace Synapse.Handlers.ActiveDirectory
@@ -28,19 +29,23 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         private Type ObjectType { get { return Object?.GetType(); }  }
 
-        [YamlIgnore]
         [XmlIgnore]
-        public UserPrincipalObject User { get { return GetObjectAs<UserPrincipalObject>(); } }
+        [JsonIgnore]
+        [YamlIgnore]
+        public  UserPrincipalObject User { get { return GetObjectAs<UserPrincipalObject>(); } }
 
-        [YamlIgnore]
         [XmlIgnore]
+        [JsonIgnore]
+        [YamlIgnore]
         public GroupPrincipalObject Group { get { return GetObjectAs<GroupPrincipalObject>(); } }
 
-        [YamlIgnore]
         [XmlIgnore]
+        [JsonIgnore]
+        [YamlIgnore]
         public OrganizationalUnitObject OrganizationalUnit { get { return GetObjectAs<OrganizationalUnitObject>(); } }
 
         [YamlIgnore]
+        [JsonIgnore]
         [XmlIgnore]
         public SearchResultsObject SearchResults { get { return GetObjectAs<SearchResultsObject>(); } }
 
