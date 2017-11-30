@@ -224,24 +224,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         try
         {
             object adObject = GetActiveDirectoryObject( obj );
-            switch ( obj.Type )
-            {
-                case AdObjectType.User:
-                    if ( returnObject )
-                        result.User = (UserPrincipalObject)adObject;
-                    break;
-                case AdObjectType.Group:
-                    if ( returnObject )
-                        result.Group =  (GroupPrincipalObject)adObject;
-                    break;
-                case AdObjectType.OrganizationalUnit:
-                    if ( returnObject )
-                        result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-                    break;
-                default:
-                    throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
-            }
-
+            if ( returnObject )
+                result.Object = adObject;
             if ( returnStatus )
                 result.Statuses.Add( status );
 
@@ -306,7 +290,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         try
         {
-            object adObject = null;
             string statusAction = "Created";
 
             switch ( obj.Type )
@@ -337,13 +320,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
                         AddToGroup( result, user, false );
-
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.User = (UserPrincipalObject)adObject;
-                    }
-
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
@@ -371,11 +347,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
                         AddToGroup( result, group, false );
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.Group = (GroupPrincipalObject)adObject;
-                    }
 
                     break;
                 case AdObjectType.OrganizationalUnit:
@@ -419,15 +390,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-                    }
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
             }
+
+            if ( returnObject )
+                result.Object = GetActiveDirectoryObject( obj );
+
         }
         catch ( AdException ex )
         {
@@ -462,7 +432,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         try
         {
-            object adObject = null;
             string statusAction = "Modified";
 
             switch ( obj.Type )
@@ -497,11 +466,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( user.Groups != null )
                         ProcessGroupAdd( user, false );
                     result.Statuses.Add( status );
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.User = (UserPrincipalObject)adObject;
-                    }
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
@@ -532,11 +496,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
                     result.Statuses.Add( status );
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.Group = (GroupPrincipalObject)adObject;
-                    }
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
@@ -582,15 +541,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
-                    if ( returnObject )
-                    {
-                        adObject = GetActiveDirectoryObject( obj );
-                        result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-                    }
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
             }
+
+            if ( returnObject )
+                result.Object = GetActiveDirectoryObject( obj );
+
         }
         catch ( AdException ex )
         {
@@ -747,18 +705,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             }
 
             if ( returnObject )
-            {
-                object adObject = GetActiveDirectoryObject( obj );
-                Type returnType = obj.GetType();
-                if ( returnType == typeof( AdUser ) )
-                    result.User = (UserPrincipalObject)adObject;
-                else if ( returnType == typeof( AdGroup ) )
-                    result.Group = (GroupPrincipalObject)adObject;
-                else if ( returnType == typeof( AdOrganizationalUnit ) )
-                    result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-                else
-                    throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
-            }
+                result.Object = GetActiveDirectoryObject( obj );
         }
         catch ( AdException ex )
         {
@@ -819,18 +766,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
 
         if ( returnObject )
-        {
-            object adObject = GetActiveDirectoryObject( obj );
-            Type returnType = obj.GetType();
-            if ( returnType == typeof( AdUser ) )
-                result.User = (UserPrincipalObject)adObject;
-            else if ( returnType == typeof( AdGroup ) )
-                result.Group = (GroupPrincipalObject)adObject;
-            else if ( returnType == typeof( AdOrganizationalUnit ) )
-                result.OrganizationalUnit = (OrganizationalUnitObject)adObject;
-            else
-                throw new AdException( $"Unknown Object Return Type [{returnType}]", AdStatusType.NotSupported );
-        }
+            result.Object = GetActiveDirectoryObject( obj );
 
         results.Add( result );
 
@@ -1046,7 +982,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = AdObjectType.None,
+            Type = AdObjectType.SearchResults,
         };
 
         try
@@ -1062,8 +998,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
 
             OnLogMessage( "ProcessSearchRequest", $"Executing Search.  Filter String: [{filter}].  Search Base: [{searchBase}]." );
-            SearchResults searchResults = DirectoryServices.Search( searchBase, filter, request.ReturnAttributes?.ToArray() );
-            result.SearchResults = searchResults;
+            SearchResultsObject searchResults = DirectoryServices.Search( searchBase, filter, request.ReturnAttributes?.ToArray() );
+            result.Object = searchResults;
             result.Statuses.Add( status );
         } 
         catch (AdException ade)

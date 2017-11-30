@@ -7,7 +7,7 @@ using System.Security.Principal;
 
 namespace Synapse.ActiveDirectory.Core
 {
-    public class SearchResults
+    public class SearchResultsObject
     {
         public List<SearchResultRow> Results { get; set; }
     }

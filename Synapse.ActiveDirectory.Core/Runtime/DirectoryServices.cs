@@ -155,9 +155,9 @@ namespace Synapse.ActiveDirectory.Core
             return principal?.DistinguishedName;
         }
 
-        public static SearchResults Search(string searchBase, string filter, string[] returnProperties)
+        public static SearchResultsObject Search(string searchBase, string filter, string[] returnProperties)
         {
-            SearchResults searchResults = new SearchResults();
+            SearchResultsObject searchResults = new SearchResultsObject();
 
             try
             {

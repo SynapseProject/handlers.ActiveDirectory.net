@@ -26,7 +26,8 @@ namespace Synapse.ActiveDirectory.Core
         Group,
         Computer,
         OrganizationalUnit,
-        GroupPolicy
+        GroupPolicy,
+        SearchResults
     }
 
     [Flags]
