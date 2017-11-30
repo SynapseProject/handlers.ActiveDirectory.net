@@ -8,6 +8,9 @@ using System.Xml;
 using Synapse.Core.Utilities;
 using Synapse.ActiveDirectory.Core;
 
+using Newtonsoft.Json;
+using YamlDotNet.Serialization;
+
 namespace Synapse.Handlers.ActiveDirectory
 {
     public class ActiveDirectoryObjectResult
@@ -21,12 +24,46 @@ namespace Synapse.Handlers.ActiveDirectory
         public string Identity { get; set; }
 
         [XmlElement]
-        public UserPrincipalObject User { get; set; }
+        public object Object { get; set; }
+
         [XmlElement]
-        public GroupPrincipalObject Group { get; set; }
-        [XmlElement]
-        public OrganizationalUnitObject OrganizationalUnit { get; set; }
-        [XmlElement]
-        public SearchResults SearchResults { get; set; }
+        private Type ObjectType { get { return Object?.GetType(); }  }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [YamlIgnore]
+        public  UserPrincipalObject User { get { return GetObjectAs<UserPrincipalObject>(); } }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [YamlIgnore]
+        public GroupPrincipalObject Group { get { return GetObjectAs<GroupPrincipalObject>(); } }
+
+        [XmlIgnore]
+        [JsonIgnore]
+        [YamlIgnore]
+        public OrganizationalUnitObject OrganizationalUnit { get { return GetObjectAs<OrganizationalUnitObject>(); } }
+
+        [YamlIgnore]
+        [JsonIgnore]
+        [XmlIgnore]
+        public SearchResultsObject SearchResults { get { return GetObjectAs<SearchResultsObject>(); } }
+
+        private T GetObjectAs<T>()
+        {
+            if ( ObjectType == null )
+                return default( T );
+            else if ( ObjectType == typeof( Dictionary<Object, Object> ) )
+            {
+                string str = YamlHelpers.Serialize( this.Object );
+                if ( str == null )
+                    return default( T );
+                else
+                    return YamlHelpers.Deserialize<T>( str );
+            }
+            else
+                return (T)this.Object;
+        }
+
     }
 }

@@ -44,7 +44,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Search For Users
             Console.WriteLine( $"Searching For Users In [{workspaceName}]." );
             string[] properties = new string[] { "name", "objectGUID", "objectSid" };
-            SearchResults results = DirectoryServices.Search( workspaceName, @"(objectClass=User)", properties );
+            SearchResultsObject results = DirectoryServices.Search( workspaceName, @"(objectClass=User)", properties );
             Assert.That( results.Results.Count, Is.EqualTo( 3 ) );
             foreach ( SearchResultRow row in results.Results )
             {
@@ -105,7 +105,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         {
             string[] properties = new string[] { "name", "objectGUID", "doesNotExist" };
             UserPrincipal up = Utility.CreateUser( workspaceName );
-            SearchResults results = DirectoryServices.Search( workspaceName, @"(objectClass=User)", properties );
+            SearchResultsObject results = DirectoryServices.Search( workspaceName, @"(objectClass=User)", properties );
             Assert.That( results.Results[0].Properties["doesNotExist"], Is.Null );
 
             Utility.DeleteUser( up.DistinguishedName );
