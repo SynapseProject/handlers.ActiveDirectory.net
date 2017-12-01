@@ -18,21 +18,6 @@ public class DaclRoleManager : IRoleManager
     Dictionary<string, DaclRole> Roles = new Dictionary<string, DaclRole>();
     Dictionary<ActionType, List<string>> Actions = new Dictionary<ActionType, List<string>>();
 
-    public DaclRoleManager()
-    {
-//        string assemblyFolder = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
-//        string configFileName = Path.Combine( assemblyFolder, "RoleManagerConfig.yaml" );
-
-//        DaclRoles config = DaclRoles.Load( configFileName );
-//        ProcessRoleConfig( config );
-    }
-
-    public DaclRoleManager(string configFileName)
-    {
-//        DaclRoles config = DaclRoles.Load( configFileName );
-//        ProcessRoleConfig( config );
-    }
-
     public void Initialize(object config)
     {
         String configStr = YamlHelpers.Serialize( config );
