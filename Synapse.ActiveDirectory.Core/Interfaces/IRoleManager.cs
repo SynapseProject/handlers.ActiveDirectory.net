@@ -10,13 +10,14 @@ namespace Synapse.ActiveDirectory.Core
 {
     public interface IRoleManager
     {
+        // Initialize RoleManager
         void Initialize(object config);
 
         // Role Execution
         bool CanPerformAction(string principal, ActionType action, string adObject);
         void CanPerformActionOrException(string principal, ActionType action, string adObject);
 
-        // Rold Administration
+        // Role Administration
         IEnumerable<string> GetRoles();
         bool HasRole(string principal, string role, string adObject);
         void AddRole(string principal, string role, string adObject);
