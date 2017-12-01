@@ -153,7 +153,7 @@ public class DaclRoleManager : IRoleManager
         Dictionary<string, ActiveDirectoryRights> rights = new Dictionary<string, ActiveDirectoryRights>();
         Dictionary<string, ActiveDirectoryRights> denyRights = new Dictionary<string, ActiveDirectoryRights>();
 
-        // Accumulate Allow and Deny Rights By Idenetity Reference
+        // Accumulate Allow and Deny Rights By Identity Reference
         foreach ( AccessRuleObject rule in rules )
         {
             if ( rule.ControlType == System.Security.AccessControl.AccessControlType.Allow )
