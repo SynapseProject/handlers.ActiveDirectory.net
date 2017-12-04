@@ -759,14 +759,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 result.Statuses.Add( status );
                 OnLogMessage( "ProcessAccessRules", message );
             }
+
+            if ( returnObject )
+                result.Object = GetActiveDirectoryObject( obj );
+
         }
         catch (AdException ade)
         {
             ProcessActiveDirectoryException( result, ade, config.Action );
         }
-
-        if ( returnObject )
-            result.Object = GetActiveDirectoryObject( obj );
 
         results.Add( result );
 

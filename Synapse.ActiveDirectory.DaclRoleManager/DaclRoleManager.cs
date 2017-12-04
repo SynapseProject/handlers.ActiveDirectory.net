@@ -102,6 +102,11 @@ public class DaclRoleManager : IRoleManager
         Principal p = DirectoryServices.GetPrincipal( principal );
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
 
+        if ( p == null )
+            throw new AdException( $"Principal [{principal}] Can Not Be Found.", AdStatusType.DoesNotExist );
+        else if ( target == null )
+            throw new AdException( $"Target [{adObject}] Can Not Be Found.", AdStatusType.DoesNotExist );
+
         if ( Roles.ContainsKey( role ) )
             DirectoryServices.AddAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.All );
         else
@@ -126,6 +131,11 @@ public class DaclRoleManager : IRoleManager
     {
         Principal p = DirectoryServices.GetPrincipal( principal );
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
+
+        if ( p == null )
+            throw new AdException( $"Principal [{principal}] Can Not Be Found.", AdStatusType.DoesNotExist );
+        else if ( target == null )
+            throw new AdException( $"Target [{adObject}] Can Not Be Found.", AdStatusType.DoesNotExist );
 
         if ( Roles.ContainsKey( role ) )
             DirectoryServices.DeleteAccessRule( target, p, Roles[role].AdRights, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.All );

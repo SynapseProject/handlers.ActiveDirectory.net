@@ -144,7 +144,7 @@ namespace Synapse.ActiveDirectory.Core
             else if ( IsGuid( identity ) )
                 searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
             else if ( IsSid( identity ) )
-                searchString = $"(objectSid={identity}";
+                searchString = $"(objectSid={identity})";
             else
                 searchString = $"(|(name={identity})(userPrincipalName={identity})(sAMAccountName={identity}))";
 

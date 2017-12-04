@@ -18,7 +18,7 @@ using Synapse.ActiveDirectory.Core;
 using Synapse.Core.Utilities;
 using Synapse.Handlers.ActiveDirectory;
 
-[RoutePrefix( "ad" )]
+[RoutePrefix( "myriad" )]
 public partial class ActiveDirectoryApiController : ApiController
 {
     ActiveDirectoryApiConfig config = ActiveDirectoryApiConfig.DeserializeOrNew();
