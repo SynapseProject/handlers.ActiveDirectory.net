@@ -42,22 +42,6 @@ public partial class ActiveDirectoryApiController : ApiController
         return (string)ec.StartPlanSync( pe, planName, setContentType: false );
     }
 
-    [HttpGet]
-    [Route( "object/{type}/{name}" )]
-    public async Task<string> GetObject(AdObjectType type, string name)
-    {
-        IExecuteController ec = GetExecuteControllerInstance();
-
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        pe.DynamicParameters.Add( nameof( name ), name );
-        pe.DynamicParameters.Add( nameof( type ), type.ToString() );
-
-        long id = ec.StartPlan( pe, "getObject" );
-        StatusType status = await SynapseHelper.GetStatusAsync( ec, "getObject", id );
-
-        return status == StatusType.Success ? (string)ec.GetPlanElements( "getObject", id, "Actions[0]:Result:ExitData" ) : null;
-    }
-
     IExecuteController GetExecuteControllerInstance()
     {
         return ExtensibilityUtility.GetExecuteControllerInstance( Url, User, this.Request?.Headers?.Authorization );
