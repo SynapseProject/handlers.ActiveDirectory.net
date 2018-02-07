@@ -70,6 +70,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 result.ExitData = "Success";
                 result.Message = msg =
                     $"Connection test successful!";
+
+                throw new NotImplementedException("Dry Run Functionality Has Not Yet Been Implemented.");
+
             }
             else
             {
@@ -162,16 +165,54 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         return result;
     }
 
-    // TODO : Implement Me
     public override object GetConfigInstance()
     {
-        throw new NotImplementedException();
+        ActiveDirectoryHandlerConfig config = new ActiveDirectoryHandlerConfig();
+
+        config.Action = ActionType.Get;
+        config.RunSequential = false;
+        config.ReturnGroupMembership = true;
+        config.ReturnAccessRules = true;
+        config.ReturnObjectProperties = true;
+        config.ReturnObjects = true;
+        config.SuppressOutput = false;
+        config.UseUpsert = true;
+        config.OutputType = SerializationFormat.Yaml;
+        config.PrettyPrint = true;
+
+        return config;
     }
 
-    // TODO : Implement Me
     public override object GetParametersInstance()
     {
-        throw new NotImplementedException();
+        ActiveDirectoryHandlerParameters parms = new ActiveDirectoryHandlerParameters();
+
+        parms.Users = new List<AdUser>();
+        AdUser user = new AdUser();
+        user.Identity = "cn=mfox,ou=FamousActors,dc=sandbox,dc=local";
+        parms.Users.Add(user);
+
+        parms.Groups = new List<AdGroup>();
+        AdGroup group = new AdGroup();
+        group.Identity = "cn=BackToTheFuture,ou=Movies,dc=sandbox,dc=local";
+        parms.Groups.Add(group);
+
+        parms.OrganizationalUnits = new List<AdOrganizationalUnit>();
+        AdOrganizationalUnit ou = new AdOrganizationalUnit();
+        ou.Identity = "ou=Movies,dc=sandbox,dc=local";
+        parms.OrganizationalUnits.Add(ou);
+
+        parms.SearchRequests = new List<AdSearchRequest>();
+        AdSearchRequest search = new AdSearchRequest();
+        search.SearchBase = "ou=Synapse,dc=sandbox,dc=local";
+        search.Filter = "(objectClass=User)";
+        search.ReturnAttributes = new List<string>();
+        search.ReturnAttributes.Add("Name");
+        search.ReturnAttributes.Add("objectGUID");
+        parms.SearchRequests.Add(search);
+
+
+        return parms;
     }
 
     private void ProcessActiveDirectoryObjects(IEnumerable<AdObject> objs, Action<AdObject, bool> processFunction)
