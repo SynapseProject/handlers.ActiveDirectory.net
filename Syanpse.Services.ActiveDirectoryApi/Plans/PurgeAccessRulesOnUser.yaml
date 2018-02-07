@@ -1,0 +1,40 @@
+Name: PurgeAccessRulesOnUserApi
+Description: Purge Access Rules On A User
+IsActive: true
+Actions:
+- Name: PurgeAccessRulesOnUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: PurgeAccessRules
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+        AccessRules:
+        - Identity: 
+    Dynamic:
+    - Name: identity
+      Path: Users[0]:Identity
+    - Name: ruleidentity
+      Path: Users[0]:AccessRules[0]:Identity

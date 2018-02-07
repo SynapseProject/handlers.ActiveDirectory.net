@@ -1,0 +1,46 @@
+Name: RemoveAccessRuleFromUserApi
+Description: Remove Access Rule From User
+IsActive: true
+Actions:
+- Name: RemoveAccessRuleFromUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: RemoveAccessRule
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+        AccessRules:
+        - Identity: 
+          Type: 
+          Rights:
+    Dynamic:
+    - Name: identity
+      Path: Users[0]:Identity
+    - Name: ruleidentity
+      Path: Users[0]:AccessRules[0]:Identity
+    - Name: ruletype
+      Path: Users[0]:AccessRules[0]:Type
+    - Name: rulerights
+      Path: Users[0]:AccessRules[0]:Rights

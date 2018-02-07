@@ -1,0 +1,71 @@
+Name: CreateOrgUnitApi
+Description: Create Ldap Organizational Unit
+IsActive: true
+Actions:
+- Name: CreateOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Modify
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnAccessRules: false
+        ReturnObjectProperties: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Identity: 
+        Description: 
+        ManagedBy:
+        Properties:
+          c:
+          l:
+          st:
+          street:
+          postalCode:
+          co:
+          countryCode:
+    Dynamic:
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity
+    - Name: description
+      Path: OrganizationalUnits[0]:Description
+    - Name: managedby
+      Path: OrganizationalUnits[0]:ManagedBy
+    - Name: c
+      Path: OrganizationalUnits[0]:Properties:c
+      Parse: true
+    - Name: l
+      Path: OrganizationalUnits[0]:Properties:l
+      Parse: true
+    - Name: st
+      Path: OrganizationalUnits[0]:Properties:st
+      Parse: true
+    - Name: street
+      Path: OrganizationalUnits[0]:Properties:street
+      Parse: true
+    - Name: postalcode
+      Path: OrganizationalUnits[0]:Properties:postalCode
+      Parse: true
+    - Name: co
+      Path: OrganizationalUnits[0]:Properties:co
+      Parse: true
+    - Name: countrycode
+      Path: OrganizationalUnits[0]:Properties:countryCode
+      Parse: true

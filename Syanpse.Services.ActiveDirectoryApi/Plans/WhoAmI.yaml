@@ -1,0 +1,23 @@
+Name: ScriptPowershellLocal
+Description: Call a Powershell Script specified in the plan and run it locally
+IsActive: true
+Actions:
+- Name: Action001
+  Handler:
+    Type: Synapse.Handlers.CommandLine:ScriptHandler
+    Config:
+      Type: Yaml
+      Values:
+        WorkingDirectory: C:\Temp
+        Type: Powershell
+        Arguments : -ExecutionPolicy Bypass
+        TimeoutMills: 30000
+        TimeoutStatus: Failed
+  Parameters:
+    Type: Yaml
+    Values:
+      ScriptBlock: |
+        $env = $env:COMPUTERNAME
+        $user = whoami
+        write-host "HostName: $env, UserName: $user"
+        exit 0

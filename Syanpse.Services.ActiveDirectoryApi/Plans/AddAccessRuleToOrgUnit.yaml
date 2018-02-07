@@ -1,0 +1,46 @@
+Name: AddAccessRuleToOrgUnitApi
+Description: Add Access Rule To A Organizational Unit
+IsActive: true
+Actions:
+- Name: AddAccessRuleToOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: AddAccessRule
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Identity: 
+        AccessRules:
+        - Identity: 
+          Type: 
+          Rights:
+    Dynamic:
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity
+    - Name: ruleidentity
+      Path: OrganizationalUnits[0]:AccessRules[0]:Identity
+    - Name: ruletype
+      Path: OrganizationalUnits[0]:AccessRules[0]:Type
+    - Name: rulerights
+      Path: OrganizationalUnits[0]:AccessRules[0]:Rights

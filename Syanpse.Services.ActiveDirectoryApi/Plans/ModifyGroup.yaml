@@ -1,0 +1,66 @@
+Name: CreateGroupApi
+Description: Create Ldap Group
+IsActive: true
+Actions:
+- Name: CreateGroup
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Modify
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        UseUpsert: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Identity: 
+        Scope: Universal     # Local, Global or Universal
+        Description: 
+        IsSecurityGroup: true
+        SamAccountName: 
+        ManagedBy:
+        Properties:
+          displayName:
+          mail:
+          info:
+    Dynamic:
+    - Name: identity
+      Path: Groups[0]:Identity
+    - Name: scope
+      Path: Groups[0]:Scope
+    - Name: description
+      Path: Groups[0]:Description
+    - Name: securitygroup
+      Path: Groups[0]:IsSecurityGroup
+    - Name: samaccountname
+      Path: Groups[0]:SamAccountName
+    - Name: managedby
+      Path: Groups[0]:ManagedBy
+    # Properties
+    - Name: displayname
+      Path: Groups[0]:Properties:displayName
+      Parse: true
+    - Name: mail
+      Path: Groups[0]:Properties:mail
+      Parse: true
+    - Name: info
+      Path: Groups[0]:Properties:info
+      Parse: true

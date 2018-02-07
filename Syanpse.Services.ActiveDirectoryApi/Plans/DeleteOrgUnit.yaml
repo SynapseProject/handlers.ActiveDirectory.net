@@ -1,0 +1,32 @@
+Name: DeleteOrgUnitApi
+Description: Delete Ldap OrgUnit
+IsActive: true
+Actions:
+- Name: DeleteOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Delete
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Identity: 
+    Dynamic:
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity

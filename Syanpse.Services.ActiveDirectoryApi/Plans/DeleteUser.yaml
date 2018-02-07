@@ -1,0 +1,32 @@
+Name: DeleteUserApi
+Description: Delete Ldap User
+IsActive: true
+Actions:
+- Name: DeleteUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Delete
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+    Dynamic:
+    - Name: identity
+      Path: Users[0]:Identity

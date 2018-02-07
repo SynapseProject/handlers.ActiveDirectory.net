@@ -1,0 +1,243 @@
+Name: ModifyUserApi
+Description: Modify Ldap User
+IsActive: true
+Actions:
+- Name: ModifyUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Modify
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        UseUpsert: true
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+#       Principal Fields
+        UserPrincipalName: 
+        SamAccountName: 
+        DisplayName: 
+        Description: 
+#       AuthenticationPrincipal Fields
+        Enabled: 
+        PermittedLogonTimes: 
+        AccountExpirationDate: 
+        SmartcardLogonRequired: 
+        DelegationPermitted: 
+        HomeDirectory: 
+        ScriptPath: 
+        PasswordNotRequired: 
+        PasswordNeverExpires: 
+        UserCannotChangePassword: 
+        AllowReversiblePasswordEncryption: 
+        HomeDrive: 
+#       UserPrincipal Fields
+        GivenName: 
+        MiddleName: 
+        Surname: 
+        EmailAddress: 
+        VoiceTelephoneNumber: 
+        EmployeeId: 
+#       Other Fields and Properties
+        Password: 
+        Properties:
+          initials:
+          physicalDeliveryOfficeName:
+          otherTelephone:
+          wWWHomePage:
+          url:
+          logonWorkstation:
+          userWorkstations:
+          c:
+          l:
+          st:
+          streetAddress:
+          postOfficeBox:
+          postalCode:
+          co:
+          countryCode:
+          title:
+          department:
+          company:
+          manager:
+          profilePath:
+          homePhone:
+          otherHomePhone:
+          pager:
+          otherPager:
+          mobile:
+          otherMobile:
+          facsimileTelephoneNumber:
+          otherFacsimileTelephoneNumber:
+          ipPhone:
+          otherIpPhone:
+          info:
+          lockoutTime:
+    Dynamic:
+#   Principal Fields
+    - Name: identity
+      Path: Users[0]:Identity
+    - Name: userprincipalname
+      Path: Users[0]:UserPrincipalName
+    - Name: samaccountname
+      Path: Users[0]:SamAccountName
+    - Name: displayname
+      Path: Users[0]:DisplayName
+    - Name: description
+      Path: Users[0]:Description
+#   AuthenticationPrincipal Fields
+    - Name: enabled
+      Path: Users[0]:Enabled
+    - Name: permittedlogontimes
+      Path: Users[0]:PermittedLogonTimes
+    - Name: accountexpirationdate
+      Path: Users[0]:AccountExpirationDate
+    - Name: smartcardlogonrequired
+      Path: Users[0]:SmartcardLogonRequired
+    - Name: delegationpermitted
+      Path: Users[0]:DelegationPermitted
+    - Name: homedirectory
+      Path: Users[0]:HomeDirectory
+    - Name: scriptpath
+      Path: Users[0]:ScriptPath
+    - Name: passwordnotrequired
+      Path: Users[0]:PasswordNotRequired
+    - Name: passwordneverexpires
+      Path: Users[0]:PasswordNeverExpires
+    - Name: usercannotchangepassword
+      Path: Users[0]:UserCannotChangePassword
+    - Name: allowreversiblepasswordencryption
+      Path: Users[0]:AllowReversiblePasswordEncryption
+    - Name: homedrive
+      Path: Users[0]:HomeDrive
+#   UserPrincipalFields
+    - Name: givenname
+      Path: Users[0]:GivenName
+    - Name: middlename
+      Path: Users[0]:MiddleName
+    - Name: surname
+      Path: Users[0]:Surname
+    - Name: emailaddress
+      Path: Users[0]:EmailAddress
+    - Name: voicetelephonenumber
+      Path: Users[0]:VoiceTelephoneNumber
+    - Name: employeeid
+      Path: Users[0]:EmployeeId
+#   Other Fields
+    - Name: password
+      Path: Users[0]:Password
+    - Name: initials
+      Path: Users[0]:Properties:initials
+      Parse: true
+    - Name: physicaldeliveryofficename
+      Path: Users[0]:Properties:physicalDeliveryOfficeName
+      Parse: true
+    - Name: othertelephone
+      Path: Users[0]:Properties:otherTelephone
+      Parse: true
+    - Name: wwwhomepage
+      Path: Users[0]:Properties:wWWHomePage
+      Parse: true
+    - Name: url
+      Path: Users[0]:Properties:url
+      Parse: true
+    - Name: logonworkstation
+      Path: Users[0]:Properties:logonWorkstation
+      Parse: true
+    - Name: userworkstations
+      Path: Users[0]:Properties:userWorkstations
+      Parse: true
+    - Name: c
+      Path: Users[0]:Properties:c
+      Parse: true
+    - Name: l
+      Path: Users[0]:Properties:l
+      Parse: true
+    - Name: st
+      Path: Users[0]:Properties:st
+      Parse: true
+    - Name: streetaddress
+      Path: Users[0]:Properties:streetAddress
+      Parse: true
+    - Name: postofficebox
+      Path: Users[0]:Properties:postOfficeBox
+      Parse: true
+    - Name: postalcode
+      Path: Users[0]:Properties:postalCode
+      Parse: true
+    - Name: co
+      Path: Users[0]:Properties:co
+      Parse: true
+    - Name: countrycode
+      Path: Users[0]:Properties:countryCode
+      Parse: true
+    - Name: title
+      Path: Users[0]:Properties:title
+      Parse: true
+    - Name: department
+      Path: Users[0]:Properties:department
+      Parse: true
+    - Name: company
+      Path: Users[0]:Properties:company
+      Parse: true
+    - Name: manager
+      Path: Users[0]:Properties:manager
+      Parse: true
+    - Name: profilepath
+      Path: Users[0]:Properties:profilePath
+      Parse: true
+    - Name: homephone
+      Path: Users[0]:Properties:homePhone
+      Parse: true
+    - Name: otherhomephone
+      Path: Users[0]:Properties:otherHomePhone
+      Parse: true
+    - Name: pager
+      Path: Users[0]:Properties:pager
+      Parse: true
+    - Name: otherpager
+      Path: Users[0]:Properties:otherPager
+      Parse: true
+    - Name: mobile
+      Path: Users[0]:Properties:mobile
+      Parse: true
+    - Name: othermobile
+      Path: Users[0]:Properties:otherMobile
+      Parse: true
+    - Name: facsimiletelephonenumber
+      Path: Users[0]:Properties:facsimileTelephoneNumber
+      Parse: true
+    - Name: otherfacsimiletelephonenumber
+      Path: Users[0]:Properties:otherFacsimileTelephoneNumber
+      Parse: true
+    - Name: ipphone
+      Path: Users[0]:Properties:ipPhone
+      Parse: true
+    - Name: otheripphone
+      Path: Users[0]:Properties:otherIpPhone
+      Parse: true
+    - Name: info
+      Path: Users[0]:Properties:info
+      Parse: true
+    - Name: lockouttime
+      Path: Users[0]:Properties:lockoutTime
+      Parse: true

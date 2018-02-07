@@ -1,0 +1,36 @@
+Name: GetOrgUnitApi
+Description: Lookup Ldap Organizational Unit
+IsActive: true
+Actions:
+- Name: GetOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Get
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Name: returngroupmembership
+        Path: ReturnGroupMembership
+      - Name: returnobjects
+        Path: ReturnObjects
+      - Name: returnobjectproperties
+        Path: ReturnObjectProperties
+      - Name: returnaccessrules
+        Path: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Identity: 
+    Dynamic:
+    - Name: identity
+      Path: OrganizationalUnits[0]:Identity

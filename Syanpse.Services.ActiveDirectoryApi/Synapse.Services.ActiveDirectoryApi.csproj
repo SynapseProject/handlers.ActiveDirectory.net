@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E35E65F1-A918-47F9-B7E7-DD1E950E7C11}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Synapse.Services.ActiveDirectoryApi</RootNamespace>
+    <AssemblyName>Synapse.Services.ActiveDirectoryApi</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=2.0.7.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.7\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Core.Signed.0.1.17305.0-beta\lib\net45\Synapse.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Synapse.Server.Extensibility, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Server.Extensibility.0.1.17218.0-beta\lib\net45\Synapse.Server.Extensibility.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.AccountManagement" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Config\ActiveDirectoryApiConfig.cs" />
+    <Compile Include="OrgUnit.cs" />
+    <Compile Include="Group.cs" />
+    <Compile Include="Search.cs" />
+    <Compile Include="User.cs" />
+    <Compile Include="ActiveDirectoryApi.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Plans\AddAccessRuleToGroup.yaml" />
+    <None Include="Plans\AddAccessRuleToOrgUnit.yaml" />
+    <None Include="Plans\AddAccessRuleToUser.yaml" />
+    <None Include="Plans\AddGroupToGroup.yaml" />
+    <None Include="Plans\AddRoleToGroup.yaml" />
+    <None Include="Plans\AddRoleToOrgUnit.yaml" />
+    <None Include="Plans\AddRoleToUser.yaml" />
+    <None Include="Plans\GetAllGroups.yaml" />
+    <None Include="Plans\ModifyGroup.yaml" />
+    <None Include="Plans\ModifyOrgUnit.yaml" />
+    <None Include="Plans\ModifyUser.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnGroup.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnOrgUnit.yaml" />
+    <None Include="Plans\PurgeAccessRulesOnUser.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromGroup.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromOrgUnit.yaml" />
+    <None Include="Plans\RemoveAccessRuleFromUser.yaml" />
+    <None Include="Plans\RemoveGroupFromGroup.yaml" />
+    <None Include="Plans\RemoveRoleFromGroup.yaml" />
+    <None Include="Plans\RemoveRoleFromOrgUnit.yaml" />
+    <None Include="Plans\RemoveRoleFromUser.yaml" />
+    <None Include="Plans\RemoveUserFromGroup.yaml" />
+    <None Include="Plans\AddUserToGroup.yaml" />
+    <None Include="Plans\CreateOrgUnit.yaml" />
+    <None Include="Plans\CreateGroup.yaml" />
+    <None Include="Plans\DeleteOrgUnit.yaml" />
+    <None Include="Plans\DeleteGroup.yaml" />
+    <None Include="Plans\CreateUser.yaml" />
+    <None Include="Plans\GetGroup.yaml" />
+    <None Include="Plans\GetOrgUnit.yaml" />
+    <None Include="Plans\DeleteUser.yaml" />
+    <None Include="Plans\GetUser.yaml" />
+    <None Include="Plans\Search.yaml" />
+    <None Include="Plans\SetAccessRuleOnGroup.yaml" />
+    <None Include="Plans\SetAccessRuleOnOrgUnit.yaml" />
+    <None Include="Plans\SetAccessRuleOnUser.yaml" />
+    <None Include="Plans\WhoAmI.yaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Synapse.ActiveDirectory.Core\Synapse.ActiveDirectory.Core.csproj">
+      <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
+      <Name>Synapse.ActiveDirectory.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
+      <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
+      <Name>Synapse.Handlers.ActiveDirectory</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File $(SolutionDir)scripts\setVersion.ps1 -path $(ProjectDir)Properties\AssemblyInfo.cs -versionFile $(SolutionDir)scripts\AssemblyInfo.xml</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
