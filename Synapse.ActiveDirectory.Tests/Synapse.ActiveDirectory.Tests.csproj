@@ -47,8 +47,8 @@
     <Reference Include="nunit.framework, Version=3.7.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.3.7.0\lib\net45\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="Synapse.Core, Version=0.1.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Core.Signed.0.1.17305.0-beta\lib\net45\Synapse.Core.dll</HintPath>
+    <Reference Include="Synapse.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
+      <HintPath>..\packages\Synapse.Core.Signed.1.0.18048\lib\net45\Synapse.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
