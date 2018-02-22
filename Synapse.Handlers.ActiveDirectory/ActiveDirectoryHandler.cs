@@ -61,86 +61,79 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             OnLogMessage( "Execute", $"Running Handler As User [{System.Security.Principal.WindowsIdentity.GetCurrent().Name}]" );
             OnLogMessage( "Execute", $"Request User : [{requestUser}]" );
 
-            //TODO : if IsDryRun == true, test if ConnectionString is valid and works.
-            if ( startInfo.IsDryRun )
+            if (startInfo.IsDryRun && config.Action != ActionType.Search)
             {
-                OnProgress( __context, "Attempting connection", sequence: cheapSequence++ );
-
-
-                result.ExitData = "Success";
-                result.Message = msg =
-                    $"Connection test successful!";
-
-                throw new NotImplementedException("Dry Run Functionality Has Not Yet Been Implemented.");
-
+                ProcessActiveDirectoryObjects(parameters.Users, ProcessDryRun);
+                ProcessActiveDirectoryObjects(parameters.Groups, ProcessDryRun);
+                ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessDryRun);
             }
             else
             {
-                switch( config.Action )
+                switch (config.Action)
                 {
                     case ActionType.Get:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessGet );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessGet );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessGet );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessGet);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessGet);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessGet);
                         break;
                     case ActionType.Create:
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessCreate );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessCreate );
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessCreate );
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessCreate);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessCreate);
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessCreate);
                         break;
                     case ActionType.Modify:
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessModify );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessModify );
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessModify );
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessModify);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessModify);
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessModify);
                         break;
                     case ActionType.Delete:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessDelete );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessDelete );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessDelete );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessDelete);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessDelete);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessDelete);
                         break;
                     case ActionType.AddToGroup:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessGroupAdd );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessGroupAdd );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupAdd);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupAdd);
                         break;
                     case ActionType.RemoveFromGroup:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessGroupRemove );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessGroupRemove );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupRemove);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupRemove);
                         break;
                     case ActionType.AddAccessRule:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.RemoveAccessRule:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.SetAccessRule:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.PurgeAccessRules:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessAccessRules );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessAccessRules );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.AddRole:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessRoles );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessRoles );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessRoles );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.RemoveRole:
-                        ProcessActiveDirectoryObjects( parameters.Users, ProcessRoles );
-                        ProcessActiveDirectoryObjects( parameters.Groups, ProcessRoles );
-                        ProcessActiveDirectoryObjects( parameters.OrganizationalUnits, ProcessRoles );
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.Search:
-                        ProcessSearchRequests( parameters.SearchRequests );
+                        ProcessSearchRequests(parameters.SearchRequests, startInfo.IsDryRun);
                         break;
                     default:
-                        throw new AdException( $"Unknown Action {config.Action} Specified", AdStatusType.NotSupported );
+                        throw new AdException($"Unknown Action {config.Action} Specified", AdStatusType.NotSupported);
                 }
             }
         }
@@ -995,24 +988,24 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         result.Statuses.Add( status );
     }
 
-    private void ProcessSearchRequests(IEnumerable<AdSearchRequest> requests)
+    private void ProcessSearchRequests(IEnumerable<AdSearchRequest> requests, bool dryRun)
     {
         if ( requests != null )
         {
             if ( config.RunSequential )
             {
                 foreach ( AdSearchRequest request in requests )
-                    ProcessSearchRequest( request );
+                    ProcessSearchRequest( request, dryRun );
             }
             else
                 Parallel.ForEach( requests, request =>
                 {
-                    ProcessSearchRequest( request );
+                    ProcessSearchRequest( request, dryRun );
                 } );
         }
     }
 
-    private void ProcessSearchRequest(AdSearchRequest request)
+    private void ProcessSearchRequest(AdSearchRequest request, bool dryRun)
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
@@ -1040,8 +1033,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     filter = Regex.Replace( filter, param.Find, param.ReplaceWith );
 
             OnLogMessage( "ProcessSearchRequest", $"Executing Search.  Filter String: [{filter}].  Search Base: [{searchBase}]." );
-            SearchResultsObject searchResults = DirectoryServices.Search( searchBase, filter, request.ReturnAttributes?.ToArray() );
-            result.Object = searchResults;
+            if (!dryRun)
+            {
+                SearchResultsObject searchResults = DirectoryServices.Search(searchBase, filter, request.ReturnAttributes?.ToArray());
+                result.Object = searchResults;
+            }
             result.Statuses.Add( status );
         } 
         catch (AdException ade)
@@ -1065,4 +1061,71 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
         return user;
     }
+
+    private void ProcessDryRun(AdObject obj, bool returnObject = false)
+    {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = obj.Type,
+            Identity = obj.Identity
+        };
+
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            Action = config.Action,
+            Status = AdStatusType.Success,
+            Message = "Success",
+        };
+
+        try
+        {
+            string identity = obj.Identity;
+            if (config.Action == ActionType.Create && DirectoryServices.IsDistinguishedName(identity))
+                identity = DirectoryServices.GetParentPath(identity);
+
+            roleManager.CanPerformActionOrException(requestUser, config.Action, identity);
+            if (returnObject)
+            {
+                switch (obj.Type)
+                {
+                    case AdObjectType.User:
+                        AdUser user = (AdUser)obj;
+                        UserPrincipalObject upo = new UserPrincipalObject();
+                        upo.Name = "DryRun Name";
+                        upo.DistinguishedName = $"cn=DryRunName,dc=sandbox,dc=local";
+                        upo.Guid = Guid.NewGuid();
+                        upo.Sid = "S-1-2-34-1234567890-1234567890-1234567890-1234";
+                        result.Object = upo;
+                        break;
+                    case AdObjectType.Group:
+                        AdGroup group = (AdGroup)obj;
+                        GroupPrincipalObject gpo = new GroupPrincipalObject();
+                        gpo.Name = "DryRun Name";
+                        gpo.DistinguishedName = $"cn=DryRunName,dc=sandbox,dc=local";
+                        gpo.Guid = Guid.NewGuid();
+                        gpo.Sid = "S-1-2-34-1234567890-1234567890-1234567890-1234";
+                        result.Object = gpo;
+                        break;
+                    case AdObjectType.OrganizationalUnit:
+                        AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
+                        OrganizationalUnitObject ouo = new OrganizationalUnitObject();
+                        ouo.Name = "DryRun Name";
+                        ouo.DistinguishedName = $"ou=DryRunName,dc=sandbox,dc=local";
+                        ouo.Guid = Guid.NewGuid();
+                        result.Object = ouo;
+                        break;
+                    default:
+                        throw new AdException("Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported);
+                }
+            }
+        }
+        catch (AdException ade)
+        {
+            ProcessActiveDirectoryException(result, ade, config.Action);
+        }
+
+        results.Add(result);
+
+    }
+
 }
