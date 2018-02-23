@@ -30,5 +30,5 @@ Actions:
         - objectGUID
         - objectSid
     Dynamic:
-    - Name: distinguishedname
-      Path: SearchRequests[0]:Parameters[0]:ReplaceWith
+    - Source: distinguishedname
+      Target: SearchRequests[0]:Parameters[0]:ReplaceWith

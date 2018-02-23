@@ -285,6 +285,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 AdUser user = (AdUser)obj;
                 UserPrincipalObject upo = null;
                 upo = DirectoryServices.GetUser( user.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+
+                // User Might Have Been Renamed, Look Up By "Name" If Provided
+                if (upo == null && !String.IsNullOrEmpty(user.Name))
+                    upo = DirectoryServices.GetUser( user.Name, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties);
+
                 if ( upo == null )
                     throw new AdException( $"User [{user.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return upo;
@@ -292,6 +297,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 AdGroup group = (AdGroup)obj;
                 GroupPrincipalObject gpo = null;
                 gpo = DirectoryServices.GetGroup( group.Identity, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties );
+
+                // Group Might Have Been Renamed, Look Up By "Name" If Provided
+                if (gpo == null && !String.IsNullOrEmpty(group.Name))
+                    gpo = DirectoryServices.GetGroup(group.Name, config.ReturnGroupMembership, config.ReturnAccessRules, config.ReturnObjectProperties);
+
                 if ( gpo == null )
                     throw new AdException( $"Group [{group.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return gpo;
@@ -299,6 +309,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
                 ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties );
+
+                // Group Might Have Been Renamed, Look Up By "Name" If Provided
+                if (ouo == null && !String.IsNullOrEmpty(ou.Name))
+                    ouo = DirectoryServices.GetOrganizationalUnit(ou.Name, config.ReturnAccessRules, config.ReturnObjectProperties);
+
                 if ( ouo == null )
                     throw new AdException( $"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
                 return ouo;
@@ -350,6 +365,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveUser( up, isDryRun );
+                    if (!String.IsNullOrEmpty(user.Name))
+                        DirectoryServices.Rename(user.Identity, user.Name);
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
@@ -377,6 +394,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
+                    if (!String.IsNullOrEmpty(group.Name))
+                        DirectoryServices.Rename(group.Identity, group.Name);
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
@@ -421,6 +440,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
+
+                    if (!String.IsNullOrWhiteSpace(ou.Name))
+                        DirectoryServices.Rename(ou.Identity, ou.Name);
 
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
@@ -495,6 +517,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     DirectoryServices.SaveUser( up, isDryRun );
+                    if (!String.IsNullOrEmpty(user.Name))
+                        DirectoryServices.Rename(user.Identity, user.Name);
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     if ( user.Groups != null )
@@ -526,6 +550,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
+                    if (!String.IsNullOrEmpty(group.Name))
+                        DirectoryServices.Rename(group.Identity, group.Name);
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     if ( group.Groups != null )
                         ProcessGroupAdd( group, false );
@@ -572,6 +598,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
                     }
+
+                    if (!String.IsNullOrWhiteSpace(ou.Name))
+                        DirectoryServices.Rename(ou.Identity, ou.Name);
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );

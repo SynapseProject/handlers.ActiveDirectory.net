@@ -16,6 +16,8 @@ namespace Synapse.Handlers.ActiveDirectory
 
         [XmlElement]
         public string Identity { get; set; }
+        [XmlElement]
+        public string Name { get; set; }
         [XmlArrayItem(ElementName = "Property")]
         public Dictionary<String, List<String>> Properties { get; set; }
         [XmlArrayItem( ElementName = "AccessRule" )]

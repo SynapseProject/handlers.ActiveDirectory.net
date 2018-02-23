@@ -54,6 +54,8 @@ public partial class ActiveDirectoryApiController : ApiController
         if ( user != null )
         {
             // Set Principal Fields
+            if (!string.IsNullOrWhiteSpace(user.Name))
+                pe.DynamicParameters.Add(@"name", user.Name);
             if ( !string.IsNullOrWhiteSpace( user.Description ) )
                 pe.DynamicParameters.Add( @"description", user.Description );
             if ( !string.IsNullOrWhiteSpace( user.UserPrincipalName ) )
@@ -116,8 +118,10 @@ public partial class ActiveDirectoryApiController : ApiController
 
         if (group != null)
         {
-            if ( !string.IsNullOrWhiteSpace( group.Description ) )
-                pe.DynamicParameters.Add( @"description", group.Description );
+            if (!string.IsNullOrWhiteSpace(group.Name))
+                pe.DynamicParameters.Add(@"name", group.Name);
+            if (!string.IsNullOrWhiteSpace(group.Description))
+                pe.DynamicParameters.Add(@"description", group.Description);
             if ( !string.IsNullOrWhiteSpace( group.SamAccountName ) )
                 pe.DynamicParameters.Add( @"samaccountname", group.SamAccountName );
             if ( group.Scope != null)  
@@ -158,8 +162,10 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         if ( ou != null )
         {
-            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
-                pe.DynamicParameters.Add( @"description", ou.Description );
+            if (!string.IsNullOrWhiteSpace(ou.Name))
+                pe.DynamicParameters.Add(@"name", ou.Name);
+            if (!string.IsNullOrWhiteSpace(ou.Description))
+                pe.DynamicParameters.Add(@"description", ou.Description);
             if ( ou.ManagedBy != null )
                 pe.DynamicParameters.Add( @"managedby", ou.ManagedBy );
 

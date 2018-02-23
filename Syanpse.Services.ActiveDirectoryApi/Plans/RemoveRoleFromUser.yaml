@@ -18,14 +18,14 @@ Actions:
         ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
-      - Name: returngroupmembership
-        Path: ReturnGroupMembership
-      - Name: returnobjects
-        Path: ReturnObjects
-      - Name: returnobjectproperties
-        Path: ReturnObjectProperties
-      - Name: returnaccessrules
-        Path: ReturnAccessRules
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:
@@ -35,9 +35,9 @@ Actions:
         - Name: 
           Principal: 
     Dynamic:
-    - Name: identity
-      Path: Users[0]:Identity
-    - Name: role
-      Path: Users[0]:Roles[0]:Name
-    - Name: principal
-      Path: Users[0]:Roles[0]:Principal
+    - Source: identity
+      Target: Users[0]:Identity
+    - Source: role
+      Target: Users[0]:Roles[0]:Name
+    - Source: principal
+      Target: Users[0]:Roles[0]:Principal

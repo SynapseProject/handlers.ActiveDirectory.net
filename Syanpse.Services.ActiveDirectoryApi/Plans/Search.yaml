@@ -24,10 +24,10 @@ Actions:
         - distinguishedName
         - objectGUID
     Dynamic:
-    - Name: filter
-      Path: SearchRequests[0]:Filter
-    - Name: searchbase
-      Path: SearchRequests[0]:SearchBase
-    - Name: attributes
-      Path: SearchRequests[0]:ReturnAttributes
+    - Source: filter
+      Target: SearchRequests[0]:Filter
+    - Source: searchbase
+      Target: SearchRequests[0]:SearchBase
+    - Source: attributes
+      Target: SearchRequests[0]:ReturnAttributes
       Parse: true
