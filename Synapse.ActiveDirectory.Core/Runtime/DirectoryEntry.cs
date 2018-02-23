@@ -120,9 +120,26 @@ namespace Synapse.ActiveDirectory.Core
             DirectoryEntry fromDE = GetDirectoryEntry( identity );
             DirectoryEntry toDE = GetDirectoryEntry( destination );
 
+            if (toDE.SchemaClassName != "organizationalUnit")
+                throw new AdException($"Destination [{destination}] Must Be A Organizational Unit.", AdStatusType.InvalidInput);
+
             fromDE.MoveTo( toDE );
 
             return GetDirectoryEntry( identity );
+        }
+
+        public static DirectoryEntry Rename(string identity, string newName)
+        {
+            DirectoryEntry de = GetDirectoryEntry(identity);
+            String distinguishedName = de.Properties["distinguishedName"].Value.ToString();
+            String prefix = de.Name.Substring(0, de.Name.IndexOf("="));
+            String parentName = DirectoryServices.GetParentPath(distinguishedName);
+            DirectoryEntry parent = GetDirectoryEntry(parentName);
+
+            de.MoveTo(parent, $"{prefix}={newName}");
+
+            return GetDirectoryEntry(newName);
+
         }
 
         public static bool IsExistingDirectoryEntry(string identity)
