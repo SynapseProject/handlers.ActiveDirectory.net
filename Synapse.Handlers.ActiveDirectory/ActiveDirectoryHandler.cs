@@ -132,6 +132,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     case ActionType.Search:
                         ProcessSearchRequests(parameters.SearchRequests, startInfo.IsDryRun);
                         break;
+                    case ActionType.Move:
+                        ProcessActiveDirectoryObjects(parameters.Users, ProcessMove);
+                        ProcessActiveDirectoryObjects(parameters.Groups, ProcessMove);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessMove);
+                        break;
                     default:
                         throw new AdException($"Unknown Action {config.Action} Specified", AdStatusType.NotSupported);
                 }
@@ -365,8 +370,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For User Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveUser( up, isDryRun );
-                    if (!String.IsNullOrEmpty(user.Name))
-                        DirectoryServices.Rename(user.Identity, user.Name);
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( user.Groups != null )
@@ -394,13 +397,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Group Creation.", AdStatusType.MissingInput );
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
-                    if (!String.IsNullOrEmpty(group.Name))
-                        DirectoryServices.Rename(group.Identity, group.Name);
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if ( group.Groups != null )
                         AddToGroup( result, group, false );
-
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
@@ -441,9 +441,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                         throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
 
-                    if (!String.IsNullOrWhiteSpace(ou.Name))
-                        DirectoryServices.Rename(ou.Identity, ou.Name);
-
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     break;
@@ -451,8 +448,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
             }
 
-            if ( returnObject )
-                result.Object = GetActiveDirectoryObject( obj );
+            if (!String.IsNullOrWhiteSpace(obj.Name))
+            {
+                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
+                obj.Identity = de.Path.Replace("LDAP://", "");
+            }
+
+            if (returnObject)
+                result.Object = GetActiveDirectoryObject(obj);
 
         }
         catch ( AdException ex )
@@ -517,8 +520,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     DirectoryServices.SaveUser( up, isDryRun );
-                    if (!String.IsNullOrEmpty(user.Name))
-                        DirectoryServices.Rename(user.Identity, user.Name);
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     if ( user.Groups != null )
@@ -550,12 +551,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     }
 
                     DirectoryServices.SaveGroup( gp, isDryRun );
-                    if (!String.IsNullOrEmpty(group.Name))
-                        DirectoryServices.Rename(group.Identity, group.Name);
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    if ( group.Groups != null )
-                        ProcessGroupAdd( group, false );
                     result.Statuses.Add( status );
+                    if (group.Groups != null)
+                        ProcessGroupAdd(group, false);
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
@@ -599,14 +598,17 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
                     }
 
-                    if (!String.IsNullOrWhiteSpace(ou.Name))
-                        DirectoryServices.Rename(ou.Identity, ou.Name);
-
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
+            }
+
+            if (!String.IsNullOrWhiteSpace(obj.Name))
+            {
+                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
+                obj.Identity = de.Path.Replace("LDAP://", "");
             }
 
             if ( returnObject )
@@ -1156,5 +1158,49 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         results.Add(result);
 
     }
+
+    private void ProcessMove(AdObject obj, bool returnObject = true)
+    {
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            Type = obj.Type,
+            Identity = obj.Identity
+        };
+
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            Action = config.Action,
+            Status = AdStatusType.Success,
+            Message = "Success",
+        };
+
+        try
+        {
+            DirectoryEntry de = DirectoryServices.Move(obj.Identity, obj.MoveTo);
+            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{de.Path}]");
+
+            if (returnObject)
+            {
+                obj.Identity = de.Path.Replace("LDAP://", "");
+                result.Object = GetActiveDirectoryObject(obj);
+            }
+
+        }
+        catch (AdException ex)
+        {
+            ProcessActiveDirectoryException(result, ex, status.Action);
+        }
+        catch (Exception e)
+        {
+            OnLogMessage("ProcessCreate", e.Message);
+            OnLogMessage("ProcessCreate", e.StackTrace);
+            AdException le = new AdException(e);
+            ProcessActiveDirectoryException(result, le, status.Action);
+        }
+
+        results.Add(result);
+
+    }
+
 
 }

@@ -25,6 +25,9 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlArrayItem( ElementName = "Role" )]
         public List<AdRole> Roles { get; set; }
 
+        [XmlElement]
+        public string MoveTo { get; set; }
+
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }
 

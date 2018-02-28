@@ -125,7 +125,8 @@ namespace Synapse.ActiveDirectory.Core
 
             fromDE.MoveTo( toDE );
 
-            return GetDirectoryEntry( identity );
+            String newDN = $"{fromDE.Name},{toDE.Path.Replace("LDAP://", "")}";
+            return GetDirectoryEntry( newDN );
         }
 
         public static DirectoryEntry Rename(string identity, string newName)
@@ -138,7 +139,8 @@ namespace Synapse.ActiveDirectory.Core
 
             de.MoveTo(parent, $"{prefix}={newName}");
 
-            return GetDirectoryEntry(newName);
+            String newDN = $"{prefix}={newName},{parent.Path.Replace("LDAP://", "")}";
+            return GetDirectoryEntry(newDN);
 
         }
 
