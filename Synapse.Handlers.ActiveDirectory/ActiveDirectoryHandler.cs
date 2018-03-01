@@ -1149,6 +1149,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException("Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported);
                 }
             }
+
+            result.Statuses.Add(status);
+
         }
         catch (AdException ade)
         {
@@ -1185,6 +1188,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 result.Object = GetActiveDirectoryObject(obj);
             }
 
+            result.Statuses.Add(status);
         }
         catch (AdException ex)
         {

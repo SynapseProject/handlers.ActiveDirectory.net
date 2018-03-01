@@ -1,0 +1,35 @@
+Name: MoveUserApi
+Description: Move Ldap User
+IsActive: true
+Actions:
+- Name: MoveUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Move
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+        MoveTo:
+    Dynamic:
+    - Source: identity
+      Target: Users[0]:Identity
+    - Source: moveto
+      Target: Users[0]:MoveTo

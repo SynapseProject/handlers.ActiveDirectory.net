@@ -23,12 +23,22 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpDelete]
-    [Route( "user/{identity}" )]
+    [Route("user/{identity}")]
     public ActiveDirectoryHandlerResults DeleteUser(string identity)
     {
         string planName = config.Plans.User.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        return CallPlan( planName, pe );
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        return CallPlan(planName, pe);
+    }
+
+    [HttpPut]
+    [Route("user/{identity}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveUser(string identity, string moveto)
+    {
+        string planName = config.Plans.User.Move;
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        pe.DynamicParameters.Add(nameof(moveto), moveto);
+        return CallPlan(planName, pe);
     }
 
     [HttpPost]

@@ -1,0 +1,35 @@
+Name: MoveGroupApi
+Description: Move Ldap Group
+IsActive: true
+Actions:
+- Name: MoveGroup
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Move
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Groups:
+      - Identity: 
+        MoveTo:
+    Dynamic:
+    - Source: identity
+      Target: Groups[0]:Identity
+    - Source: moveto
+      Target: Groups[0]:MoveTo

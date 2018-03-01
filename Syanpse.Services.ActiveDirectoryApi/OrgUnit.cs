@@ -31,6 +31,16 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPut]
+    [Route("ou/{identity}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveOrgUnit(string identity, string moveto)
+    {
+        string planName = config.Plans.OrganizationalUnit.Move;
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        pe.DynamicParameters.Add(nameof(moveto), moveto);
+        return CallPlan(planName, pe);
+    }
+
     [HttpPost]
     [Route( "ou/{identity}" )]
     public ActiveDirectoryHandlerResults CreateOrgUnit(string identity, AdOrganizationalUnit ou)

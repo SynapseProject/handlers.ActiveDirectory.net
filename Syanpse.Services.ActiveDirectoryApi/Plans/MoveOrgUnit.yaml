@@ -1,0 +1,35 @@
+Name: MoveOrgUnitApi
+Description: Move Ldap OrgUnit
+IsActive: true
+Actions:
+- Name: MoveOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Move
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      OrganizationalUnits:
+      - Identity: 
+        MoveTo:
+    Dynamic:
+    - Source: identity
+      Target: OrganizationalUnits[0]:Identity
+    - Source: moveto
+      Target: OrganizationalUnits[0]:MoveTo

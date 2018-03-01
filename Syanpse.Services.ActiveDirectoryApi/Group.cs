@@ -28,6 +28,16 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
+    [HttpPut]
+    [Route("group/{identity}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveGroup(string identity, string moveto)
+    {
+        string planName = config.Plans.Group.Move;
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        pe.DynamicParameters.Add(nameof(moveto), moveto);
+        return CallPlan(planName, pe);
+    }
+
     [HttpPost]
     [Route( "group/{identity}" )]
     public ActiveDirectoryHandlerResults CreateGroup(string identity, AdGroup group)
