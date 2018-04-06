@@ -16,7 +16,9 @@ namespace Synapse.ActiveDirectory.Core
             UserPrincipalObject u = null;
             try
             {
-                UserPrincipal user = GetUserPrincipal( identity );
+                String idOnly = null;
+                String domain = DirectoryServices.GetDomain(identity, out idOnly);
+                UserPrincipal user = GetUserPrincipal( idOnly, domain );
 
                 if ( user != null )
                 {

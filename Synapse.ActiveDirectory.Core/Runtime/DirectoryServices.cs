@@ -36,6 +36,29 @@ namespace Synapse.ActiveDirectory.Core
             return principal;
         }
 
+        public static string GetDomain(string identity, out string identityOnly)
+        {
+            String domain = null;
+            String idOnly = identity;
+
+            if (IsDistinguishedName(identity))
+            {
+                domain = GetDomain(identity);
+            }
+            else if (IsUserPrincipalName(identity))
+            {
+                domain = identity.Substring(identity.LastIndexOf('@') + 1);
+            }
+            else if (identity.Contains(@"\"))
+            {
+                domain = identity.Substring(0, identity.IndexOf('\\'));
+                idOnly = identity.Substring(identity.IndexOf('\\') + 1);
+            }
+
+            identityOnly = idOnly;
+            return domain;
+        }
+
         public static string GetDomainDistinguishedName()
         {
             // connect to "RootDSE" to find default naming context.
@@ -51,6 +74,11 @@ namespace Synapse.ActiveDirectory.Core
             if ( identity.StartsWith( "LDAP://" ) )
                 identity = identity.Replace( "LDAP://", "" );
             return Regex.IsMatch( identity, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
+        }
+
+        public static bool IsUserPrincipalName(String identity)
+        {
+            return identity.Contains("@");
         }
 
         public static bool IsGuid(String identity)

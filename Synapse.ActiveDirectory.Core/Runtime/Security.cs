@@ -28,8 +28,6 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( $"DirectoryEntry Can Not Be NULL", AdStatusType.MissingInput );
 
             List<AccessRuleObject> accessRules = new List<AccessRuleObject>();
-            Dictionary<string, Principal> principals = new Dictionary<string, Principal>();
-
             AuthorizationRuleCollection rules = de?.ObjectSecurity?.GetAccessRules( true, true, typeof( System.Security.Principal.SecurityIdentifier ) );
             if ( rules != null )
             {
@@ -45,16 +43,17 @@ namespace Synapse.ActiveDirectory.Core
                         IsInherited = accessRule.IsInherited,
                     };
 
-                    Principal principal = null;
-                    if ( principals.ContainsKey( aro.IdentityReference ) )
-                        principal = principals[aro.IdentityReference];
-                    else
+                    String identity = aro.IdentityReference;
+
+                    if (DirectoryServices.IsSid(aro.IdentityReference))
                     {
-                        principal = DirectoryServices.GetPrincipal( aro.IdentityReference );
-                        principals.Add( aro.IdentityReference, principal );
+                        // Get User-Readable Principal Name from Sid
+                        System.Security.Principal.SecurityIdentifier sid = (System.Security.Principal.SecurityIdentifier)rule.IdentityReference;
+                        System.Security.Principal.NTAccount acct = (System.Security.Principal.NTAccount)sid.Translate(typeof(System.Security.Principal.NTAccount));
+                        identity = acct.Value;
                     }
 
-                    aro.IdentityName = principal.Name;
+                    aro.IdentityName = identity;
                     accessRules.Add( aro );
 
                 }
