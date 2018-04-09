@@ -317,7 +317,9 @@ namespace Synapse.ActiveDirectory.Core
             GroupPrincipalObject g = null;
             try
             {
-                GroupPrincipal group = GetGroupPrincipal( identity );
+                String idOnly = null;
+                String domain = DirectoryServices.GetDomain(identity, out idOnly);
+                GroupPrincipal group = GetGroupPrincipal( idOnly, domain );
 
                 if ( group != null )
                 {
