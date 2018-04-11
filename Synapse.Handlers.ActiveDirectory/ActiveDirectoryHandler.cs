@@ -346,6 +346,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             string statusAction = "Created";
 
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+
             switch ( obj.Type )
             {
                 case AdObjectType.User:
@@ -354,7 +357,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( config.UseUpsert && DirectoryServices.IsExistingUser( obj.Identity ) )
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        up = DirectoryServices.GetUserPrincipal( idOnly, domain );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         user.UpdateUserPrincipal( up );
@@ -378,10 +381,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = null;
-                    if ( config.UseUpsert && DirectoryServices.IsExistingGroup( obj.Identity ) )
+                    if ( config.UseUpsert && DirectoryServices.IsExistingGroup( idOnly, domain ) )
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        gp = DirectoryServices.GetGroupPrincipal( idOnly, domain );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         group.UpdateGroupPrincipal( gp );
@@ -493,6 +496,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             string statusAction = "Modified";
 
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+
             switch ( obj.Type )
             {
                 case AdObjectType.User:
@@ -513,7 +519,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        up = DirectoryServices.GetUserPrincipal( idOnly, domain );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         user.UpdateUserPrincipal( up );
@@ -529,7 +535,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = null;
-                    if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( obj.Identity ) )
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( idOnly, domain ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                         {
@@ -544,7 +550,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        gp = DirectoryServices.GetGroupPrincipal( idOnly, domain );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         group.UpdateGroupPrincipal( gp );

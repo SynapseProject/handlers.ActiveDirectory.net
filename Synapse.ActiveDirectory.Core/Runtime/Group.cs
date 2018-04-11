@@ -52,7 +52,8 @@ namespace Synapse.ActiveDirectory.Core
         public static GroupPrincipal CreateGroupPrincipal(string distinguishedName, string samAccountName = null, bool saveOnCreate = true)
         {
             String name = distinguishedName;
-            String path = DirectoryServices.GetDomainDistinguishedName();
+            String domain = DirectoryServices.GetDomain(distinguishedName, out name);
+            String path = domain;
 
             if ( DirectoryServices.IsDistinguishedName( distinguishedName ) )
             {

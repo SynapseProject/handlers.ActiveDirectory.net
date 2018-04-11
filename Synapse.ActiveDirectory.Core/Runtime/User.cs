@@ -49,8 +49,8 @@ namespace Synapse.ActiveDirectory.Core
         public static UserPrincipal CreateUserPrincipal(string distinguishedName, string userPrincipalName = null, string samAccountName = null, bool saveOnCreate = true)
         {
             String name = distinguishedName;
-            String path = DirectoryServices.GetDomainDistinguishedName();
-            String domain = DirectoryServices.GetDomain( path );
+            String domain = DirectoryServices.GetDomain( distinguishedName, out name );
+            String path = domain;
 
             if ( DirectoryServices.IsDistinguishedName( distinguishedName ) )
             {
@@ -147,7 +147,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsExistingUser(string identity)
         {
-            return GetUserPrincipal( identity ) != null;
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(identity, out idOnly);
+            return GetUserPrincipal( idOnly, domain ) != null;
         }
     }
 }

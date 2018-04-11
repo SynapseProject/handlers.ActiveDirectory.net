@@ -53,8 +53,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public UserPrincipal CreateUserPrincipal()
         {
             String name = this.Identity;
-            String path = DirectoryServices.GetDomainDistinguishedName();
-            String domain = DirectoryServices.GetDomain( path );
+            String domain = DirectoryServices.GetDomain(this.Identity, out name);
 
             UserPrincipal user = null;
 
