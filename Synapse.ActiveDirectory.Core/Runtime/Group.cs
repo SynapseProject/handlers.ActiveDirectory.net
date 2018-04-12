@@ -100,7 +100,9 @@ namespace Synapse.ActiveDirectory.Core
 
             try
             {
-                GroupPrincipal groupPrincipal = GetGroupPrincipal( identity );
+                String id = null;
+                String domain = GetDomain(identity, out id);
+                GroupPrincipal groupPrincipal = GetGroupPrincipal( id, domain );
                 if ( groupPrincipal != null )
                 {
                     if ( !dryRun )

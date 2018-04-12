@@ -131,7 +131,9 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Identity is not specified.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUserPrincipal( identity );
+            String id = null;
+            String domain = GetDomain(identity, out id);
+            UserPrincipal userPrincipal = GetUserPrincipal( id, domain );
             if ( userPrincipal != null )
             {
                 if ( !isDryRun )
