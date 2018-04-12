@@ -454,7 +454,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
                 DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
             if (returnObject)
@@ -614,7 +614,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
                 DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
             if ( returnObject )
@@ -1186,11 +1186,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         try
         {
             DirectoryEntry de = DirectoryServices.Move(obj.Identity, obj.MoveTo);
-            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{de.Path}]");
+            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{obj.MoveTo}]");
 
             if (returnObject)
             {
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
                 result.Object = GetActiveDirectoryObject(obj);
             }
 

@@ -125,7 +125,9 @@ namespace Synapse.ActiveDirectory.Core
 
             fromDE.MoveTo( toDE );
 
-            String newDN = $"{fromDE.Name},{toDE.Path.Replace("LDAP://", "")}";
+            String newPath = toDE.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{fromDE.Name},{newPath}";
             return GetDirectoryEntry( newDN );
         }
 
@@ -139,7 +141,9 @@ namespace Synapse.ActiveDirectory.Core
 
             de.MoveTo(parent, $"{prefix}={newName}");
 
-            String newDN = $"{prefix}={newName},{parent.Path.Replace("LDAP://", "")}";
+            String newPath = parent.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{prefix}={newName},{newPath}";
             return GetDirectoryEntry(newDN);
 
         }
