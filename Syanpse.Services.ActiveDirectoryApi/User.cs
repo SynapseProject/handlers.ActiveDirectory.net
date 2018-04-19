@@ -14,11 +14,12 @@ using Synapse.Handlers.ActiveDirectory;
 public partial class ActiveDirectoryApiController : ApiController
 {
     [HttpGet]
-    [Route( "user/{identity}" )]
-    public ActiveDirectoryHandlerResults GetUser(string identity)
+    [Route("user/{identity}")]
+    [Route("user/{domain}/{identity}")]
+    public ActiveDirectoryHandlerResults GetUser(string identity, string domain = null)
     {
         string planName = config.Plans.User.Get;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity );
+        StartPlanEnvelope pe = GetPlanEnvelope( BuildIdentity(domain, identity) );
         return CallPlan( planName, pe );
     }
 
