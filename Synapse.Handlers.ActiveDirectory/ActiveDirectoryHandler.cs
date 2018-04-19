@@ -730,7 +730,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             DirectoryEntry de = null;
             if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
             {
-                Principal principal = DirectoryServices.GetPrincipal( obj.Identity );
+                String id = null;
+                String domain = DirectoryServices.GetDomain(obj.Identity, out id);
+                Principal principal = DirectoryServices.GetPrincipal( id, domain );
                 if ( principal == null )
                     throw new AdException( $"Principal [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
                 else if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
