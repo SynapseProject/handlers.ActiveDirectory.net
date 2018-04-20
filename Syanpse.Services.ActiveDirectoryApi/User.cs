@@ -25,56 +25,68 @@ public partial class ActiveDirectoryApiController : ApiController
 
     [HttpDelete]
     [Route("user/{identity}")]
-    public ActiveDirectoryHandlerResults DeleteUser(string identity)
+    [Route("user/{domain}/{identity}")]
+    public ActiveDirectoryHandlerResults DeleteUser(string identity, string domain = null)
     {
         string planName = config.Plans.User.Delete;
-        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
         return CallPlan(planName, pe);
     }
 
     [HttpPut]
-    [Route("user/{identity}/{moveto}")]
-    public ActiveDirectoryHandlerResults MoveUser(string identity, string moveto)
+    [Route("user/{identity}/ou/{moveto}")]
+    [Route("user/{domain}/{identity}/ou/{movetodomain}/{moveto}")]
+    [Route("user/{domain}/{identity}/ou/{moveto}")]
+    [Route("user/{identity}/ou/{movetodomain}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveUser(string identity, string moveto, string domain = null, string movetodomain = null)
     {
         string planName = config.Plans.User.Move;
-        StartPlanEnvelope pe = GetPlanEnvelope(identity);
-        pe.DynamicParameters.Add(nameof(moveto), moveto);
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
+        pe.DynamicParameters.Add(nameof(moveto), BuildIdentity(movetodomain, moveto));
         return CallPlan(planName, pe);
     }
 
     [HttpPost]
-    [Route( "user/{identity}" )]
-    public ActiveDirectoryHandlerResults CreateUser(string identity, AdUser user)
+    [Route("user/{identity}")]
+    [Route("user/{domain}/{identity}")]
+    public ActiveDirectoryHandlerResults CreateUser(string identity, AdUser user, string domain = null)
     {
         string planName = config.Plans.User.Create;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, user );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), user );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
-    [Route( "user/{identity}" )]
-    public ActiveDirectoryHandlerResults ModifyUser(string identity, AdUser user)
+    [Route("user/{identity}")]
+    [Route("user/{domain}/{identity}")]
+    public ActiveDirectoryHandlerResults ModifyUser(string identity, AdUser user, string domain = null)
     {
         string planName = config.Plans.User.Modify;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, user );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), user );
         return CallPlan( planName, pe );
     }
 
     [HttpPost]
-    [Route( "user/{identity}/{groupidentity}" )]
-    public ActiveDirectoryHandlerResults AddUserToGroup(string identity, string groupidentity)
+    [Route("user/{identity}/group/{groupidentity}")]
+    [Route("user/{domain}/{identity}/group/{groupdomain}/{groupidentity}")]
+    [Route("user/{domain}/{identity}/group/{groupidentity}")]
+    [Route("user/{identity}/group/{groupdomain}/{groupidentity}")]
+    public ActiveDirectoryHandlerResults AddUserToGroup(string identity, string groupidentity, string domain = null, string groupdomain = null)
     {
         string planName = config.Plans.User.AddToGroup;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupidentity );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), BuildIdentity(groupdomain, groupidentity));
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "user/{identity}/{groupidentity}" )]
-    public ActiveDirectoryHandlerResults RemoveUserFromGroup(string identity, string groupIdentity)
+    [Route("user/{identity}/group/{groupidentity}")]
+    [Route("user/{domain}/{identity}/group/{groupdomain}/{groupidentity}")]
+    [Route("user/{domain}/{identity}/group/{groupidentity}")]
+    [Route("user/{identity}/group/{groupdomain}/{groupidentity}")]
+    public ActiveDirectoryHandlerResults RemoveUserFromGroup(string identity, string groupidentity, string domain = null, string groupdomain = null)
     {
         string planName = config.Plans.User.RemoveFromGroup;
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, groupIdentity );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), BuildIdentity(groupdomain, groupidentity));
         return CallPlan( planName, pe );
     }
 

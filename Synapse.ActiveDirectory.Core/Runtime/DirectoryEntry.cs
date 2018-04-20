@@ -162,17 +162,17 @@ namespace Synapse.ActiveDirectory.Core
 
             identity = identity.Replace( "LDAP://", "" );
 
-            String idOnly = null;
-            String domain = DirectoryServices.GetDomain(identity, out idOnly);
+            String id = null;
+            String domain = DirectoryServices.GetDomain(identity, out id);
 
-            if ( IsDistinguishedName( idOnly ) )
-                searchString = $"(distinguishedName={idOnly})";
-            else if ( IsGuid( idOnly ) )
-                searchString = $"(objectGuid={GetGuidSearchBytes(idOnly)})";
-            else if ( IsSid( idOnly ) )
-                searchString = $"(objectSid={identity})";
+            if ( IsDistinguishedName( id ) )
+                searchString = $"(distinguishedName={id})";
+            else if ( IsGuid( id ) )
+                searchString = $"(objectGuid={GetGuidSearchBytes(id)})";
+            else if ( IsSid( id ) )
+                searchString = $"(objectSid={id})";
             else
-                searchString = $"(|(name={idOnly})(userPrincipalName={idOnly})(sAMAccountName={idOnly}))";
+                searchString = $"(|(name={id})(userPrincipalName={id})(sAMAccountName={id}))";
 
             if ( objectClass != null )
                 searchString = $"(&(objectClass={objectClass}){searchString})";
