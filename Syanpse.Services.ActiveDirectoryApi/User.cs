@@ -91,70 +91,88 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPost]
-    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
-    public ActiveDirectoryHandlerResults AddAccessRuleToUser(string identity, string principal, string type, string rights)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    public ActiveDirectoryHandlerResults AddAccessRuleToUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.AddAccessRule;
 
-        AdAccessRule rule = CreateAccessRule( principal, type, rights );
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
-    public ActiveDirectoryHandlerResults RemoveAccessRuleFromUser(string identity, string principal, string type, string rights)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    public ActiveDirectoryHandlerResults RemoveAccessRuleFromUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.RemoveAccessRule;
 
-        AdAccessRule rule = CreateAccessRule( principal, type, rights );
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
-    [Route( "accessrule/user/{identity}/{principal}/{type}/{rights}" )]
-    public ActiveDirectoryHandlerResults SetAccessRuleOnUser(string identity, string principal, string type, string rights)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
+    public ActiveDirectoryHandlerResults SetAccessRuleOnUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.SetAccessRule;
 
-        AdAccessRule rule = CreateAccessRule( principal, type, rights );
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "accessrule/user/{identity}/{principal}" )]
-    public ActiveDirectoryHandlerResults PurgeAccessRulesOnUser(string identity, string principal)
+    [Route("user/{identity}/rules/{principal}")]
+    [Route("user/{domain}/{identity}/rules/{principaldomain}/{principal}")]
+    [Route("user/{domain}/{identity}/rules/{principal}")]
+    [Route("user/{identity}/rules/{principaldomain}/{principal}")]
+    public ActiveDirectoryHandlerResults PurgeAccessRulesOnUser(string identity, string principal, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.PurgeAccessRules;
 
-        AdAccessRule rule = CreateAccessRule( principal, null, null );
-        StartPlanEnvelope pe = GetPlanEnvelope( identity, rule );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), null, null );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpPost]
-    [Route( "role/user/{identity}/{principal}/{role}" )]
-    public ActiveDirectoryHandlerResults AddRoleToUser(string identity, string principal, string role)
+    [Route("user/{identity}/role/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principalrole}/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principal}/{role}")]
+    [Route("user/{identity}/role/{principalrole}/{principal}/{role}")]
+    public ActiveDirectoryHandlerResults AddRoleToUser(string identity, string principal, string role, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.AddRole;
 
-        StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        pe.DynamicParameters.Add( nameof( principal ), principal );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
+        pe.DynamicParameters.Add( nameof( principal ), BuildIdentity(principaldomain, principal));
         pe.DynamicParameters.Add( nameof( role ), role );
 
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route( "role/user/{identity}/{principal}/{role}" )]
-    public ActiveDirectoryHandlerResults RemoveRoleFromUser(string identity, string principal, string role)
+    [Route("user/{identity}/role/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principalrole}/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principal}/{role}")]
+    [Route("user/{identity}/role/{principalrole}/{principal}/{role}")]
+    public ActiveDirectoryHandlerResults RemoveRoleFromUser(string identity, string principal, string role, string domain, string principaldomain)
     {
         string planName = config.Plans.User.RemoveRole;
 
-        StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        pe.DynamicParameters.Add( nameof( principal ), principal );
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
+        pe.DynamicParameters.Add( nameof( principal ), BuildIdentity(principaldomain, principal));
         pe.DynamicParameters.Add( nameof( role ), role );
 
         return CallPlan( planName, pe );
