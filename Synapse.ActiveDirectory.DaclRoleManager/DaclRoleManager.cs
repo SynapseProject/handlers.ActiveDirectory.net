@@ -99,7 +99,9 @@ public class DaclRoleManager : IRoleManager
 
     public void AddRole(string principal, string role, string adObject)
     {
-        Principal p = DirectoryServices.GetPrincipal( principal );
+        String id = null;
+        String domain = DirectoryServices.GetDomain(principal, out id);
+        Principal p = DirectoryServices.GetPrincipal( id, domain );
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
 
         if ( p == null )
@@ -129,7 +131,9 @@ public class DaclRoleManager : IRoleManager
 
     public void RemoveRole(string principal, string role, string adObject)
     {
-        Principal p = DirectoryServices.GetPrincipal( principal );
+        String id = null;
+        String domain = DirectoryServices.GetDomain(principal, out id);
+        Principal p = DirectoryServices.GetPrincipal(id, domain);
         DirectoryEntry target = DirectoryServices.GetDirectoryEntry( adObject );
 
         if ( p == null )

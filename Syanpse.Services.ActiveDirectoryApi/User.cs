@@ -148,9 +148,9 @@ public partial class ActiveDirectoryApiController : ApiController
 
     [HttpPost]
     [Route("user/{identity}/role/{principal}/{role}")]
-    [Route("user/{domain}/{identity}/role/{principalrole}/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principaldomain}/{principal}/{role}")]
     [Route("user/{domain}/{identity}/role/{principal}/{role}")]
-    [Route("user/{identity}/role/{principalrole}/{principal}/{role}")]
+    [Route("user/{identity}/role/{principaldomain}/{principal}/{role}")]
     public ActiveDirectoryHandlerResults AddRoleToUser(string identity, string principal, string role, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.AddRole;
@@ -164,10 +164,10 @@ public partial class ActiveDirectoryApiController : ApiController
 
     [HttpDelete]
     [Route("user/{identity}/role/{principal}/{role}")]
-    [Route("user/{domain}/{identity}/role/{principalrole}/{principal}/{role}")]
+    [Route("user/{domain}/{identity}/role/{principaldomain}/{principal}/{role}")]
     [Route("user/{domain}/{identity}/role/{principal}/{role}")]
-    [Route("user/{identity}/role/{principalrole}/{principal}/{role}")]
-    public ActiveDirectoryHandlerResults RemoveRoleFromUser(string identity, string principal, string role, string domain, string principaldomain)
+    [Route("user/{identity}/role/{principaldomain}/{principal}/{role}")]
+    public ActiveDirectoryHandlerResults RemoveRoleFromUser(string identity, string principal, string role, string domain = null, string principaldomain = null)
     {
         string planName = config.Plans.User.RemoveRole;
 
