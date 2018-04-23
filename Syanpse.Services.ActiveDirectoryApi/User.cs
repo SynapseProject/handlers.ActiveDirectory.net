@@ -33,19 +33,6 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan(planName, pe);
     }
 
-    [HttpPut]
-    [Route("user/{identity}/ou/{moveto}")]
-    [Route("user/{domain}/{identity}/ou/{movetodomain}/{moveto}")]
-    [Route("user/{domain}/{identity}/ou/{moveto}")]
-    [Route("user/{identity}/ou/{movetodomain}/{moveto}")]
-    public ActiveDirectoryHandlerResults MoveUser(string identity, string moveto, string domain = null, string movetodomain = null)
-    {
-        string planName = config.Plans.User.Move;
-        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
-        pe.DynamicParameters.Add(nameof(moveto), BuildIdentity(movetodomain, moveto));
-        return CallPlan(planName, pe);
-    }
-
     [HttpPost]
     [Route("user/{identity}")]
     [Route("user/{domain}/{identity}")]
@@ -64,6 +51,19 @@ public partial class ActiveDirectoryApiController : ApiController
         string planName = config.Plans.User.Modify;
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), user );
         return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route("user/{identity}/ou/{moveto}")]
+    [Route("user/{domain}/{identity}/ou/{movetodomain}/{moveto}")]
+    [Route("user/{domain}/{identity}/ou/{moveto}")]
+    [Route("user/{identity}/ou/{movetodomain}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveUser(string identity, string moveto, string domain = null, string movetodomain = null)
+    {
+        string planName = config.Plans.User.Move;
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
+        pe.DynamicParameters.Add(nameof(moveto), BuildIdentity(movetodomain, moveto));
+        return CallPlan(planName, pe);
     }
 
     [HttpPost]

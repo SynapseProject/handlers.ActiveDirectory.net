@@ -30,19 +30,6 @@ public partial class ActiveDirectoryApiController : ApiController
         return CallPlan( planName, pe );
     }
 
-    [HttpPut]
-    [Route("group/{identity}/ou/{moveto}")]
-    [Route("group/{domain}/{identity}/ou/{movetodomain}/{moveto}")]
-    [Route("group/{domain}/{identity}/ou/{moveto}")]
-    [Route("group/{identity}/ou/{movetodomain}/{moveto}")]
-    public ActiveDirectoryHandlerResults MoveGroup(string identity, string moveto, string domain = null, string movetodomain = null)
-    {
-        string planName = config.Plans.Group.Move;
-        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
-        pe.DynamicParameters.Add(nameof(moveto), BuildIdentity(movetodomain, moveto));
-        return CallPlan(planName, pe);
-    }
-
     [HttpPost]
     [Route("group/{identity}")]
     [Route("group/{domain}/{identity}")]
@@ -61,6 +48,19 @@ public partial class ActiveDirectoryApiController : ApiController
         string planName = config.Plans.Group.Modify;
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), group );
         return CallPlan( planName, pe );
+    }
+
+    [HttpPut]
+    [Route("group/{identity}/ou/{moveto}")]
+    [Route("group/{domain}/{identity}/ou/{movetodomain}/{moveto}")]
+    [Route("group/{domain}/{identity}/ou/{moveto}")]
+    [Route("group/{identity}/ou/{movetodomain}/{moveto}")]
+    public ActiveDirectoryHandlerResults MoveGroup(string identity, string moveto, string domain = null, string movetodomain = null)
+    {
+        string planName = config.Plans.Group.Move;
+        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
+        pe.DynamicParameters.Add(nameof(moveto), BuildIdentity(movetodomain, moveto));
+        return CallPlan(planName, pe);
     }
 
     [HttpPost]
