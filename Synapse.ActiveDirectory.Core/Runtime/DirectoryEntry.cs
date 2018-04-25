@@ -125,7 +125,9 @@ namespace Synapse.ActiveDirectory.Core
 
             fromDE.MoveTo( toDE );
 
-            String newDN = $"{fromDE.Name},{toDE.Path.Replace("LDAP://", "")}";
+            String newPath = toDE.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{fromDE.Name},{newPath}";
             return GetDirectoryEntry( newDN );
         }
 
@@ -139,7 +141,9 @@ namespace Synapse.ActiveDirectory.Core
 
             de.MoveTo(parent, $"{prefix}={newName}");
 
-            String newDN = $"{prefix}={newName},{parent.Path.Replace("LDAP://", "")}";
+            String newPath = parent.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{prefix}={newName},{newPath}";
             return GetDirectoryEntry(newDN);
 
         }
@@ -158,19 +162,22 @@ namespace Synapse.ActiveDirectory.Core
 
             identity = identity.Replace( "LDAP://", "" );
 
-            if ( IsDistinguishedName( identity ) )
-                searchString = $"(distinguishedName={identity})";
-            else if ( IsGuid( identity ) )
-                searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
-            else if ( IsSid( identity ) )
-                searchString = $"(objectSid={identity})";
+            String id = null;
+            String domain = DirectoryServices.GetDomain(identity, out id);
+
+            if ( IsDistinguishedName( id ) )
+                searchString = $"(distinguishedName={id})";
+            else if ( IsGuid( id ) )
+                searchString = $"(objectGuid={GetGuidSearchBytes(id)})";
+            else if ( IsSid( id ) )
+                searchString = $"(objectSid={id})";
             else
-                searchString = $"(|(name={identity})(userPrincipalName={identity})(sAMAccountName={identity}))";
+                searchString = $"(|(name={id})(userPrincipalName={id})(sAMAccountName={id}))";
 
             if ( objectClass != null )
                 searchString = $"(&(objectClass={objectClass}){searchString})";
 
-            List<DirectoryEntry> results = GetDirectoryEntries( searchString );
+            List<DirectoryEntry> results = GetDirectoryEntries( searchString, domain );
 
             if ( results.Count > 1 )
                 throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );

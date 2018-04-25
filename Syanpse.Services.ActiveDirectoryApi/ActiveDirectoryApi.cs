@@ -32,14 +32,22 @@ public partial class ActiveDirectoryApiController : ApiController
     public string SynapseHello() { return GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
-    [Route( "whoami" )]
+    [Route("whoami")]
     public string WhoAmI()
     {
         string planName = @"WhoAmI";
 
         IExecuteController ec = GetExecuteControllerInstance();
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        return (string)ec.StartPlanSync( pe, planName, setContentType: false );
+        return (string)ec.StartPlanSync(pe, planName, setContentType: false);
+    }
+
+    [HttpGet]
+    [Route("echo/{value}")]
+    [Route("echo/{domain}/{value}")]
+    public string Echo(string value, string domain = null)
+    {
+        return BuildIdentity(domain, value); ;
     }
 
     IExecuteController GetExecuteControllerInstance()
@@ -311,5 +319,13 @@ public partial class ActiveDirectoryApiController : ApiController
     private bool IsDistinguishedName(String name)
     {
         return Regex.IsMatch( name, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
+    }
+
+    private string BuildIdentity(string domain, string identity)
+    {
+        if (String.IsNullOrWhiteSpace(domain))
+            return identity;
+        else
+            return $"{domain}\\{identity}";
     }
 }

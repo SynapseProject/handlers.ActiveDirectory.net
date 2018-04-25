@@ -346,6 +346,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             string statusAction = "Created";
 
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+
             switch ( obj.Type )
             {
                 case AdObjectType.User:
@@ -354,7 +357,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     if ( config.UseUpsert && DirectoryServices.IsExistingUser( obj.Identity ) )
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        up = DirectoryServices.GetUserPrincipal( idOnly, domain );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         user.UpdateUserPrincipal( up );
@@ -378,10 +381,10 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = null;
-                    if ( config.UseUpsert && DirectoryServices.IsExistingGroup( obj.Identity ) )
+                    if ( config.UseUpsert && DirectoryServices.IsExistingGroup( idOnly, domain ) )
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        gp = DirectoryServices.GetGroupPrincipal( idOnly, domain );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         group.UpdateGroupPrincipal( gp );
@@ -451,7 +454,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
                 DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
             if (returnObject)
@@ -493,6 +496,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             string statusAction = "Modified";
 
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+
             switch ( obj.Type )
             {
                 case AdObjectType.User:
@@ -513,7 +519,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        up = DirectoryServices.GetUserPrincipal( obj.Identity );
+                        up = DirectoryServices.GetUserPrincipal( idOnly, domain );
                         if ( up == null )
                             throw new AdException( $"User [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         user.UpdateUserPrincipal( up );
@@ -529,7 +535,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
                     GroupPrincipal gp = null;
-                    if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( obj.Identity ) )
+                    if ( config.UseUpsert && !DirectoryServices.IsExistingGroup( idOnly, domain ) )
                     {
                         if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
                         {
@@ -544,7 +550,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     else
                     {
                         roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        gp = DirectoryServices.GetGroupPrincipal( obj.Identity );
+                        gp = DirectoryServices.GetGroupPrincipal( idOnly, domain );
                         if ( gp == null )
                             throw new AdException( $"Group [{obj.Identity}] Not Found.", AdStatusType.DoesNotExist );
                         group.UpdateGroupPrincipal( gp );
@@ -608,7 +614,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
                 DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
             if ( returnObject )
@@ -724,7 +730,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             DirectoryEntry de = null;
             if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
             {
-                Principal principal = DirectoryServices.GetPrincipal( obj.Identity );
+                String id = null;
+                String domain = DirectoryServices.GetDomain(obj.Identity, out id);
+                Principal principal = DirectoryServices.GetPrincipal( id, domain );
                 if ( principal == null )
                     throw new AdException( $"Principal [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
                 else if ( principal.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
@@ -1180,11 +1188,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         try
         {
             DirectoryEntry de = DirectoryServices.Move(obj.Identity, obj.MoveTo);
-            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{de.Path}]");
+            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{obj.MoveTo}]");
 
             if (returnObject)
             {
-                obj.Identity = de.Path.Replace("LDAP://", "");
+                obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
                 result.Object = GetActiveDirectoryObject(obj);
             }
 

@@ -52,7 +52,8 @@ namespace Synapse.ActiveDirectory.Core
         public static GroupPrincipal CreateGroupPrincipal(string distinguishedName, string samAccountName = null, bool saveOnCreate = true)
         {
             String name = distinguishedName;
-            String path = DirectoryServices.GetDomainDistinguishedName();
+            String domain = DirectoryServices.GetDomain(distinguishedName, out name);
+            String path = domain;
 
             if ( DirectoryServices.IsDistinguishedName( distinguishedName ) )
             {
@@ -99,7 +100,9 @@ namespace Synapse.ActiveDirectory.Core
 
             try
             {
-                GroupPrincipal groupPrincipal = GetGroupPrincipal( identity );
+                String id = null;
+                String domain = GetDomain(identity, out id);
+                GroupPrincipal groupPrincipal = GetGroupPrincipal( id, domain );
                 if ( groupPrincipal != null )
                 {
                     if ( !dryRun )
@@ -118,7 +121,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void AddUserToGroup(string userIdentity, string groupIdentity, bool isDryRun = false, string domainName = null)
+        public static void AddUserToGroup(string userIdentity, string groupIdentity, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( userIdentity ) )
             {
@@ -130,12 +133,16 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Group identity is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUserPrincipal( userIdentity, domainName );
+            String userId = null;
+            String userDomain = GetDomain(userIdentity, out userId);
+            UserPrincipal userPrincipal = GetUserPrincipal( userId, userDomain );
             if ( userPrincipal == null )
             {
                 throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupIdentity, domainName );
+            String groupId = null;
+            String groupDomain = GetDomain(groupIdentity, out groupId);
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupId, groupDomain );
             if ( groupPrincipal == null )
             {
                 throw new AdException( "Group cannot be found.", AdStatusType.DoesNotExist );
@@ -155,7 +162,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void AddGroupToGroup(string childGroupIdentity, string parentGroupIdentity, bool isDryRun = false, string domainName = null)
+        public static void AddGroupToGroup(string childGroupIdentity, string parentGroupIdentity, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( childGroupIdentity ) )
             {
@@ -167,12 +174,17 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Parent group name is not provided.", AdStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupIdentity, domainName );
+            String childId = null;
+            String childDomain = GetDomain(childGroupIdentity, out childId);
+            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childId, childDomain );
             if ( childGroupPrincipal == null )
             {
                 throw new AdException( "Child group cannot be found.", AdStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupIdentity, domainName );
+
+            String parentId = null;
+            String parentDomain = GetDomain(parentGroupIdentity, out parentId);
+            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentId, parentDomain );
             if ( parentGroupPrincipal == null )
             {
                 throw new AdException( "Parent group cannot be found.", AdStatusType.DoesNotExist );
@@ -201,7 +213,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void RemoveUserFromGroup(string userIdentity, string groupIdentity, bool isDryRun = false, string domainName = null)
+        public static void RemoveUserFromGroup(string userIdentity, string groupIdentity, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( userIdentity ) )
             {
@@ -213,12 +225,17 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Group identity is not provided.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUserPrincipal( userIdentity, domainName );
+            String userId = null;
+            String userDomain = GetDomain(userIdentity, out userId);
+            UserPrincipal userPrincipal = GetUserPrincipal( userId, userDomain );
             if ( userPrincipal == null )
             {
                 throw new AdException( "User cannot be found.", AdStatusType.DoesNotExist );
             }
-            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupIdentity, domainName );
+
+            String groupId = null;
+            String groupDomain = GetDomain(groupIdentity, out groupId);
+            GroupPrincipal groupPrincipal = GetGroupPrincipal( groupId, groupDomain );
             if ( groupPrincipal == null )
             {
                 throw new AdException( "Group cannot be found.", AdStatusType.DoesNotExist );
@@ -238,7 +255,7 @@ namespace Synapse.ActiveDirectory.Core
             }
         }
 
-        public static void RemoveGroupFromGroup(string childGroupIdentity, string parentGroupIdentity, bool isDryRun = false, string domainName = null)
+        public static void RemoveGroupFromGroup(string childGroupIdentity, string parentGroupIdentity, bool isDryRun = false)
         {
             if ( String.IsNullOrWhiteSpace( childGroupIdentity ) )
             {
@@ -250,12 +267,17 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Parent group name is not provided.", AdStatusType.MissingInput );
             }
 
-            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupIdentity, domainName );
+            String childGroupId = null;
+            String childGroupDomain = GetDomain(childGroupIdentity, out childGroupId);
+            GroupPrincipal childGroupPrincipal = GetGroupPrincipal( childGroupId, childGroupDomain );
             if ( childGroupPrincipal == null )
             {
                 throw new AdException( "Child group cannot be found.", AdStatusType.DoesNotExist );
             }
-            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupIdentity, domainName );
+
+            String parentGroupId = null;
+            String parentGroupDomain = GetDomain(parentGroupIdentity, out parentGroupId);
+            GroupPrincipal parentGroupPrincipal = GetGroupPrincipal( parentGroupId, parentGroupDomain );
             if ( parentGroupPrincipal == null )
             {
                 throw new AdException( "Parent group cannot be found.", AdStatusType.DoesNotExist );
@@ -317,7 +339,9 @@ namespace Synapse.ActiveDirectory.Core
             GroupPrincipalObject g = null;
             try
             {
-                GroupPrincipal group = GetGroupPrincipal( identity );
+                String idOnly = null;
+                String domain = DirectoryServices.GetDomain(identity, out idOnly);
+                GroupPrincipal group = GetGroupPrincipal( idOnly, domain );
 
                 if ( group != null )
                 {

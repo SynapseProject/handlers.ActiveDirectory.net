@@ -41,7 +41,11 @@ namespace Synapse.ActiveDirectory.Core
             String domain = null;
             String idOnly = identity;
 
-            if (IsDistinguishedName(identity))
+            if (String.IsNullOrWhiteSpace(identity))
+            {
+                domain = GetDomainDistinguishedName();
+            }
+            else if (IsDistinguishedName(identity))
             {
                 domain = GetDomain(identity);
             }
@@ -71,6 +75,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsDistinguishedName(String identity)
         {
+            if (String.IsNullOrWhiteSpace(identity))
+                return false;
+
             if ( identity.StartsWith( "LDAP://" ) )
                 identity = identity.Replace( "LDAP://", "" );
             return Regex.IsMatch( identity, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
@@ -78,6 +85,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsUserPrincipalName(String identity)
         {
+            if (String.IsNullOrWhiteSpace(identity))
+                return false;
+
             return identity.Contains("@");
         }
 
@@ -179,7 +189,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static string GetDistinguishedName(string identity)
         {
-            Principal principal = DirectoryServices.GetPrincipal( identity );
+            String idOnly = null;
+            String domain = GetDomain(identity, out idOnly);
+            Principal principal = DirectoryServices.GetPrincipal( idOnly, domain );
             return principal?.DistinguishedName;
         }
 
