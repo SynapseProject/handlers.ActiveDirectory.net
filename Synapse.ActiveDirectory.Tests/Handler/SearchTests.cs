@@ -57,7 +57,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "attributes", @"[ ""objectGUID"", ""objectSid"" ]" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "Search", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].SearchResults.Results.Count, Is.EqualTo( 4 ) );
 
             // Search For Groups
@@ -68,7 +68,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "attributes", @"[ ""objectGUID"", ""objectSid"" ]" );
 
             result = Utility.CallPlan( "Search", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].SearchResults.Results.Count, Is.EqualTo( 2 ) );
 
             // Check Group Membership (GetAllGroups)
@@ -80,7 +80,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "distinguishedname", up1.DistinguishedName );
 
             result = Utility.CallPlan( "GetAllGroups", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].SearchResults.Results.Count, Is.EqualTo( 3 ) );
 
             // Delete Search Objects

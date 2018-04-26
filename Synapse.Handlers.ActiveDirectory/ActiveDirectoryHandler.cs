@@ -234,7 +234,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
@@ -255,8 +255,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -271,14 +271,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "GetObject", e.Message );
             OnLogMessage( "GetObject", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
     }
 
@@ -331,14 +331,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -463,14 +463,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
 
         results.Add( result );
@@ -481,14 +481,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -623,14 +623,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessCreate", e.Message );
             OnLogMessage( "ProcessCreate", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
 
         results.Add( result );
@@ -641,14 +641,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -681,14 +681,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessDelete", e.Message );
             OnLogMessage( "ProcessDelete", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
 
         results.Add( result );
@@ -699,7 +699,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
@@ -711,14 +711,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -782,14 +782,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessDelete", e.Message );
             OnLogMessage( "ProcessDelete", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
 
         results.Add( result );
@@ -800,14 +800,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -850,8 +850,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = ActionType.AddToGroup,
-            Status = AdStatusType.Success,
+            ActionId = ActionType.AddToGroup,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -876,7 +876,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch ( AdException ldeUserEx )
                             {
-                                ProcessActiveDirectoryException( result, ldeUserEx, status.Action );
+                                ProcessActiveDirectoryException( result, ldeUserEx, status.ActionId );
                             }
                         }
                     }
@@ -898,7 +898,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch ( AdException ldeGroupEx )
                             {
-                                ProcessActiveDirectoryException( result, ldeGroupEx, status.Action );
+                                ProcessActiveDirectoryException( result, ldeGroupEx, status.ActionId );
                             }
                         }
                     }
@@ -912,14 +912,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupAdd", e.Message );
             OnLogMessage( "ProcessGroupAdd", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
 
     }
@@ -928,7 +928,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
@@ -940,8 +940,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = ActionType.RemoveFromGroup,
-            Status = AdStatusType.Success,
+            ActionId = ActionType.RemoveFromGroup,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -966,7 +966,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch (AdException ade)
                             {
-                                ProcessActiveDirectoryException( result, ade, status.Action );
+                                ProcessActiveDirectoryException( result, ade, status.ActionId );
                             }
                         }
                     }
@@ -988,7 +988,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             }
                             catch ( AdException ade )
                             {
-                                ProcessActiveDirectoryException( result, ade, status.Action );
+                                ProcessActiveDirectoryException( result, ade, status.ActionId );
                             }
 
                         }
@@ -1003,14 +1003,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch ( AdException ex )
         {
-            ProcessActiveDirectoryException( result, ex, status.Action );
+            ProcessActiveDirectoryException( result, ex, status.ActionId );
         }
         catch ( Exception e )
         {
             OnLogMessage( "ProcessGroupRemove", e.Message );
             OnLogMessage( "ProcessGroupRemove", e.StackTrace );
             AdException le = new AdException( e );
-            ProcessActiveDirectoryException( result, le, status.Action );
+            ProcessActiveDirectoryException( result, le, status.ActionId );
         }
     }
 
@@ -1018,8 +1018,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = action,
-            Status = ex.Type,
+            ActionId = action,
+            StatusId = ex.Type,
             Message = ex.Message,
         };
 
@@ -1048,15 +1048,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = ActionType.Search,
-            Status = AdStatusType.Success,
+            ActionId = ActionType.Search,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
 
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = AdObjectType.SearchResults,
+            TypeId = AdObjectType.SearchResults,
         };
 
         try
@@ -1105,14 +1105,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -1174,14 +1174,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
     {
         ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
         {
-            Type = obj.Type,
+            TypeId = obj.Type,
             Identity = obj.Identity
         };
 
         ActiveDirectoryStatus status = new ActiveDirectoryStatus()
         {
-            Action = config.Action,
-            Status = AdStatusType.Success,
+            ActionId = config.Action,
+            StatusId = AdStatusType.Success,
             Message = "Success",
         };
 
@@ -1200,14 +1200,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         }
         catch (AdException ex)
         {
-            ProcessActiveDirectoryException(result, ex, status.Action);
+            ProcessActiveDirectoryException(result, ex, status.ActionId);
         }
         catch (Exception e)
         {
             OnLogMessage("ProcessCreate", e.Message);
             OnLogMessage("ProcessCreate", e.StackTrace);
             AdException le = new AdException(e);
-            ProcessActiveDirectoryException(result, le, status.Action);
+            ProcessActiveDirectoryException(result, le, status.ActionId);
         }
 
         results.Add(result);

@@ -62,7 +62,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "countrycode", @"[ ""840"" ]" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.DistinguishedName, Is.EqualTo( ouDistinguishedName ) );
             Assert.That( result.Results[0].OrganizationalUnit.Properties["postalCode"][0], Is.EqualTo( "71286" ) );
             Assert.That( result.Results[0].OrganizationalUnit.Properties["managedBy"][0], Is.EqualTo( managedBy.DistinguishedName ) );
@@ -80,7 +80,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", ouName );
             result = Utility.CallPlan( "GetOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit, Is.Null );
 
             // Get OrgUnit By DistinguishedName
@@ -92,7 +92,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", ouDistinguishedName );
             result = Utility.CallPlan( "GetOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.AccessRules, Is.Null );
             Assert.That( result.Results[0].OrganizationalUnit.Properties, Is.Null );
 
@@ -101,7 +101,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", guid );
             result = Utility.CallPlan( "GetOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit, Is.Not.Null );
             Assert.That( result.Results[0].OrganizationalUnit.Guid.ToString(), Is.EqualTo( guid ) );
 
@@ -112,7 +112,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "managedby", $"~null~" );
             parameters.Add( "postalcode", $"[ \"90210\" ]" );
             result = Utility.CallPlan( "ModifyOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.Properties.ContainsKey( "managedBy" ), Is.False );
             Assert.That( result.Results[0].OrganizationalUnit.Properties["postalCode"][0], Is.EqualTo( "90210" ) );
 
@@ -125,7 +125,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "AddAccessRuleToOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Remove Access Rule
@@ -137,7 +137,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "RemoveAccessRuleFromOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Set Access Rule
@@ -149,7 +149,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "SetAccessRuleOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Purge Access Rule
@@ -161,7 +161,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "PurgeAccessRulesOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Delete OrgUnit
@@ -169,7 +169,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", ouDistinguishedName );
             result = Utility.CallPlan( "DeleteOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
         }
 
         [Test, Category( "Handler" ), Category( "OrgUnit" )]
@@ -185,7 +185,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", ouDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.MissingInput ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.MissingInput ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
         }
 
@@ -238,7 +238,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", ouDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "GetOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Was Not Found" ) );
         }
 
@@ -255,7 +255,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", ouDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "DeleteOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "cannot be found" ) );
         }
 
@@ -274,7 +274,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -293,7 +293,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -312,7 +312,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -331,7 +331,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -350,7 +350,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -369,7 +369,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -386,7 +386,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", groupDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -403,7 +403,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", managedBy.DistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnOrgUnit", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 

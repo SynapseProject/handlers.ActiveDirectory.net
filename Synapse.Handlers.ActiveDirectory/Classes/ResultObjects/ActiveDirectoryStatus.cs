@@ -13,11 +13,15 @@ namespace Synapse.Handlers.ActiveDirectory
     public class ActiveDirectoryStatus
     {
         [XmlElement]
-        public AdStatusType Status { get; set; } = AdStatusType.Success;
+        public AdStatusType StatusId { get; set; } = AdStatusType.Success;
+        [XmlElement]
+        public string Status { get { return StatusId.ToString(); } }
         [XmlElement]
         public string Message { get; set; } = "Success";
         [XmlElement]
-        public ActionType Action { get; set; }
+        public ActionType ActionId { get; set; }
+        [XmlElement]
+        public string Action { get { return ActionId.ToString(); } }
 
         public ActiveDirectoryStatus() { }
 
@@ -29,9 +33,9 @@ namespace Synapse.Handlers.ActiveDirectory
 
         private void Init(ActiveDirectoryStatus status)
         {
-            Status = status.Status;
+            StatusId = status.StatusId;
             Message = status.Message;
-            Action = status.Action;
+            ActionId = status.ActionId;
         }
 
     }

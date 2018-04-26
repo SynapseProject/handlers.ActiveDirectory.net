@@ -55,7 +55,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "groupidentity", targetGroup.DistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddUserToGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.Groups.Count, Is.EqualTo( initialCount + 1 ) );
 
             // Remove User From Group
@@ -66,7 +66,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "groupidentity", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "RemoveUserFromGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.Groups.Count, Is.EqualTo( initialCount ) );
 
             Utility.DeleteUser( user.DistinguishedName );
@@ -84,7 +84,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "groupidentity", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "AddGroupToGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.Groups.Count, Is.EqualTo( initialCount + 1 ) );
 
             // Remove Group From Group
@@ -95,7 +95,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "groupidentity", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "RemoveGroupFromGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.Groups.Count, Is.EqualTo( initialCount ) );
 
             Utility.DeleteGroup( group.DistinguishedName );
