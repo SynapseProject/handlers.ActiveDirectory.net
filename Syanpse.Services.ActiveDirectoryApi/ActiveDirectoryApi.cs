@@ -79,7 +79,7 @@ public partial class ActiveDirectoryApiController : ApiController
         // Split URL into Individual Parts, Pass Into Plan as "url_#"
         string[] parts = url.Split('\\', '/');
         for (int i = 0; i < parts.Length; i++)
-            pe.DynamicParameters.Add($"url_{i+1}", parts[i]);
+            pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
 
         // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
@@ -95,9 +95,8 @@ public partial class ActiveDirectoryApiController : ApiController
         }
 
         IExecuteController ec = GetExecuteControllerInstance();
-        return ec.StartPlanSync(pe, planName, setContentType: false);
+        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true);
     }
-
 
     IExecuteController GetExecuteControllerInstance()
     {
