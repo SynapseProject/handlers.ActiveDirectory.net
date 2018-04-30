@@ -84,7 +84,15 @@ public partial class ActiveDirectoryApiController : ApiController
         // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
         foreach (KeyValuePair<string, string> kvp in queryKvp)
-            pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+        {
+            if (pe.DynamicParameters.ContainsKey(kvp.Key))
+            {
+                string value = pe.DynamicParameters[kvp.Key].ToString();
+                pe.DynamicParameters[kvp.Key] = $"{value},{kvp.Value}";
+            }
+            else
+                pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+        }
 
         IExecuteController ec = GetExecuteControllerInstance();
         return ec.StartPlanSync(pe, planName, setContentType: false);
