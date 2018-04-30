@@ -50,6 +50,47 @@ public partial class ActiveDirectoryApiController : ApiController
         return BuildIdentity(domain, value); ;
     }
 
+    [HttpGet]
+    [HttpPost]
+    [HttpPut]
+    [HttpDelete]
+    [HttpPatch]
+    [Route("{planname}/{*url}")]
+    public object ExecutePlan(string planname, string url)
+    {
+        string planName = planname;
+        StartPlanEnvelope pe = GetPlanEnvelope();
+
+        String body = this.Request.Content?.ReadAsStringAsync().Result;
+        string user = this.User?.Identity?.Name;
+        string requestUri = this.Request.RequestUri.ToString();
+
+        pe.DynamicParameters.Add("url", url);
+        if (body != null)
+            pe.DynamicParameters.Add("body", body);
+        pe.DynamicParameters.Add("method", this.Request.Method.ToString());
+        pe.DynamicParameters.Add("requesturi", requestUri);
+        int queryIndex = requestUri.IndexOf('?');
+        if (queryIndex > 0)
+            pe.DynamicParameters.Add("query", requestUri.Substring(queryIndex + 1));
+        if (user != null)
+            pe.DynamicParameters.Add("user", user);
+
+        // Split URL into Individual Parts, Pass Into Plan as "url_#"
+        string[] parts = url.Split('\\', '/');
+        for (int i = 0; i < parts.Length; i++)
+            pe.DynamicParameters.Add($"url_{i+1}", parts[i]);
+
+        // Add Query String values into Plan Envelope Exactly As Provided
+        IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
+        foreach (KeyValuePair<string, string> kvp in queryKvp)
+            pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+
+        IExecuteController ec = GetExecuteControllerInstance();
+        return ec.StartPlanSync(pe, planName, setContentType: false);
+    }
+
+
     IExecuteController GetExecuteControllerInstance()
     {
         return ExtensibilityUtility.GetExecuteControllerInstance( Url, User, this.Request?.Headers?.Authorization );
@@ -155,10 +196,16 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
+    // Get Empty Plan Envelope
+    private StartPlanEnvelope GetPlanEnvelope()
+    {
+        return new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+    }
+
     // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users, Groups and OrgUnits)
     private StartPlanEnvelope GetPlanEnvelope(string identity)
     {
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        StartPlanEnvelope pe = GetPlanEnvelope();
         pe.DynamicParameters.Add( nameof( identity ), identity );
 
         return pe;
@@ -236,11 +283,12 @@ public partial class ActiveDirectoryApiController : ApiController
         if (pe == null)
             pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
 
+        // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryString = this.Request.GetQueryNameValuePairs();
-        foreach ( KeyValuePair<string, string> kvp in queryString )
-            pe.DynamicParameters.Add( kvp.Key, kvp.Value );
+        foreach (KeyValuePair<string, string> kvp in queryString)
+            pe.DynamicParameters.Add(kvp.Key, kvp.Value);
 
-        object reply = ec.StartPlanSync( pe, planName, setContentType: false );
+        object reply = ec.StartPlanSync(pe, planName, setContentType: false);
         ActiveDirectoryHandlerResults result = null;
         Type replyType = reply.GetType();
         if ( replyType == typeof(string) )
