@@ -35,6 +35,7 @@ Actions:
         - Identity: 
           Type: 
           Rights:
+          Inheritance:
     Dynamic:
     - Source: identity
       Target: Users[0]:Identity
@@ -44,3 +45,5 @@ Actions:
       Target: Users[0]:AccessRules[0]:Type
     - Source: rulerights
       Target: Users[0]:AccessRules[0]:Rights
+    - Source: ruleinheritance
+      Target: Users[0]:AccessRules[0]:Inheritance

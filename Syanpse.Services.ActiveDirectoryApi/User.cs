@@ -91,43 +91,43 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     [HttpPost]
-    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    public ActiveDirectoryHandlerResults AddAccessRuleToUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    public ActiveDirectoryHandlerResults AddAccessRuleToUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null, string inheritance = null)
     {
         string planName = config.Plans.User.AddAccessRule;
 
-        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights, inheritance );
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpDelete]
-    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    public ActiveDirectoryHandlerResults RemoveAccessRuleFromUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    public ActiveDirectoryHandlerResults RemoveAccessRuleFromUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null, string inheritance = null)
     {
         string planName = config.Plans.User.RemoveAccessRule;
 
-        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights, inheritance);
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
 
     [HttpPut]
-    [Route("user/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}")]
-    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}")]
-    public ActiveDirectoryHandlerResults SetAccessRuleOnUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null)
+    [Route("user/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{domain}/{identity}/rule/{principal}/{type}/{rights}/{inheritance?}")]
+    [Route("user/{identity}/rule/{principaldomain}/{principal}/{type}/{rights}/{inheritance?}")]
+    public ActiveDirectoryHandlerResults SetAccessRuleOnUser(string identity, string principal, string type, string rights, string domain = null, string principaldomain = null, string inheritance = null)
     {
         string planName = config.Plans.User.SetAccessRule;
 
-        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), type, rights, inheritance);
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }
@@ -141,7 +141,7 @@ public partial class ActiveDirectoryApiController : ApiController
     {
         string planName = config.Plans.User.PurgeAccessRules;
 
-        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), null, null );
+        AdAccessRule rule = CreateAccessRule(BuildIdentity(principaldomain, principal), null, null, null );
         StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity), rule );
         return CallPlan( planName, pe );
     }

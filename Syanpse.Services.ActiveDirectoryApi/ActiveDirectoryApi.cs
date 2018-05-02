@@ -247,6 +247,7 @@ public partial class ActiveDirectoryApiController : ApiController
 
             pe.DynamicParameters.Add( @"ruletype", rule.Type.ToString() );
             pe.DynamicParameters.Add( @"rulerights", rule.Rights.ToString() );
+            pe.DynamicParameters.Add (@"ruleinheritance", rule.Inheritance.ToString() );
         }
         return pe;
     }
@@ -355,7 +356,7 @@ public partial class ActiveDirectoryApiController : ApiController
         }
     }
 
-    private AdAccessRule CreateAccessRule(string principal, string type, string rights)
+    private AdAccessRule CreateAccessRule(string principal, string type, string rights, string inheritance)
     {
         AdAccessRule rule = new AdAccessRule()
         {
@@ -365,8 +366,11 @@ public partial class ActiveDirectoryApiController : ApiController
         if ( !String.IsNullOrWhiteSpace(type))
             rule.Type = (AccessControlType)Enum.Parse( typeof( AccessControlType ), type );
 
-        if ( !String.IsNullOrWhiteSpace( rights ) )
-            rule.Rights = (ActiveDirectoryRights)Enum.Parse( typeof( ActiveDirectoryRights ), rights );
+        if (!String.IsNullOrWhiteSpace(rights))
+            rule.Rights = (ActiveDirectoryRights)Enum.Parse(typeof(ActiveDirectoryRights), rights);
+
+        if (!String.IsNullOrWhiteSpace(inheritance))
+            rule.Inheritance = (ActiveDirectorySecurityInheritance)Enum.Parse(typeof(ActiveDirectorySecurityInheritance), inheritance);
 
         return rule;
     }
