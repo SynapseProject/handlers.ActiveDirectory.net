@@ -103,7 +103,7 @@ namespace Synapse.ActiveDirectory.Core
             Principal principal = DirectoryServices.GetPrincipal( id, domain );
             if ( principal == null )
                 throw new AdException( $"Principal [{identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
-            AddAccessRule( de, principal, rights, type );
+            AddAccessRule( de, principal, rights, type, inherit );
         }
 
         public static void AddAccessRule(DirectoryEntry de, Principal principal, ActiveDirectoryRights rights, AccessControlType type, ActiveDirectorySecurityInheritance inherit = ActiveDirectorySecurityInheritance.None)

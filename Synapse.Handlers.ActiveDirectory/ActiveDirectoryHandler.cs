@@ -754,15 +754,15 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 switch ( config.Action )
                 {
                     case ActionType.AddAccessRule:
-                        DirectoryServices.AddAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        DirectoryServices.AddAccessRule( de, rule.Identity, rule.Rights, rule.Type, rule.Inheritance );
                         message = $"{rule.Type} [{rule.Rights}] Rule Added To {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.RemoveAccessRule:
-                        DirectoryServices.DeleteAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        DirectoryServices.DeleteAccessRule( de, rule.Identity, rule.Rights, rule.Type, rule.Inheritance );
                         message = $"{rule.Type} [{rule.Rights}] Rule Deleted From {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.SetAccessRule:
-                        DirectoryServices.SetAccessRule( de, rule.Identity, rule.Rights, rule.Type );
+                        DirectoryServices.SetAccessRule( de, rule.Identity, rule.Rights, rule.Type, rule.Inheritance );
                         message = $"{rule.Type} [{rule.Rights}] Rule Set On {obj.Type} [{obj.Identity}] For Identity [{rule.Identity}].";
                         break;
                     case ActionType.PurgeAccessRules:
