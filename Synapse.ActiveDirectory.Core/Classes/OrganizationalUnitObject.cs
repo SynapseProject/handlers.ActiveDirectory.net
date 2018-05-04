@@ -11,9 +11,9 @@ namespace Synapse.ActiveDirectory.Core
     public class OrganizationalUnitObject : DirectoryEntryObject, ICloneable
     {
         public OrganizationalUnitObject() { }
-        public OrganizationalUnitObject(DirectoryEntry ou, bool getAccessRules = false, bool getObjectProperties = true)
+        public OrganizationalUnitObject(DirectoryEntry ou, bool getAccessRules = false, bool getObjectProperties = true, bool loadSchema = true)
         {
-            SetPropertiesFromOrganizationalUnit( ou, getAccessRules, getObjectProperties );
+            SetPropertiesFromOrganizationalUnit( ou, getAccessRules, getObjectProperties, true, loadSchema );
         }
 
         public string DistinguishedName { get; set; }
@@ -28,11 +28,11 @@ namespace Synapse.ActiveDirectory.Core
             return this.MemberwiseClone();
         }
 
-        public void SetPropertiesFromOrganizationalUnit(DirectoryEntry ou, bool getAccessRules, bool getObjectProperties, bool getParent = true)
+        public void SetPropertiesFromOrganizationalUnit(DirectoryEntry ou, bool getAccessRules, bool getObjectProperties, bool getParent, bool loadSchema)
         {
             if( ou == null ) return;
 
-            SetPropertiesFromDirectoryEntry( ou, true, getAccessRules, getObjectProperties, getParent );
+            SetPropertiesFromDirectoryEntry( ou, loadSchema, getAccessRules, getObjectProperties, getParent );
 
             DistinguishedName = ou.Properties["distinguishedName"].Value.ToString();
         }

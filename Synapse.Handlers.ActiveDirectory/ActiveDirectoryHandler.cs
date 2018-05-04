@@ -313,11 +313,11 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
                 OrganizationalUnitObject ouo = null;
-                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties );
+                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema );
 
                 // Group Might Have Been Renamed, Look Up By "Name" If Provided
                 if (ouo == null && !String.IsNullOrEmpty(ou.Name))
-                    ouo = DirectoryServices.GetOrganizationalUnit(ou.Name, config.ReturnAccessRules, config.ReturnObjectProperties);
+                    ouo = DirectoryServices.GetOrganizationalUnit(ou.Name, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
 
                 if ( ouo == null )
                     throw new AdException( $"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
