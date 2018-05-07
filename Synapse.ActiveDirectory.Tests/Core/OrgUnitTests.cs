@@ -181,13 +181,13 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Get Group That Does Not Exist
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
-
+            
             String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( testOuName, null );
             OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
-            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.DistinguishedName}]." );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -221,7 +221,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -254,7 +254,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -287,7 +287,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Purging AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.Name, groupName ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.DistinguishedName, groupName ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 

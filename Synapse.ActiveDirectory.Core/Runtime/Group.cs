@@ -65,7 +65,7 @@ namespace Synapse.ActiveDirectory.Core
                     path = match.Groups[2]?.Value?.Trim();
                 }
             }
-            else if ( String.IsNullOrWhiteSpace( distinguishedName ) )
+            else if ( String.IsNullOrWhiteSpace( distinguishedName ) || String.IsNullOrWhiteSpace(path) )
                 throw new AdException( "Unable To Create Group Principal From Given Input.", AdStatusType.MissingInput );
 
 

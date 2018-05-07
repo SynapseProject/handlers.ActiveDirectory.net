@@ -63,7 +63,7 @@ namespace Synapse.ActiveDirectory.Core
                 }
                 domain = DirectoryServices.GetDomain( distinguishedName );
             }
-            else if ( String.IsNullOrWhiteSpace( distinguishedName ) )
+            else if ( String.IsNullOrWhiteSpace( distinguishedName ) || String.IsNullOrWhiteSpace(path))
                 throw new AdException( "Unable To Create User Principal From Given Input.", AdStatusType.MissingInput );
 
             path = path.Replace( "LDAP://", "" );
