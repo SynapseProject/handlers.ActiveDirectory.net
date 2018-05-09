@@ -162,7 +162,7 @@ namespace Synapse.ActiveDirectory.Core
             Path = de.Path;
             SchemaClassName = de.SchemaClassName;
             if (loadSchema)
-                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false, false );
+                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false, false, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
 
@@ -174,8 +174,5 @@ namespace Synapse.ActiveDirectory.Core
         {
             return this.MemberwiseClone();
         }
-
-
-
     }
 }

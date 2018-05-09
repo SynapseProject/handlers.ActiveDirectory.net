@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Core
 
             DirectoryEntry orgUnit = GetDirectoryEntry( identity, AdObjectType.OrganizationalUnit.ToString() );
             if (orgUnit != null)
-                ouo = new DirectoryEntryObject( orgUnit, getAccessRules, getObjectProperties, loadSchema );
+                ouo = new DirectoryEntryObject( orgUnit, loadSchema, getAccessRules, getObjectProperties );
 
             return ouo;
         }

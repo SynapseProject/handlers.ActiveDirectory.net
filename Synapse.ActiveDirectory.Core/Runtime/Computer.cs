@@ -32,7 +32,7 @@ namespace Synapse.ActiveDirectory.Core
 
             DirectoryEntry computer = GetDirectoryEntry( identity, AdObjectType.Computer.ToString() );
             if (computer != null)
-                co = new DirectoryEntryObject( computer, getAccessRules, getObjectProperties, loadSchema );
+                co = new DirectoryEntryObject( computer, loadSchema, getAccessRules, getObjectProperties );
 
             return co;
         }
