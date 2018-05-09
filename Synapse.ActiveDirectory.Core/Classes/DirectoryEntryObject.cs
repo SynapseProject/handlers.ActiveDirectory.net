@@ -16,7 +16,10 @@ namespace Synapse.ActiveDirectory.Core
         public DirectoryEntryObject(DirectoryEntry de, bool loadSchema, bool getAccessRules, bool getObjectProperties, bool getParent = true)
         {
             SetPropertiesFromDirectoryEntry( de, loadSchema, getAccessRules, getObjectProperties, getParent );
+            DistinguishedName = de.Properties["distinguishedName"].Value.ToString();
         }
+
+        public string DistinguishedName { get; set; }
 
         //
         // Summary:
@@ -166,6 +169,13 @@ namespace Synapse.ActiveDirectory.Core
             if (getAccessRules)
                 AccessRules = DirectoryServices.GetAccessRules( de );
         }
+
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
+
+
 
     }
 }

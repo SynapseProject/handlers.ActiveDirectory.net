@@ -75,58 +75,70 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessGet);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGet);
                         break;
                     case ActionType.Create:
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessCreate);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessCreate);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessCreate);
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessCreate);
                         break;
                     case ActionType.Modify:
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessModify);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessModify);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessModify);
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessModify);
                         break;
                     case ActionType.Delete:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessDelete);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessDelete);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessDelete);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessDelete);
                         break;
                     case ActionType.AddToGroup:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupAdd);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupAdd);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGroupAdd);
                         break;
                     case ActionType.RemoveFromGroup:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupRemove);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupRemove);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGroupRemove);
                         break;
                     case ActionType.AddAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.RemoveAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.SetAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.PurgeAccessRules:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.AddRole:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.RemoveRole:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.Search:
@@ -135,6 +147,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     case ActionType.Move:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessMove);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessMove);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessMove);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessMove);
                         break;
                     default:
@@ -312,16 +325,28 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                OrganizationalUnitObject ouo = null;
-                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema );
+                DirectoryEntryObject ouo = null;
+                ouo = DirectoryServices.GetOrganizationalUnit(ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
 
                 // Group Might Have Been Renamed, Look Up By "Name" If Provided
                 if (ouo == null && !String.IsNullOrEmpty(ou.Name))
                     ouo = DirectoryServices.GetOrganizationalUnit(ou.Name, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
 
-                if ( ouo == null )
-                    throw new AdException( $"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
+                if (ouo == null)
+                    throw new AdException($"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist);
                 return ouo;
+            case AdObjectType.Computer:
+                AdComputer computer = (AdComputer)obj;
+                DirectoryEntryObject co = null;
+                co = DirectoryServices.GetComputer(computer.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
+
+                // Group Might Have Been Renamed, Look Up By "Name" If Provided
+                if (co == null && !String.IsNullOrEmpty(computer.Name))
+                    co = DirectoryServices.GetComputer(computer.Name, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
+
+                if (co == null)
+                    throw new AdException($"Computer [{computer.Identity}] Was Not Found.", AdStatusType.DoesNotExist);
+                return co;
             default:
                 throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
         }
@@ -1147,7 +1172,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         break;
                     case AdObjectType.OrganizationalUnit:
                         AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                        OrganizationalUnitObject ouo = new OrganizationalUnitObject();
+                        DirectoryEntryObject ouo = new DirectoryEntryObject();
                         ouo.Name = "DryRun Name";
                         ouo.DistinguishedName = $"ou=DryRunName,dc=sandbox,dc=local";
                         ouo.Guid = Guid.NewGuid();
