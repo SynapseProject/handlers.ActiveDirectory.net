@@ -25,6 +25,8 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlElement]
         public bool ReturnObjects { get; set; } = true;
         [XmlElement]
+        public bool LoadSchema { get; set; } = false;       // Return Schema Information on DirectoryEntry Objects
+        [XmlElement]
         public bool SuppressOutput { get; set; } = false;
         [XmlElement]
         public bool UseUpsert { get; set; } = true;

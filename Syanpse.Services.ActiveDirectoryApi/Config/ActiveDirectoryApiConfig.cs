@@ -44,6 +44,7 @@ public class ActiveDirectoryApiConfig
             config.Plans.User.Get = @"GetUser";
             config.Plans.User.Create = @"CreateUser";
             config.Plans.User.Delete = @"DeleteUser";
+            config.Plans.User.Move = @"MoveUser";
             config.Plans.User.Modify = @"ModifyUser";
             config.Plans.User.AddToGroup = @"AddUserToGroup";
             config.Plans.User.RemoveFromGroup = @"RemoveUserFromGroup";
@@ -57,6 +58,7 @@ public class ActiveDirectoryApiConfig
             config.Plans.Group.Get = @"GetGroup";
             config.Plans.Group.Create = @"CreateGroup";
             config.Plans.Group.Delete = @"DeleteGroup";
+            config.Plans.Group.Move = @"MoveGroup";
             config.Plans.Group.Modify = @"ModifyGroup";
             config.Plans.Group.AddToGroup = @"AddGroupToGroup";
             config.Plans.Group.RemoveFromGroup = @"RemoveGroupFromGroup";
@@ -70,6 +72,7 @@ public class ActiveDirectoryApiConfig
             config.Plans.OrganizationalUnit.Get = @"GetOrgUnit";
             config.Plans.OrganizationalUnit.Create = @"CreateOrgUnit";
             config.Plans.OrganizationalUnit.Delete = @"DeleteOrgUnit";
+            config.Plans.OrganizationalUnit.Move = @"MoveOrgUnit";
             config.Plans.OrganizationalUnit.Modify = @"ModifyOrgUnit";
             config.Plans.OrganizationalUnit.AddAccessRule = @"AddAccessRuleToOrgUnit";
             config.Plans.OrganizationalUnit.RemoveAccessRule = @"RemoveAccessRuleFromOrgUnit";
@@ -104,6 +107,7 @@ public class AllPlans
     public string Get { get; set; }
     public string Create { get; set; }
     public string Delete { get; set; }
+    public string Move { get; set; }
     public string Modify { get; set; }
     public string AddAccessRule { get; set; }
     public string RemoveAccessRule { get; set; }

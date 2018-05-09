@@ -109,7 +109,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "lockouttime", $"[ \"0\" ]" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.DistinguishedName, Is.EqualTo( userDistinguishedName ) );
             Assert.That( result.Results[0].User.Properties["st"][0], Is.EqualTo( "Louisiana" ) );
             Assert.That( result.Results[0].User.Groups, Is.Not.Null );
@@ -130,7 +130,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", userName );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User, Is.Null );
 
             // Get User By DistinguishedName
@@ -143,7 +143,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", userDistinguishedName );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.Groups, Is.Null );
             Assert.That( result.Results[0].User.AccessRules, Is.Null );
             Assert.That( result.Results[0].User.Properties, Is.Null );
@@ -158,7 +158,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", userPrincipalName );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.Groups, Is.Not.Null );
             Assert.That( result.Results[0].User.AccessRules, Is.Not.Null );
             Assert.That( result.Results[0].User.Properties, Is.Not.Null );
@@ -168,7 +168,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", samAccountName );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User, Is.Not.Null );
             Assert.That( result.Results[0].User.SamAccountName, Is.EqualTo( samAccountName ) );
 
@@ -177,7 +177,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", sid );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User, Is.Not.Null );
             Assert.That( result.Results[0].User.Sid, Is.EqualTo( sid ) );
 
@@ -186,7 +186,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", guid );
             result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User, Is.Not.Null );
             Assert.That( result.Results[0].User.Guid.ToString(), Is.EqualTo( guid ) );
 
@@ -199,7 +199,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "manager", $"[ \"~null~\" ]" );
             parameters.Add( "otheripphone", @"[ ""504-555-7777"", ""~null~"", ""504-555-8888"" ]" );
             result = Utility.CallPlan( "ModifyUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.EmployeeId, Is.EqualTo( "84" ) );
             Assert.That( result.Results[0].User.Properties.ContainsKey("manager"), Is.False );
             Assert.That( result.Results[0].User.Properties.ContainsKey("otheripphone"), Is.False );
@@ -216,7 +216,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Remove Access Rule
@@ -228,7 +228,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Set Access Rule
@@ -240,7 +240,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Purge Access Rule
@@ -252,7 +252,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Delete User
@@ -260,7 +260,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", userDistinguishedName );
             result = Utility.CallPlan( "DeleteUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
         }
 
 
@@ -277,7 +277,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", userDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.MissingInput ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.MissingInput ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
         }
 
@@ -295,7 +295,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "password", "password" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Unknown ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Unknown ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "The password does not meet the password policy requirements" ) );
         }
 
@@ -347,7 +347,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", userDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "GetUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Was Not Found" ) );
         }
 
@@ -364,7 +364,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", userDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "DeleteUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "cannot be found" ) );
         }
 
@@ -383,7 +383,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -402,7 +402,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -421,7 +421,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -440,7 +440,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -459,7 +459,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -478,7 +478,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -495,7 +495,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", manager.DistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -512,7 +512,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", userDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnUser", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 

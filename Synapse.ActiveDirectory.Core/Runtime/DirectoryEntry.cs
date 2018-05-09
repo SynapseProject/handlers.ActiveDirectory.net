@@ -120,9 +120,32 @@ namespace Synapse.ActiveDirectory.Core
             DirectoryEntry fromDE = GetDirectoryEntry( identity );
             DirectoryEntry toDE = GetDirectoryEntry( destination );
 
+            if (toDE.SchemaClassName != "organizationalUnit")
+                throw new AdException($"Destination [{destination}] Must Be A Organizational Unit.", AdStatusType.InvalidInput);
+
             fromDE.MoveTo( toDE );
 
-            return GetDirectoryEntry( identity );
+            String newPath = toDE.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{fromDE.Name},{newPath}";
+            return GetDirectoryEntry( newDN );
+        }
+
+        public static DirectoryEntry Rename(string identity, string newName)
+        {
+            DirectoryEntry de = GetDirectoryEntry(identity);
+            String distinguishedName = de.Properties["distinguishedName"].Value.ToString();
+            String prefix = de.Name.Substring(0, de.Name.IndexOf("="));
+            String parentName = DirectoryServices.GetParentPath(distinguishedName);
+            DirectoryEntry parent = GetDirectoryEntry(parentName);
+
+            de.MoveTo(parent, $"{prefix}={newName}");
+
+            String newPath = parent.Path.Replace("LDAP://", "");
+            newPath = newPath.Substring(newPath.IndexOf("/") + 1);
+            String newDN = $"{prefix}={newName},{newPath}";
+            return GetDirectoryEntry(newDN);
+
         }
 
         public static bool IsExistingDirectoryEntry(string identity)
@@ -139,19 +162,22 @@ namespace Synapse.ActiveDirectory.Core
 
             identity = identity.Replace( "LDAP://", "" );
 
-            if ( IsDistinguishedName( identity ) )
-                searchString = $"(distinguishedName={identity})";
-            else if ( IsGuid( identity ) )
-                searchString = $"(objectGuid={GetGuidSearchBytes( identity )})";
-            else if ( IsSid( identity ) )
-                searchString = $"(objectSid={identity})";
+            String id = null;
+            String domain = DirectoryServices.GetDomain(identity, out id);
+
+            if ( IsDistinguishedName( id ) )
+                searchString = $"(distinguishedName={id})";
+            else if ( IsGuid( id ) )
+                searchString = $"(objectGuid={GetGuidSearchBytes(id)})";
+            else if ( IsSid( id ) )
+                searchString = $"(objectSid={id})";
             else
-                searchString = $"(|(name={identity})(userPrincipalName={identity})(sAMAccountName={identity}))";
+                searchString = $"(|(name={id})(userPrincipalName={id})(sAMAccountName={id}))";
 
             if ( objectClass != null )
                 searchString = $"(&(objectClass={objectClass}){searchString})";
 
-            List<DirectoryEntry> results = GetDirectoryEntries( searchString );
+            List<DirectoryEntry> results = GetDirectoryEntries( searchString, domain );
 
             if ( results.Count > 1 )
                 throw new AdException( $"Multiple Objects Found With Identity [{identity}].", AdStatusType.MultipleMatches );

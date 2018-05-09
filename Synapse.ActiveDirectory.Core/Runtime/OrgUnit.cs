@@ -26,13 +26,13 @@ namespace Synapse.ActiveDirectory.Core
             DeleteDirectoryEntry( AdObjectType.OrganizationalUnit.ToString(), identity );
         }
 
-        public static OrganizationalUnitObject GetOrganizationalUnit(string identity, bool getAccessRules, bool getObjectProperties)
+        public static OrganizationalUnitObject GetOrganizationalUnit(string identity, bool getAccessRules, bool getObjectProperties, bool loadSchema)
         {
             OrganizationalUnitObject ouo = null;
 
             DirectoryEntry orgUnit = GetDirectoryEntry( identity, AdObjectType.OrganizationalUnit.ToString() );
             if (orgUnit != null)
-                ouo = new OrganizationalUnitObject( orgUnit, getAccessRules, getObjectProperties );
+                ouo = new OrganizationalUnitObject( orgUnit, getAccessRules, getObjectProperties, loadSchema );
 
             return ouo;
         }

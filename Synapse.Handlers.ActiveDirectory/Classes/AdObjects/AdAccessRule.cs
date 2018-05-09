@@ -17,5 +17,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public AccessControlType Type { get; set; }
         [XmlElement]
         public ActiveDirectoryRights Rights { get; set; }
+        [XmlElement]
+        public ActiveDirectorySecurityInheritance Inheritance { get; set; } = ActiveDirectorySecurityInheritance.None;
     }
 }

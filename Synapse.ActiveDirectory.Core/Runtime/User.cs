@@ -16,7 +16,9 @@ namespace Synapse.ActiveDirectory.Core
             UserPrincipalObject u = null;
             try
             {
-                UserPrincipal user = GetUserPrincipal( identity );
+                String idOnly = null;
+                String domain = DirectoryServices.GetDomain(identity, out idOnly);
+                UserPrincipal user = GetUserPrincipal( idOnly, domain );
 
                 if ( user != null )
                 {
@@ -47,8 +49,8 @@ namespace Synapse.ActiveDirectory.Core
         public static UserPrincipal CreateUserPrincipal(string distinguishedName, string userPrincipalName = null, string samAccountName = null, bool saveOnCreate = true)
         {
             String name = distinguishedName;
-            String path = DirectoryServices.GetDomainDistinguishedName();
-            String domain = DirectoryServices.GetDomain( path );
+            String domain = DirectoryServices.GetDomain( distinguishedName, out name );
+            String path = domain;
 
             if ( DirectoryServices.IsDistinguishedName( distinguishedName ) )
             {
@@ -61,7 +63,7 @@ namespace Synapse.ActiveDirectory.Core
                 }
                 domain = DirectoryServices.GetDomain( distinguishedName );
             }
-            else if ( String.IsNullOrWhiteSpace( distinguishedName ) )
+            else if ( String.IsNullOrWhiteSpace( distinguishedName ) || String.IsNullOrWhiteSpace(path))
                 throw new AdException( "Unable To Create User Principal From Given Input.", AdStatusType.MissingInput );
 
             path = path.Replace( "LDAP://", "" );
@@ -129,7 +131,9 @@ namespace Synapse.ActiveDirectory.Core
                 throw new AdException( "Identity is not specified.", AdStatusType.MissingInput );
             }
 
-            UserPrincipal userPrincipal = GetUserPrincipal( identity );
+            String id = null;
+            String domain = GetDomain(identity, out id);
+            UserPrincipal userPrincipal = GetUserPrincipal( id, domain );
             if ( userPrincipal != null )
             {
                 if ( !isDryRun )
@@ -145,7 +149,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsExistingUser(string identity)
         {
-            return GetUserPrincipal( identity ) != null;
+            String idOnly = null;
+            String domain = DirectoryServices.GetDomain(identity, out idOnly);
+            return GetUserPrincipal( idOnly, domain ) != null;
         }
     }
 }

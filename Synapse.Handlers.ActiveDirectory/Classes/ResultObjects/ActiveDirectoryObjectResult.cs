@@ -19,7 +19,9 @@ namespace Synapse.Handlers.ActiveDirectory
         public List<ActiveDirectoryStatus> Statuses { get; set; } = new List<ActiveDirectoryStatus>();
 
         [XmlElement]
-        public AdObjectType Type { get; set; } = AdObjectType.None;
+        public AdObjectType TypeId { get; set; } = AdObjectType.None;
+        [XmlElement]
+        public string Type { get { return TypeId.ToString(); } }
         [XmlElement]
         public string Identity { get; set; }
 

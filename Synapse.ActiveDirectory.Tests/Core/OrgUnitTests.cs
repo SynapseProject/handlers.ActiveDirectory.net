@@ -45,26 +45,26 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             // Get OrgUnit By DistinguishedName
             Console.WriteLine( $"Getting OrgUnit By DisginguishedName : [{distinguishedName}]" );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, true, true );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, true, true, false );
             Assert.That( ouo, Is.Not.Null );
 
             String guid = ouo.Guid.ToString();
 
             // Get OrgUnit By Name
             Console.WriteLine( $"Getting OrgUnit By Name : [{name}]" );
-            ouo = DirectoryServices.GetOrganizationalUnit( name, false, false );
+            ouo = DirectoryServices.GetOrganizationalUnit( name, false, false, false );
             Assert.That( ouo, Is.Not.Null );
 
             // Get OrgUnit By Name
             Console.WriteLine( $"Getting OrgUnit By Guid : [{guid}]" );
-            ouo = DirectoryServices.GetOrganizationalUnit( guid, false, true );
+            ouo = DirectoryServices.GetOrganizationalUnit( guid, false, true, false );
             Assert.That( ouo, Is.Not.Null );
             Assert.That( ouo.Properties.ContainsKey( "description" ), Is.True );
 
             // Modify OrgUnit
             DirectoryServices.AddProperty( properties, "description", "~null~", true );
             DirectoryServices.ModifyOrganizationUnit( distinguishedName, properties );
-            ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, true );
+            ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, true, false );
             Assert.That( ouo.Properties.ContainsKey("description"), Is.False );
 
             // Create AccessUser For AccessRule Tests (Below)
@@ -102,7 +102,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Delete OrgUnit
             Console.WriteLine( $"Deleting OrgUnit : [{distinguishedName}]" );
             DirectoryServices.DeleteOrganizationUnit( distinguishedName );
-            ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, false );
+            ouo = DirectoryServices.GetOrganizationalUnit( distinguishedName, false, false, false );
             Assert.That( ouo, Is.Null );
         }
 
@@ -114,7 +114,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String ouDistinguishedName = $"OU={ouName},{workspaceName}";
 
             Console.WriteLine( $"Getting OrgUnit [{ouName}] Which Should Not Exist." );
-            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( ouName, true, true );
+            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( ouName, true, true, false );
             Assert.That( badOrgUnit, Is.Null );
 
             Console.WriteLine( $"Getting OrgUnit Principal [{ouName}] Which Should Not Exist." );
@@ -138,7 +138,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         {
             String badOuName = $"ou=BadOrgUnit,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( badOuName, null );
-            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( badOuName, false, true );
+            OrganizationalUnitObject badOrgUnit = DirectoryServices.GetOrganizationalUnit( badOuName, false, true, false );
             Dictionary <string, List<string>> properties = new Dictionary<string, List<string>>();
 
             DirectoryServices.AddProperty( properties, "managedBy", "BadManager" );
@@ -181,13 +181,13 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Get Group That Does Not Exist
             String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
             String groupDistinguishedName = $"CN={groupName},{workspaceName}";
-
+            
             String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( testOuName, null );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
-            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            Console.WriteLine( $"Adding AccessRule For Group [{groupName}] Which Should Not Exist To OrgUnit [{ouo.DistinguishedName}]." );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -218,10 +218,10 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( testOuName, null );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Deleting AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.DeleteAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -251,10 +251,10 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( testOuName, null );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Setting AccessRule For Group [{groupName}] Which Should Not Exist On OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.Name, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.SetAccessRule( ouo.DistinguishedName, groupName, ActiveDirectoryRights.GenericRead, System.Security.AccessControl.AccessControlType.Allow, ActiveDirectorySecurityInheritance.None ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 
@@ -284,10 +284,10 @@ namespace Synapse.ActiveDirectory.Tests.Core
 
             String testOuName = $"ou=TestOrgUnit001,{workspaceName}";
             DirectoryServices.CreateOrganizationUnit( testOuName, null );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true );
+            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( testOuName, false, true, false );
 
             Console.WriteLine( $"Purging AccessRule For Group [{groupName}] Which Should Not Exist From OrgUnit [{ouo.Name}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.Name, groupName ) );
+            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.PurgeAccessRules( ouo.DistinguishedName, groupName ) );
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "Can Not Be Found" ) );
 

@@ -19,19 +19,20 @@ Actions:
         UseUpsert: true
         SuppressOutput: false
       Dynamic:
-      - Name: returngroupmembership
-        Path: ReturnGroupMembership
-      - Name: returnobjects
-        Path: ReturnObjects
-      - Name: returnobjectproperties
-        Path: ReturnObjectProperties
-      - Name: returnaccessrules
-        Path: ReturnAccessRules
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:
       Users:
       - Identity: 
+        Name:
 #       Principal Fields
         UserPrincipalName: 
         SamAccountName: 
@@ -44,7 +45,7 @@ Actions:
         SmartcardLogonRequired: 
         DelegationPermitted: 
         HomeDirectory: 
-        ScriptPath: 
+        ScriptTarget: 
         PasswordNotRequired: 
         PasswordNeverExpires: 
         UserCannotChangePassword: 
@@ -79,7 +80,7 @@ Actions:
           department:
           company:
           manager:
-          profilePath:
+          profileTarget:
           homePhone:
           otherHomePhone:
           pager:
@@ -94,151 +95,153 @@ Actions:
           lockoutTime:
     Dynamic:
 #   Principal Fields
-    - Name: identity
-      Path: Users[0]:Identity
-    - Name: userprincipalname
-      Path: Users[0]:UserPrincipalName
-    - Name: samaccountname
-      Path: Users[0]:SamAccountName
-    - Name: displayname
-      Path: Users[0]:DisplayName
-    - Name: description
-      Path: Users[0]:Description
+    - Source: identity
+      Target: Users[0]:Identity
+    - Source: name
+      Target: Users[0]:Name
+    - Source: userprincipalname
+      Target: Users[0]:UserPrincipalName
+    - Source: samaccountname
+      Target: Users[0]:SamAccountName
+    - Source: displayname
+      Target: Users[0]:DisplayName
+    - Source: description
+      Target: Users[0]:Description
 #   AuthenticationPrincipal Fields
-    - Name: enabled
-      Path: Users[0]:Enabled
-    - Name: permittedlogontimes
-      Path: Users[0]:PermittedLogonTimes
-    - Name: accountexpirationdate
-      Path: Users[0]:AccountExpirationDate
-    - Name: smartcardlogonrequired
-      Path: Users[0]:SmartcardLogonRequired
-    - Name: delegationpermitted
-      Path: Users[0]:DelegationPermitted
-    - Name: homedirectory
-      Path: Users[0]:HomeDirectory
-    - Name: scriptpath
-      Path: Users[0]:ScriptPath
-    - Name: passwordnotrequired
-      Path: Users[0]:PasswordNotRequired
-    - Name: passwordneverexpires
-      Path: Users[0]:PasswordNeverExpires
-    - Name: usercannotchangepassword
-      Path: Users[0]:UserCannotChangePassword
-    - Name: allowreversiblepasswordencryption
-      Path: Users[0]:AllowReversiblePasswordEncryption
-    - Name: homedrive
-      Path: Users[0]:HomeDrive
+    - Source: enabled
+      Target: Users[0]:Enabled
+    - Source: permittedlogontimes
+      Target: Users[0]:PermittedLogonTimes
+    - Source: accountexpirationdate
+      Target: Users[0]:AccountExpirationDate
+    - Source: smartcardlogonrequired
+      Target: Users[0]:SmartcardLogonRequired
+    - Source: delegationpermitted
+      Target: Users[0]:DelegationPermitted
+    - Source: homedirectory
+      Target: Users[0]:HomeDirectory
+    - Source: scriptTarget
+      Target: Users[0]:ScriptTarget
+    - Source: passwordnotrequired
+      Target: Users[0]:PasswordNotRequired
+    - Source: passwordneverexpires
+      Target: Users[0]:PasswordNeverExpires
+    - Source: usercannotchangepassword
+      Target: Users[0]:UserCannotChangePassword
+    - Source: allowreversiblepasswordencryption
+      Target: Users[0]:AllowReversiblePasswordEncryption
+    - Source: homedrive
+      Target: Users[0]:HomeDrive
 #   UserPrincipalFields
-    - Name: givenname
-      Path: Users[0]:GivenName
-    - Name: middlename
-      Path: Users[0]:MiddleName
-    - Name: surname
-      Path: Users[0]:Surname
-    - Name: emailaddress
-      Path: Users[0]:EmailAddress
-    - Name: voicetelephonenumber
-      Path: Users[0]:VoiceTelephoneNumber
-    - Name: employeeid
-      Path: Users[0]:EmployeeId
+    - Source: givenname
+      Target: Users[0]:GivenName
+    - Source: middlename
+      Target: Users[0]:MiddleName
+    - Source: surname
+      Target: Users[0]:Surname
+    - Source: emailaddress
+      Target: Users[0]:EmailAddress
+    - Source: voicetelephonenumber
+      Target: Users[0]:VoiceTelephoneNumber
+    - Source: employeeid
+      Target: Users[0]:EmployeeId
 #   Other Fields
-    - Name: password
-      Path: Users[0]:Password
+    - Source: password
+      Target: Users[0]:Password
 #   Properties
-    - Name: initials
-      Path: Users[0]:Properties:initials
+    - Source: initials
+      Target: Users[0]:Properties:initials
       Parse: true
-    - Name: physicaldeliveryofficename
-      Path: Users[0]:Properties:physicalDeliveryOfficeName
+    - Source: physicaldeliveryofficename
+      Target: Users[0]:Properties:physicalDeliveryOfficeName
       Parse: true
-    - Name: othertelephone
-      Path: Users[0]:Properties:otherTelephone
+    - Source: othertelephone
+      Target: Users[0]:Properties:otherTelephone
       Parse: true
-    - Name: wwwhomepage
-      Path: Users[0]:Properties:wWWHomePage
+    - Source: wwwhomepage
+      Target: Users[0]:Properties:wWWHomePage
       Parse: true
-    - Name: url
-      Path: Users[0]:Properties:url
+    - Source: url
+      Target: Users[0]:Properties:url
       Parse: true
-    - Name: logonworkstation
-      Path: Users[0]:Properties:logonWorkstation
+    - Source: logonworkstation
+      Target: Users[0]:Properties:logonWorkstation
       Parse: true
-    - Name: userworkstations
-      Path: Users[0]:Properties:userWorkstations
+    - Source: userworkstations
+      Target: Users[0]:Properties:userWorkstations
       Parse: true
-    - Name: c
-      Path: Users[0]:Properties:c
+    - Source: c
+      Target: Users[0]:Properties:c
       Parse: true
-    - Name: l
-      Path: Users[0]:Properties:l
+    - Source: l
+      Target: Users[0]:Properties:l
       Parse: true
-    - Name: st
-      Path: Users[0]:Properties:st
+    - Source: st
+      Target: Users[0]:Properties:st
       Parse: true
-    - Name: streetaddress
-      Path: Users[0]:Properties:streetAddress
+    - Source: streetaddress
+      Target: Users[0]:Properties:streetAddress
       Parse: true
-    - Name: postofficebox
-      Path: Users[0]:Properties:postOfficeBox
+    - Source: postofficebox
+      Target: Users[0]:Properties:postOfficeBox
       Parse: true
-    - Name: postalcode
-      Path: Users[0]:Properties:postalCode
+    - Source: postalcode
+      Target: Users[0]:Properties:postalCode
       Parse: true
-    - Name: co
-      Path: Users[0]:Properties:co
+    - Source: co
+      Target: Users[0]:Properties:co
       Parse: true
-    - Name: countrycode
-      Path: Users[0]:Properties:countryCode
+    - Source: countrycode
+      Target: Users[0]:Properties:countryCode
       Parse: true
-    - Name: title
-      Path: Users[0]:Properties:title
+    - Source: title
+      Target: Users[0]:Properties:title
       Parse: true
-    - Name: department
-      Path: Users[0]:Properties:department
+    - Source: department
+      Target: Users[0]:Properties:department
       Parse: true
-    - Name: company
-      Path: Users[0]:Properties:company
+    - Source: company
+      Target: Users[0]:Properties:company
       Parse: true
-    - Name: manager
-      Path: Users[0]:Properties:manager
+    - Source: manager
+      Target: Users[0]:Properties:manager
       Parse: true
-    - Name: profilepath
-      Path: Users[0]:Properties:profilePath
+    - Source: profileTarget
+      Target: Users[0]:Properties:profileTarget
       Parse: true
-    - Name: homephone
-      Path: Users[0]:Properties:homePhone
+    - Source: homephone
+      Target: Users[0]:Properties:homePhone
       Parse: true
-    - Name: otherhomephone
-      Path: Users[0]:Properties:otherHomePhone
+    - Source: otherhomephone
+      Target: Users[0]:Properties:otherHomePhone
       Parse: true
-    - Name: pager
-      Path: Users[0]:Properties:pager
+    - Source: pager
+      Target: Users[0]:Properties:pager
       Parse: true
-    - Name: otherpager
-      Path: Users[0]:Properties:otherPager
+    - Source: otherpager
+      Target: Users[0]:Properties:otherPager
       Parse: true
-    - Name: mobile
-      Path: Users[0]:Properties:mobile
+    - Source: mobile
+      Target: Users[0]:Properties:mobile
       Parse: true
-    - Name: othermobile
-      Path: Users[0]:Properties:otherMobile
+    - Source: othermobile
+      Target: Users[0]:Properties:otherMobile
       Parse: true
-    - Name: facsimiletelephonenumber
-      Path: Users[0]:Properties:facsimileTelephoneNumber
+    - Source: facsimiletelephonenumber
+      Target: Users[0]:Properties:facsimileTelephoneNumber
       Parse: true
-    - Name: otherfacsimiletelephonenumber
-      Path: Users[0]:Properties:otherFacsimileTelephoneNumber
+    - Source: otherfacsimiletelephonenumber
+      Target: Users[0]:Properties:otherFacsimileTelephoneNumber
       Parse: true
-    - Name: ipphone
-      Path: Users[0]:Properties:ipPhone
+    - Source: ipphone
+      Target: Users[0]:Properties:ipPhone
       Parse: true
-    - Name: otheripphone
-      Path: Users[0]:Properties:otherIpPhone
+    - Source: otheripphone
+      Target: Users[0]:Properties:otherIpPhone
       Parse: true
-    - Name: info
-      Path: Users[0]:Properties:info
+    - Source: info
+      Target: Users[0]:Properties:info
       Parse: true
-    - Name: lockouttime
-      Path: Users[0]:Properties:lockoutTime
+    - Source: lockouttime
+      Target: Users[0]:Properties:lockoutTime
       Parse: true

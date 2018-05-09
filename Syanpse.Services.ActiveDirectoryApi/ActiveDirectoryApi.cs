@@ -32,14 +32,70 @@ public partial class ActiveDirectoryApiController : ApiController
     public string SynapseHello() { return GetExecuteControllerInstance().Hello(); }
 
     [HttpGet]
-    [Route( "whoami" )]
+    [Route("whoami")]
     public string WhoAmI()
     {
         string planName = @"WhoAmI";
 
         IExecuteController ec = GetExecuteControllerInstance();
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
-        return (string)ec.StartPlanSync( pe, planName, setContentType: false );
+        return (string)ec.StartPlanSync(pe, planName, setContentType: false);
+    }
+
+    [HttpGet]
+    [Route("echo/{value}")]
+    [Route("echo/{domain}/{value}")]
+    public string Echo(string value, string domain = null)
+    {
+        return BuildIdentity(domain, value); ;
+    }
+
+    [HttpGet]
+    [HttpPost]
+    [HttpPut]
+    [HttpDelete]
+    [HttpPatch]
+    [Route("{planname}/{*url}")]
+    public object ExecutePlan(string planname, string url)
+    {
+        string planName = planname;
+        StartPlanEnvelope pe = GetPlanEnvelope();
+
+        String body = this.Request.Content?.ReadAsStringAsync().Result;
+        string user = this.User?.Identity?.Name;
+        string requestUri = this.Request.RequestUri.ToString();
+
+        pe.DynamicParameters.Add("url", url);
+        if (body != null)
+            pe.DynamicParameters.Add("body", body);
+        pe.DynamicParameters.Add("method", this.Request.Method.ToString());
+        pe.DynamicParameters.Add("requesturi", requestUri);
+        int queryIndex = requestUri.IndexOf('?');
+        if (queryIndex > 0)
+            pe.DynamicParameters.Add("query", requestUri.Substring(queryIndex + 1));
+        if (user != null)
+            pe.DynamicParameters.Add("user", user);
+
+        // Split URL into Individual Parts, Pass Into Plan as "url_#"
+        string[] parts = url.Split('\\', '/');
+        for (int i = 0; i < parts.Length; i++)
+            pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
+
+        // Add Query String values into Plan Envelope Exactly As Provided
+        IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
+        foreach (KeyValuePair<string, string> kvp in queryKvp)
+        {
+            if (pe.DynamicParameters.ContainsKey(kvp.Key))
+            {
+                string value = pe.DynamicParameters[kvp.Key].ToString();
+                pe.DynamicParameters[kvp.Key] = $"{value},{kvp.Value}";
+            }
+            else
+                pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+        }
+
+        IExecuteController ec = GetExecuteControllerInstance();
+        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true);
     }
 
     IExecuteController GetExecuteControllerInstance()
@@ -54,6 +110,8 @@ public partial class ActiveDirectoryApiController : ApiController
         if ( user != null )
         {
             // Set Principal Fields
+            if (!string.IsNullOrWhiteSpace(user.Name))
+                pe.DynamicParameters.Add(@"name", user.Name);
             if ( !string.IsNullOrWhiteSpace( user.Description ) )
                 pe.DynamicParameters.Add( @"description", user.Description );
             if ( !string.IsNullOrWhiteSpace( user.UserPrincipalName ) )
@@ -116,8 +174,10 @@ public partial class ActiveDirectoryApiController : ApiController
 
         if (group != null)
         {
-            if ( !string.IsNullOrWhiteSpace( group.Description ) )
-                pe.DynamicParameters.Add( @"description", group.Description );
+            if (!string.IsNullOrWhiteSpace(group.Name))
+                pe.DynamicParameters.Add(@"name", group.Name);
+            if (!string.IsNullOrWhiteSpace(group.Description))
+                pe.DynamicParameters.Add(@"description", group.Description);
             if ( !string.IsNullOrWhiteSpace( group.SamAccountName ) )
                 pe.DynamicParameters.Add( @"samaccountname", group.SamAccountName );
             if ( group.Scope != null)  
@@ -143,10 +203,16 @@ public partial class ActiveDirectoryApiController : ApiController
         return pe;
     }
 
+    // Get Empty Plan Envelope
+    private StartPlanEnvelope GetPlanEnvelope()
+    {
+        return new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+    }
+
     // Base Envelope for All Objects Retrieved By Either Name or DistinguishedName (Users, Groups and OrgUnits)
     private StartPlanEnvelope GetPlanEnvelope(string identity)
     {
-        StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
+        StartPlanEnvelope pe = GetPlanEnvelope();
         pe.DynamicParameters.Add( nameof( identity ), identity );
 
         return pe;
@@ -158,8 +224,10 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
         if ( ou != null )
         {
-            if ( !string.IsNullOrWhiteSpace( ou.Description ) )
-                pe.DynamicParameters.Add( @"description", ou.Description );
+            if (!string.IsNullOrWhiteSpace(ou.Name))
+                pe.DynamicParameters.Add(@"name", ou.Name);
+            if (!string.IsNullOrWhiteSpace(ou.Description))
+                pe.DynamicParameters.Add(@"description", ou.Description);
             if ( ou.ManagedBy != null )
                 pe.DynamicParameters.Add( @"managedby", ou.ManagedBy );
 
@@ -179,6 +247,7 @@ public partial class ActiveDirectoryApiController : ApiController
 
             pe.DynamicParameters.Add( @"ruletype", rule.Type.ToString() );
             pe.DynamicParameters.Add( @"rulerights", rule.Rights.ToString() );
+            pe.DynamicParameters.Add (@"ruleinheritance", rule.Inheritance.ToString() );
         }
         return pe;
     }
@@ -222,11 +291,12 @@ public partial class ActiveDirectoryApiController : ApiController
         if (pe == null)
             pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
 
+        // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryString = this.Request.GetQueryNameValuePairs();
-        foreach ( KeyValuePair<string, string> kvp in queryString )
-            pe.DynamicParameters.Add( kvp.Key, kvp.Value );
+        foreach (KeyValuePair<string, string> kvp in queryString)
+            pe.DynamicParameters.Add(kvp.Key, kvp.Value);
 
-        object reply = ec.StartPlanSync( pe, planName, setContentType: false );
+        object reply = ec.StartPlanSync(pe, planName, setContentType: false);
         ActiveDirectoryHandlerResults result = null;
         Type replyType = reply.GetType();
         if ( replyType == typeof(string) )
@@ -286,7 +356,7 @@ public partial class ActiveDirectoryApiController : ApiController
         }
     }
 
-    private AdAccessRule CreateAccessRule(string principal, string type, string rights)
+    private AdAccessRule CreateAccessRule(string principal, string type, string rights, string inheritance)
     {
         AdAccessRule rule = new AdAccessRule()
         {
@@ -296,8 +366,11 @@ public partial class ActiveDirectoryApiController : ApiController
         if ( !String.IsNullOrWhiteSpace(type))
             rule.Type = (AccessControlType)Enum.Parse( typeof( AccessControlType ), type );
 
-        if ( !String.IsNullOrWhiteSpace( rights ) )
-            rule.Rights = (ActiveDirectoryRights)Enum.Parse( typeof( ActiveDirectoryRights ), rights );
+        if (!String.IsNullOrWhiteSpace(rights))
+            rule.Rights = (ActiveDirectoryRights)Enum.Parse(typeof(ActiveDirectoryRights), rights);
+
+        if (!String.IsNullOrWhiteSpace(inheritance))
+            rule.Inheritance = (ActiveDirectorySecurityInheritance)Enum.Parse(typeof(ActiveDirectorySecurityInheritance), inheritance);
 
         return rule;
     }
@@ -305,5 +378,13 @@ public partial class ActiveDirectoryApiController : ApiController
     private bool IsDistinguishedName(String name)
     {
         return Regex.IsMatch( name, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
+    }
+
+    private string BuildIdentity(string domain, string identity)
+    {
+        if (String.IsNullOrWhiteSpace(domain))
+            return identity;
+        else
+            return $"{domain}\\{identity}";
     }
 }

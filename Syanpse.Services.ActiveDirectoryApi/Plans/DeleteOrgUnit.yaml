@@ -14,19 +14,19 @@ Actions:
         PrettyPrint: false
         SuppressOutput: false
       Dynamic:
-      - Name: returngroupmembership
-        Path: ReturnGroupMembership
-      - Name: returnobjects
-        Path: ReturnObjects
-      - Name: returnobjectproperties
-        Path: ReturnObjectProperties
-      - Name: returnaccessrules
-        Path: ReturnAccessRules
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:
       OrganizationalUnits:
       - Identity: 
     Dynamic:
-    - Name: identity
-      Path: OrganizationalUnits[0]:Identity
+    - Source: identity
+      Target: OrganizationalUnits[0]:Identity

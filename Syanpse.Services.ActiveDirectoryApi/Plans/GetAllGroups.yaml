@@ -19,6 +19,7 @@ Actions:
     Values:
       SearchRequests:
       - Filter: "(|(member:1.2.840.113556.1.4.1941:=~~distinguishedname~~)(distinguishedName=~~distinguishedname~~))"
+        SearchBase: 
         Parameters:
         - Find: ~~distinguishedname~~
           ReplaceWith: xxxxxxxx
@@ -30,5 +31,8 @@ Actions:
         - objectGUID
         - objectSid
     Dynamic:
-    - Name: distinguishedname
-      Path: SearchRequests[0]:Parameters[0]:ReplaceWith
+    - Source: distinguishedname
+      Target: SearchRequests[0]:Parameters[0]:ReplaceWith
+    - Source: searchbase
+      Target: SearchRequests[0]:SearchBase
+    

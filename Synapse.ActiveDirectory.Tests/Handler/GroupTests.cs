@@ -63,7 +63,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "info", $"[ \"Random Notes Here.\" ]" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.DistinguishedName, Is.EqualTo( groupDistinguishedName ) );
             Assert.That( result.Results[0].Group.Groups, Is.Not.Null );
             Assert.That( result.Results[0].Group.AccessRules, Is.Not.Null );
@@ -82,7 +82,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", groupName );
             result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group, Is.Null );
 
             // Get Group By DistinguishedName
@@ -95,7 +95,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
 
             parameters.Add( "identity", groupDistinguishedName );
             result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.Groups, Is.Null );
             Assert.That( result.Results[0].Group.AccessRules, Is.Null );
             Assert.That( result.Results[0].Group.Properties, Is.Null );
@@ -105,7 +105,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", samAccountName );
             result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group, Is.Not.Null );
             Assert.That( result.Results[0].Group.SamAccountName, Is.EqualTo( samAccountName ) );
 
@@ -114,7 +114,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", sid );
             result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group, Is.Not.Null );
             Assert.That( result.Results[0].Group.Sid, Is.EqualTo( sid ) );
 
@@ -123,7 +123,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", guid );
             result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group, Is.Not.Null );
             Assert.That( result.Results[0].Group.Guid.ToString(), Is.EqualTo( guid ) );
 
@@ -136,7 +136,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "scope", "Global" );
             parameters.Add( "info", $"[ \"Hello World\" ]" );
             result = Utility.CallPlan( "ModifyGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.Properties.ContainsKey( "managedBy" ), Is.False );
             Assert.That( result.Results[0].Group.GroupScope.ToString(), Is.EqualTo("Global") );
             Assert.That( result.Results[0].Group.Properties["info"][0], Is.EqualTo( "Hello World" ) );
@@ -153,7 +153,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "AddAccessRuleToGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Remove Access Rule
@@ -165,7 +165,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "RemoveAccessRuleFromGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Set Access Rule
@@ -177,7 +177,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "SetAccessRuleOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.AccessRules.Count, Is.EqualTo( initialRuleCount + 1 ) );
 
             // Purge Access Rule
@@ -189,7 +189,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruletype", "Allow" );
             parameters.Add( "rulerights", "GenericAll" );
             result = Utility.CallPlan( "PurgeAccessRulesOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.AccessRules.Count, Is.EqualTo( initialRuleCount ) );
 
             // Delete Group
@@ -197,7 +197,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", groupDistinguishedName );
             result = Utility.CallPlan( "DeleteGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.Success ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
         }
 
         [Test, Category( "Handler" ), Category( "Group" )]
@@ -213,7 +213,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", groupDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.MissingInput ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.MissingInput ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
         }
 
@@ -265,7 +265,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", groupDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "GetGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Was Not Found" ) );
         }
 
@@ -282,7 +282,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", groupDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "DeleteGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "cannot be found" ) );
         }
 
@@ -301,7 +301,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -320,7 +320,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddAccessRuleToGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -339,7 +339,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -358,7 +358,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "RemoveAccessRuleFromGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -377,7 +377,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -396,7 +396,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "rulerights", "GenericAll" );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "SetAccessRuleOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -413,7 +413,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", managedBy.DistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 
@@ -430,7 +430,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "ruleidentity", groupDistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "PurgeAccessRulesOnGroup", parameters );
-            Assert.That( result.Results[0].Statuses[0].Status, Is.EqualTo( AdStatusType.DoesNotExist ) );
+            Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.DoesNotExist ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Can Not Be Found" ) );
         }
 

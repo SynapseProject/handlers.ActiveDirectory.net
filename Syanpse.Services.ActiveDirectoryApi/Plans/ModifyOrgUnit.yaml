@@ -18,19 +18,20 @@ Actions:
         ReturnObjectProperties: true
         SuppressOutput: false
       Dynamic:
-      - Name: returngroupmembership
-        Path: ReturnGroupMembership
-      - Name: returnobjects
-        Path: ReturnObjects
-      - Name: returnobjectproperties
-        Path: ReturnObjectProperties
-      - Name: returnaccessrules
-        Path: ReturnAccessRules
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:
       OrganizationalUnits:
       - Identity: 
+        Name:
         Description: 
         ManagedBy:
         Properties:
@@ -42,30 +43,32 @@ Actions:
           co:
           countryCode:
     Dynamic:
-    - Name: identity
-      Path: OrganizationalUnits[0]:Identity
-    - Name: description
-      Path: OrganizationalUnits[0]:Description
-    - Name: managedby
-      Path: OrganizationalUnits[0]:ManagedBy
-    - Name: c
-      Path: OrganizationalUnits[0]:Properties:c
+    - Source: identity
+      Target: OrganizationalUnits[0]:Identity
+    - Source: name
+      Target: OrganizationalUnits[0]:Name
+    - Source: description
+      Target: OrganizationalUnits[0]:Description
+    - Source: managedby
+      Target: OrganizationalUnits[0]:ManagedBy
+    - Source: c
+      Target: OrganizationalUnits[0]:Properties:c
       Parse: true
-    - Name: l
-      Path: OrganizationalUnits[0]:Properties:l
+    - Source: l
+      Target: OrganizationalUnits[0]:Properties:l
       Parse: true
-    - Name: st
-      Path: OrganizationalUnits[0]:Properties:st
+    - Source: st
+      Target: OrganizationalUnits[0]:Properties:st
       Parse: true
-    - Name: street
-      Path: OrganizationalUnits[0]:Properties:street
+    - Source: street
+      Target: OrganizationalUnits[0]:Properties:street
       Parse: true
-    - Name: postalcode
-      Path: OrganizationalUnits[0]:Properties:postalCode
+    - Source: postalcode
+      Target: OrganizationalUnits[0]:Properties:postalCode
       Parse: true
-    - Name: co
-      Path: OrganizationalUnits[0]:Properties:co
+    - Source: co
+      Target: OrganizationalUnits[0]:Properties:co
       Parse: true
-    - Name: countrycode
-      Path: OrganizationalUnits[0]:Properties:countryCode
+    - Source: countrycode
+      Target: OrganizationalUnits[0]:Properties:countryCode
       Parse: true

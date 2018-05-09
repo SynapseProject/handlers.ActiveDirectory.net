@@ -16,12 +16,17 @@ namespace Synapse.Handlers.ActiveDirectory
 
         [XmlElement]
         public string Identity { get; set; }
+        [XmlElement]
+        public string Name { get; set; }
         [XmlArrayItem(ElementName = "Property")]
         public Dictionary<String, List<String>> Properties { get; set; }
         [XmlArrayItem( ElementName = "AccessRule" )]
         public List<AdAccessRule> AccessRules { get; set; }
         [XmlArrayItem( ElementName = "Role" )]
         public List<AdRole> Roles { get; set; }
+
+        [XmlElement]
+        public string MoveTo { get; set; }
 
         [YamlIgnore]
         public AdObjectType Type { get { return GetADType(); } }

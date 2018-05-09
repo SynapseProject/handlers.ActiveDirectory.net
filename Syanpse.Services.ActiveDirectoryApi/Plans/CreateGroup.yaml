@@ -19,19 +19,20 @@ Actions:
         UseUpsert: true
         SuppressOutput: false
       Dynamic:
-      - Name: returngroupmembership
-        Path: ReturnGroupMembership
-      - Name: returnobjects
-        Path: ReturnObjects
-      - Name: returnobjectproperties
-        Path: ReturnObjectProperties
-      - Name: returnaccessrules
-        Path: ReturnAccessRules
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
   Parameters:
     Type: Yaml
     Values:
       Groups:
       - Identity: 
+        Name:
         Scope: Universal     # Local, Global or Universal
         Description: 
         IsSecurityGroup: true
@@ -42,25 +43,27 @@ Actions:
           mail:
           info:
     Dynamic:
-    - Name: identity
-      Path: Groups[0]:Identity
-    - Name: scope
-      Path: Groups[0]:Scope
-    - Name: description
-      Path: Groups[0]:Description
-    - Name: securitygroup
-      Path: Groups[0]:IsSecurityGroup
-    - Name: samaccountname
-      Path: Groups[0]:SamAccountName
-    - Name: managedby
-      Path: Groups[0]:ManagedBy
+    - Source: identity
+      Target: Groups[0]:Identity
+    - Source: name
+      Target: Groups[0]:Name
+    - Source: scope
+      Target: Groups[0]:Scope
+    - Source: description
+      Target: Groups[0]:Description
+    - Source: securitygroup
+      Target: Groups[0]:IsSecurityGroup
+    - Source: samaccountname
+      Target: Groups[0]:SamAccountName
+    - Source: managedby
+      Target: Groups[0]:ManagedBy
 # Properties
-    - Name: displayname
-      Path: Groups[0]:Properties:displayName
+    - Source: displayname
+      Target: Groups[0]:Properties:displayName
       Parse: true
-    - Name: mail
-      Path: Groups[0]:Properties:mail
+    - Source: mail
+      Target: Groups[0]:Properties:mail
       Parse: true
-    - Name: info
-      Path: Groups[0]:Properties:info
+    - Source: info
+      Target: Groups[0]:Properties:info
       Parse: true

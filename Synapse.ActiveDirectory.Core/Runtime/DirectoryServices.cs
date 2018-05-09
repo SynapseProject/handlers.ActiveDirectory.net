@@ -36,6 +36,33 @@ namespace Synapse.ActiveDirectory.Core
             return principal;
         }
 
+        public static string GetDomain(string identity, out string identityOnly)
+        {
+            String domain = null;
+            String idOnly = identity;
+
+            if (String.IsNullOrWhiteSpace(identity))
+            {
+                domain = GetDomainDistinguishedName();
+            }
+            else if (IsDistinguishedName(identity))
+            {
+                domain = GetDomain(identity);
+            }
+            else if (IsUserPrincipalName(identity))
+            {
+                domain = identity.Substring(identity.LastIndexOf('@') + 1);
+            }
+            else if (identity.Contains(@"\"))
+            {
+                domain = identity.Substring(0, identity.IndexOf('\\'));
+                idOnly = identity.Substring(identity.IndexOf('\\') + 1);
+            }
+
+            identityOnly = idOnly;
+            return domain;
+        }
+
         public static string GetDomainDistinguishedName()
         {
             // connect to "RootDSE" to find default naming context.
@@ -48,9 +75,20 @@ namespace Synapse.ActiveDirectory.Core
 
         public static bool IsDistinguishedName(String identity)
         {
+            if (String.IsNullOrWhiteSpace(identity))
+                return false;
+
             if ( identity.StartsWith( "LDAP://" ) )
                 identity = identity.Replace( "LDAP://", "" );
             return Regex.IsMatch( identity, @"^\s*?(cn\s*=|ou\s*=|dc\s*=)", RegexOptions.IgnoreCase );
+        }
+
+        public static bool IsUserPrincipalName(String identity)
+        {
+            if (String.IsNullOrWhiteSpace(identity))
+                return false;
+
+            return identity.Contains("@");
         }
 
         public static bool IsGuid(String identity)
@@ -151,7 +189,9 @@ namespace Synapse.ActiveDirectory.Core
 
         public static string GetDistinguishedName(string identity)
         {
-            Principal principal = DirectoryServices.GetPrincipal( identity );
+            String idOnly = null;
+            String domain = GetDomain(identity, out idOnly);
+            Principal principal = DirectoryServices.GetPrincipal( idOnly, domain );
             return principal?.DistinguishedName;
         }
 

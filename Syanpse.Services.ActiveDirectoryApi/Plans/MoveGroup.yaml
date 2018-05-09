@@ -1,21 +1,17 @@
-Name: RemoveRoleFromUser
-Description: Remove A Role From A User
+Name: MoveGroupApi
+Description: Move Ldap Group
 IsActive: true
 Actions:
-- Name: RemoveRole
+- Name: MoveGroup
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: RemoveRole
+        Action: Move
         RunSequential: false
-        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: true
-        ReturnObjectProperties: true
-        ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
@@ -29,15 +25,11 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Groups:
       - Identity: 
-        Roles:
-        - Name: 
-          Principal: 
+        MoveTo:
     Dynamic:
     - Source: identity
-      Target: Users[0]:Identity
-    - Source: role
-      Target: Users[0]:Roles[0]:Name
-    - Source: principal
-      Target: Users[0]:Roles[0]:Principal
+      Target: Groups[0]:Identity
+    - Source: moveto
+      Target: Groups[0]:MoveTo
