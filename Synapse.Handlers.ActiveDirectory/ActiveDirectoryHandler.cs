@@ -633,46 +633,91 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
 
                     // Get DistinguishedName from User or Group Identity for ManagedBy Property
-                    if ( !String.IsNullOrWhiteSpace( ou.ManagedBy ) )
+                    if (!String.IsNullOrWhiteSpace(ou.ManagedBy))
                     {
-                        if ( ou.Properties == null )
+                        if (ou.Properties == null)
                             ou.Properties = new Dictionary<string, List<string>>();
 
-                        if ( !ou.Properties.ContainsKey( "managedBy" ) )
+                        if (!ou.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName( ou.ManagedBy );
-                            if ( distinguishedName == null )
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(ou.ManagedBy);
+                            if (distinguishedName == null)
                                 distinguishedName = ou.ManagedBy;
 
                             List<String> values = new List<string>() { distinguishedName };
-                            ou.Properties.Add( "managedBy", values );
+                            ou.Properties.Add("managedBy", values);
                         }
                     }
 
-                    if ( config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
+                    if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
                     {
-                        if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
                         {
-                            String path = DirectoryServices.GetParentPath( obj.Identity );
-                            roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
-                            if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                                DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Properties, isDryRun );
+                            String path = DirectoryServices.GetParentPath(obj.Identity);
+                            roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                            if (!String.IsNullOrWhiteSpace(ou.Description))
+                                DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                            DirectoryServices.CreateOrganizationUnit(obj.Identity, ou.Properties, isDryRun);
                             statusAction = "Created";
                         }
                         else
-                            throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
+                            throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
                     }
                     else
                     {
-                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(ou.Description))
+                            DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                        DirectoryServices.ModifyOrganizationUnit(ou.Identity, ou.Properties, isDryRun);
                     }
 
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    result.Statuses.Add( status );
+                    OnLogMessage("ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer comp = (AdComputer)obj;
+
+                    // Get DistinguishedName from User or Group Identity for ManagedBy Property
+                    if (!String.IsNullOrWhiteSpace(comp.ManagedBy))
+                    {
+                        if (comp.Properties == null)
+                            comp.Properties = new Dictionary<string, List<string>>();
+
+                        if (!comp.Properties.ContainsKey("managedBy"))
+                        {
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(comp.ManagedBy);
+                            if (distinguishedName == null)
+                                distinguishedName = comp.ManagedBy;
+
+                            List<String> values = new List<string>() { distinguishedName };
+                            comp.Properties.Add("managedBy", values);
+                        }
+                    }
+
+                    if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
+                    {
+                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
+                        {
+                            String path = DirectoryServices.GetParentPath(obj.Identity);
+                            roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                            if (!String.IsNullOrWhiteSpace(comp.Description))
+                                DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                            DirectoryServices.CreateComputer(obj.Identity, comp.Properties, isDryRun);
+                            statusAction = "Created";
+                        }
+                        else
+                            throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
+                    }
+                    else
+                    {
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(comp.Description))
+                            DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                        DirectoryServices.ModifyComputer(comp.Identity, comp.Properties, isDryRun);
+                    }
+
+                    OnLogMessage("ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
