@@ -42,8 +42,8 @@ namespace Synapse.Handlers.ActiveDirectory
 
         // Other User Fields
         public string Password { get; set; }
-        [XmlArrayItem(ElementName = "Group")]
-        public List<string> Groups { get; set; }
+        [XmlArrayItem(ElementName = "MemberOf")]
+        public List<string> MemberOf { get; set; }
 
         public override AdObjectType GetADType()
         {

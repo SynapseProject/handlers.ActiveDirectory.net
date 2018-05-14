@@ -277,5 +277,84 @@ namespace Synapse.ActiveDirectory.Core
 
             return match.Groups[1].Value;
         }
+
+        public static void AddToGroup(String groupIdentity, String identity, String objectType, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(identity))
+            {
+                throw new AdException("Child group name is not provided.", AdStatusType.MissingInput);
+            }
+
+            if (String.IsNullOrWhiteSpace(groupIdentity))
+            {
+                throw new AdException("Parent group name is not provided.", AdStatusType.MissingInput);
+            }
+
+            DirectoryEntry groupDe = GetDirectoryEntry(groupIdentity, "group");
+            if (groupDe == null)
+            {
+                throw new AdException($"Parent group [{groupIdentity}] cannot be found.", AdStatusType.DoesNotExist);
+            }
+
+            DirectoryEntry childDe = GetDirectoryEntry(identity, objectType);
+            if (childDe == null)
+            {
+                throw new AdException($"{objectType} [{groupIdentity}] cannot be found.", AdStatusType.DoesNotExist);
+            }
+
+            // Verify GroupScope of ParentGroup and ChildGroup is allowed
+            // Logic from : https://technet.microsoft.com/en-us/library/cc755692(v=ws.10).aspx
+//            if ((parentGroupPrincipal.GroupScope == GroupScope.Universal && childGroupPrincipal.GroupScope == GroupScope.Local) ||
+//                 (parentGroupPrincipal.GroupScope == GroupScope.Global && childGroupPrincipal.GroupScope != GroupScope.Global))
+//            {
+//                throw new AdException($"Scope Error - Child Group [{childGroupPrincipal.Name}] with [{childGroupPrincipal.GroupScope}] Scope is not allowed to be a member of Parent Group [{parentGroupPrincipal.Name}] with [{parentGroupPrincipal.GroupScope}] Scope.", AdStatusType.NotAllowed);
+//            }
+
+
+            String childDistName = childDe.Properties["distinguishedName"].Value.ToString();
+
+            if (groupDe.Properties["member"].Contains(childDistName))
+                throw new AdException($"{objectType} [{identity}] already exists in the group [{groupIdentity}].", AdStatusType.AlreadyExists);
+
+            groupDe.Properties["member"].Add(childDistName);
+            if (!isDryRun)
+                groupDe.CommitChanges();
+        }
+
+        public static void RemoveFromGroup(String groupIdentity, String identity, String objectType, bool isDryRun = false)
+        {
+            if (String.IsNullOrWhiteSpace(identity))
+            {
+                throw new AdException("Child group name is not provided.", AdStatusType.MissingInput);
+            }
+
+            if (String.IsNullOrWhiteSpace(groupIdentity))
+            {
+                throw new AdException("Parent group name is not provided.", AdStatusType.MissingInput);
+            }
+
+            DirectoryEntry groupDe = GetDirectoryEntry(groupIdentity, "group");
+            if (groupDe == null)
+            {
+                throw new AdException($"Parent group [{groupIdentity}] cannot be found.", AdStatusType.DoesNotExist);
+            }
+
+            DirectoryEntry childDe = GetDirectoryEntry(identity, objectType);
+            if (childDe == null)
+            {
+                throw new AdException($"{objectType} [{groupIdentity}] cannot be found.", AdStatusType.DoesNotExist);
+            }
+
+            String childDistName = childDe.Properties["distinguishedName"].Value.ToString();
+
+            if (!groupDe.Properties["member"].Contains(childDistName))
+                throw new AdException($"{objectType} [{identity}] does not exist in the group [{groupIdentity}].", AdStatusType.DoesNotExist);
+
+            groupDe.Properties["member"].Remove(childDistName);
+            if (!isDryRun)
+                groupDe.CommitChanges();
+        }
+
+
     }
 }

@@ -72,8 +72,8 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Assert.That( result.Results[0].SearchResults.Results.Count, Is.EqualTo( 2 ) );
 
             // Check Group Membership (GetAllGroups)
-            DirectoryServices.AddGroupToGroup( gp1.DistinguishedName, gp2.DistinguishedName );
-            DirectoryServices.AddUserToGroup( up1.DistinguishedName, gp1.DistinguishedName );
+            DirectoryServices.AddToGroup(gp2.DistinguishedName, gp1.DistinguishedName, "group");
+            DirectoryServices.AddToGroup(gp1.DistinguishedName, up1.DistinguishedName, "user");
 
             Console.WriteLine( $"Searching For All Groups For User : [{up1.DistinguishedName}]" );
             parameters.Clear();
