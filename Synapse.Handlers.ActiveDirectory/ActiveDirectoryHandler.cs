@@ -725,7 +725,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
-                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
+                String newName = null;
+                String newDomain = DirectoryServices.GetDomain(obj.Name, out newName);
+                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, newName);
                 obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
@@ -781,8 +783,13 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    DirectoryServices.DeleteOrganizationUnit( ou.Identity );
-                    result.Statuses.Add( status );
+                    DirectoryServices.DeleteOrganizationUnit(ou.Identity);
+                    result.Statuses.Add(status);
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer comp = (AdComputer)obj;
+                    DirectoryServices.DeleteComputer(comp.Identity);
+                    result.Statuses.Add(status);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
