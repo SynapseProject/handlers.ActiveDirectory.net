@@ -513,6 +513,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     OnLogMessage("ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
                     result.Statuses.Add(status);
+                    if (comp.MemberOf != null)
+                        AddToGroup(result, comp, false);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
@@ -595,9 +597,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveUser( up, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    if ( user.MemberOf != null )
-                        ProcessGroupAdd( user, false );
                     result.Statuses.Add( status );
+                    if (user.MemberOf != null)
+                        AddToGroup(result, user, false);
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
@@ -627,7 +629,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
                     if (group.MemberOf != null)
-                        ProcessGroupAdd(group, false);
+                        AddToGroup(result, group, false);
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
@@ -718,6 +720,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     OnLogMessage("ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
                     result.Statuses.Add(status);
+                    if (comp.MemberOf != null)
+                        AddToGroup(result, comp, false);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
