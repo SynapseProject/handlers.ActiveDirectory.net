@@ -987,7 +987,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             try
                             {
                                 roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, userGroup );
-//                                DirectoryServices.AddUserToGroup( user.Identity, userGroup, isDryRun );
                                 DirectoryServices.AddToGroup(userGroup, user.Identity, "user", isDryRun);
                                 String userMessage = $"{obj.Type} [{user.Identity}] Added To Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", userMessage );
@@ -1003,23 +1002,44 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( group.MemberOf != null )
+                    if (group.MemberOf != null)
                     {
-                        foreach ( string groupGroup in group.MemberOf )
+                        foreach (string groupGroup in group.MemberOf)
                         {
                             try
                             {
-                                roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, groupGroup );
-//                                DirectoryServices.AddGroupToGroup( group.Identity, groupGroup, isDryRun );
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.AddToGroup, groupGroup);
                                 DirectoryServices.AddToGroup(groupGroup, group.Identity, "group", isDryRun);
                                 String groupMessage = $"{obj.Type} [{group.Identity}] Added To Group [{groupGroup}].";
-                                OnLogMessage( "ProcessGroupAdd", groupMessage );
+                                OnLogMessage("ProcessGroupAdd", groupMessage);
                                 status.Message = groupMessage;
-                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
                             }
-                            catch ( AdException ldeGroupEx )
+                            catch (AdException ldeGroupEx)
                             {
-                                ProcessActiveDirectoryException( result, ldeGroupEx, status.ActionId );
+                                ProcessActiveDirectoryException(result, ldeGroupEx, status.ActionId);
+                            }
+                        }
+                    }
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer computer = (AdComputer)obj;
+                    if (computer.MemberOf != null)
+                    {
+                        foreach (string targetGroup in computer.MemberOf)
+                        {
+                            try
+                            {
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.AddToGroup, targetGroup);
+                                DirectoryServices.AddToGroup(targetGroup, computer.Identity, "computer", isDryRun);
+                                String groupMessage = $"{obj.Type} [{computer.Identity}] Added To Group [{targetGroup}].";
+                                OnLogMessage("ProcessGroupAdd", groupMessage);
+                                status.Message = groupMessage;
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
+                            }
+                            catch (AdException ldeGroupEx)
+                            {
+                                ProcessActiveDirectoryException(result, ldeGroupEx, status.ActionId);
                             }
                         }
                     }
@@ -1079,7 +1099,6 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                             try
                             {
                                 roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, userGroup );
-                                //DirectoryServices.RemoveUserFromGroup( user.Identity, userGroup, isDryRun );
                                 DirectoryServices.RemoveFromGroup(userGroup, user.Identity, "user", isDryRun);
                                 String userMessage = $"{obj.Type} [{user.Identity}] Removed From Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupRemove", userMessage );
@@ -1095,23 +1114,46 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( group.MemberOf != null )
+                    if (group.MemberOf != null)
                     {
-                        foreach ( string groupGroup in group.MemberOf )
+                        foreach (string groupGroup in group.MemberOf)
                         {
                             try
                             {
-                                roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, groupGroup );
-                                //DirectoryServices.RemoveGroupFromGroup( group.Identity, groupGroup, isDryRun );
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.RemoveFromGroup, groupGroup);
                                 DirectoryServices.RemoveFromGroup(groupGroup, group.Identity, "group", isDryRun);
                                 String groupMessage = $"{obj.Type} [{group.Identity}] Removed From Group [{groupGroup}].";
-                                OnLogMessage( "ProcessGroupRemove", groupMessage );
+                                OnLogMessage("ProcessGroupRemove", groupMessage);
                                 status.Message = groupMessage;
-                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
                             }
-                            catch ( AdException ade )
+                            catch (AdException ade)
                             {
-                                ProcessActiveDirectoryException( result, ade, status.ActionId );
+                                ProcessActiveDirectoryException(result, ade, status.ActionId);
+                            }
+
+                        }
+                    }
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer computer = (AdComputer)obj;
+                    if (computer.MemberOf != null)
+                    {
+                        foreach (string targetGroup in computer.MemberOf)
+                        {
+                            try
+                            {
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.RemoveFromGroup, targetGroup);
+                                DirectoryServices.RemoveFromGroup(targetGroup, computer.Identity, "computer", isDryRun);
+                                String groupMessage = $"{obj.Type} [{computer.Identity}] Removed From Group [{targetGroup}].";
+                                OnLogMessage("ProcessGroupRemove", groupMessage);
+                                status.Message = groupMessage;
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
+                            }
+                            catch (AdException ade)
+
+                            {
+                                ProcessActiveDirectoryException(result, ade, status.ActionId);
                             }
 
                         }
