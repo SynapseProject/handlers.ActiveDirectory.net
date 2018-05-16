@@ -304,11 +304,16 @@ namespace Synapse.ActiveDirectory.Core
 
             // Verify GroupScope of ParentGroup and ChildGroup is allowed
             // Logic from : https://technet.microsoft.com/en-us/library/cc755692(v=ws.10).aspx
-//            if ((parentGroupPrincipal.GroupScope == GroupScope.Universal && childGroupPrincipal.GroupScope == GroupScope.Local) ||
-//                 (parentGroupPrincipal.GroupScope == GroupScope.Global && childGroupPrincipal.GroupScope != GroupScope.Global))
-//            {
-//                throw new AdException($"Scope Error - Child Group [{childGroupPrincipal.Name}] with [{childGroupPrincipal.GroupScope}] Scope is not allowed to be a member of Parent Group [{parentGroupPrincipal.Name}] with [{parentGroupPrincipal.GroupScope}] Scope.", AdStatusType.NotAllowed);
-//            }
+            if (childDe.SchemaClassName == "group")
+            {
+                GroupScope? childGroupScope = GetGroupScope(childDe);
+                GroupScope? parentGroupScope = GetGroupScope(groupDe);
+                if ((parentGroupScope == GroupScope.Universal && childGroupScope == GroupScope.Local) ||
+                     (parentGroupScope == GroupScope.Global && childGroupScope != GroupScope.Global))
+                {
+                    throw new AdException($"Scope Error - Child Group [{childDe.Name}] with [{childGroupScope}] Scope is not allowed to be a member of Parent Group [{groupDe.Name}] with [{parentGroupScope}] Scope.", AdStatusType.NotAllowed);
+                }
+            }
 
 
             String childDistName = childDe.Properties["distinguishedName"].Value.ToString();
@@ -355,6 +360,27 @@ namespace Synapse.ActiveDirectory.Core
                 groupDe.CommitChanges();
         }
 
+        public static GroupScope? GetGroupScope(DirectoryEntry de)
+        {
+            int GLOBAL = 2;
+            int LOCAL = 4;
+            int UNIVERSAL = 8;             
+
+            GroupScope? scope = null;
+            if (de.Properties["groupType"] != null)
+            {
+                int groupType = (int)de.Properties["groupType"].Value;
+
+                if ((groupType & GLOBAL) == GLOBAL)
+                    scope = GroupScope.Global;
+                else if ((groupType & LOCAL) == LOCAL)
+                    scope = GroupScope.Local;
+                else if ((groupType & UNIVERSAL) == UNIVERSAL)
+                    scope = GroupScope.Universal;
+            }
+
+            return scope;
+        }
 
     }
 }
