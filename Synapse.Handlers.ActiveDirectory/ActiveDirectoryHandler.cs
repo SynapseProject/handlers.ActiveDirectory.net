@@ -865,7 +865,13 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             }
             else
             {
-                de = DirectoryServices.GetDirectoryEntry( obj.Identity );
+                if (obj.Type == AdObjectType.OrganizationalUnit)
+                    de = DirectoryServices.GetDirectoryEntry( obj.Identity, "organizationalUnit");
+                else if (obj.Type == AdObjectType.Computer)
+                    de = DirectoryServices.GetDirectoryEntry(obj.Identity, "computer");
+                else
+                    de = DirectoryServices.GetDirectoryEntry(obj.Identity);
+
                 if ( de == null )
                     throw new AdException( $"DirectoryEntry [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             }
