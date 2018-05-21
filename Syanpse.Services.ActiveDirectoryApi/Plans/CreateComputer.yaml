@@ -1,0 +1,94 @@
+Name: CreateOrgUnitApi
+Description: Create Ldap Organizational Unit
+IsActive: true
+Actions:
+- Name: CreateOrgUnit
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Create
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Computers:
+      - Identity: 
+        Name:
+        Description: 
+        ManagedBy:
+        Properties:
+          dnsHostName:
+          displayName:
+          location:
+          userAccountControl:
+          sAMAccountName:
+          operatingSystem:
+          operatingSystemVersion:
+          operatingSystemHotFix:
+          operatingSystemServicePack:
+          userPrincipalName:
+          wWWHomePage:
+          accountExpires:
+    Dynamic:
+    - Source: identity
+      Target: Computers[0]:Identity
+    - Source: name
+      Target: Computers[0]:Name
+    - Source: description
+      Target: Computers[0]:Description
+    - Source: managedby
+      Target: Computers[0]:ManagedBy
+    - Source: dnsHostName
+      Target: Computers[0]:Properties:dnsHostName
+      Parse: true
+    - Source: displayName
+      Target: Computers[0]:Properties:displayName
+      Parse: true
+    - Source: location
+      Target: Computers[0]:Properties:location
+      Parse: true
+    - Source: userAccountControl
+      Target: Computers[0]:Properties:userAccountControl
+      Parse: true
+    - Source: sAMAccountName
+      Target: Computers[0]:Properties:sAMAccountName
+      Parse: true
+    - Source: operatingSystem
+      Target: Computers[0]:Properties:operatingSystem
+      Parse: true
+    - Source: operatingSystemVersion
+      Target: Computers[0]:Properties:operatingSystemVersion
+      Parse: true
+    - Source: operatingSystemHotFix
+      Target: Computers[0]:Properties:operatingSystemHotFix
+      Parse: true
+    - Source: operatingSystemServicePack
+      Target: Computers[0]:Properties:operatingSystemServicePack
+      Parse: true
+    - Source: userPrincipalName
+      Target: Computers[0]:Properties:userPrincipalName
+      Parse: true
+    - Source: wWWHomePage
+      Target: Computers[0]:Properties:wWWHomePage
+      Parse: true
+    - Source: accountExpires
+      Target: Computers[0]:Properties:accountExpires
+      Parse: true
