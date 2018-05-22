@@ -52,7 +52,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "identity", user.DistinguishedName );
-            parameters.Add( "groupidentity", targetGroup.DistinguishedName );
+            parameters.Add( "memberof", targetGroup.DistinguishedName );
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "AddUserToGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -63,7 +63,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "identity", user.DistinguishedName );
-            parameters.Add( "groupidentity", targetGroup.DistinguishedName );
+            parameters.Add( "memberof", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "RemoveUserFromGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -81,7 +81,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "identity", group.DistinguishedName );
-            parameters.Add( "groupidentity", targetGroup.DistinguishedName );
+            parameters.Add( "memberof", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "AddGroupToGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -92,7 +92,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "returngroupmembership", "true" );
             parameters.Add( "identity", group.DistinguishedName );
-            parameters.Add( "groupidentity", targetGroup.DistinguishedName );
+            parameters.Add( "memberof", targetGroup.DistinguishedName );
 
             result = Utility.CallPlan( "RemoveGroupFromGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );

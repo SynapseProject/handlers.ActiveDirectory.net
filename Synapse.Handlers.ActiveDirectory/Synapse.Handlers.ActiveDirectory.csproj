@@ -53,6 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\AdObjects\AdComputer.cs" />
     <Compile Include="Classes\AdObjects\AdRole.cs" />
     <Compile Include="Classes\AdObjects\AdSearchRequest.cs" />
     <Compile Include="Classes\Config\HandlerConfig.cs" />

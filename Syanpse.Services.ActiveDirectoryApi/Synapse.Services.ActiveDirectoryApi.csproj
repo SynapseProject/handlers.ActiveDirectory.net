@@ -68,6 +68,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Computer.cs" />
     <Compile Include="Config\ActiveDirectoryApiConfig.cs" />
     <Compile Include="OrgUnit.cs" />
     <Compile Include="Group.cs" />

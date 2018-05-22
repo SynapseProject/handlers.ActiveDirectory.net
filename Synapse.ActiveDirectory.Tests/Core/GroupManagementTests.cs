@@ -40,7 +40,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             UserPrincipalObject upo = DirectoryServices.GetUser( user.DistinguishedName, true, false, false );
             int beforeCount = upo.Groups.Count;
             Console.WriteLine( $"Adding User [{user.Name}] To Group [{group.Name}]." );
-            DirectoryServices.AddUserToGroup( user.DistinguishedName, group.DistinguishedName );
+            DirectoryServices.AddToGroup(group.DistinguishedName, user.DistinguishedName, "user");
             upo = DirectoryServices.GetUser( user.DistinguishedName, true, false, false );
             int afterCount = upo.Groups.Count;
             Assert.That( afterCount, Is.EqualTo( beforeCount + 1 ) );
@@ -48,7 +48,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Remove User From Group
             beforeCount = afterCount;
             Console.WriteLine( $"Removing User [{user.Name}] From Group [{group.Name}]." );
-            DirectoryServices.RemoveUserFromGroup( user.DistinguishedName, group.DistinguishedName );
+            DirectoryServices.RemoveFromGroup(group.DistinguishedName, user.DistinguishedName, "user");
             upo = DirectoryServices.GetUser( user.DistinguishedName, true, false, false );
             afterCount = upo.Groups.Count;
             Assert.That( afterCount, Is.EqualTo( beforeCount - 1 ) );
@@ -61,7 +61,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             GroupPrincipalObject gpo = DirectoryServices.GetGroup( newGroup.DistinguishedName, true, false, false );
             beforeCount = gpo.Groups.Count;
             Console.WriteLine( $"Adding Group [{newGroup.Name}] To Group [{group.Name}]." );
-            DirectoryServices.AddGroupToGroup( newGroup.DistinguishedName, group.DistinguishedName );
+            DirectoryServices.AddToGroup(group.DistinguishedName, newGroup.DistinguishedName, "group");
             gpo = DirectoryServices.GetGroup( newGroup.DistinguishedName, true, false, false );
             afterCount = gpo.Groups.Count;
             Assert.That( afterCount, Is.EqualTo( beforeCount + 1 ) );
@@ -69,7 +69,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             // Remove Group From Group
             beforeCount = afterCount;
             Console.WriteLine( $"Removing Group [{newGroup.Name}] From Group [{group.Name}]." );
-            DirectoryServices.RemoveGroupFromGroup( newGroup.DistinguishedName, group.DistinguishedName );
+            DirectoryServices.RemoveFromGroup(group.DistinguishedName, newGroup.DistinguishedName, "group");
             gpo = DirectoryServices.GetGroup( newGroup.DistinguishedName, true, false, false );
             afterCount = gpo.Groups.Count;
             Assert.That( afterCount, Is.EqualTo( beforeCount - 1 ) );
@@ -87,7 +87,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             UserPrincipal up = Utility.CreateUser( workspaceName );
 
             Console.WriteLine( $"Adding User [{up.DistinguishedName}] To Group [{groupDistinguishedName}] Which Should Not Exist." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddUserToGroup( up.DistinguishedName, groupDistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.AddToGroup(groupDistinguishedName, up.DistinguishedName, "user"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -103,7 +103,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             GroupPrincipal gp = Utility.CreateGroup( workspaceName );
 
             Console.WriteLine( $"Adding Group [{gp.DistinguishedName}] To Group [{groupDistinguishedName}] Which Should Not Exist." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( gp.DistinguishedName, groupDistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.AddToGroup(groupDistinguishedName, gp.DistinguishedName, "group"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -118,7 +118,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String userDistinguishedName = $"OU={userName},{workspaceName}";
 
             Console.WriteLine( $"Adding User [{userDistinguishedName}] Which Should Not Exist To Group [{group.DistinguishedName}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( userDistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.AddToGroup(group.DistinguishedName, userDistinguishedName, "user"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -132,7 +132,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"OU={groupName},{workspaceName}";
 
             Console.WriteLine( $"Adding Group [{groupDistinguishedName}] Which Should Not Exist To Group [{group.DistinguishedName}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.AddGroupToGroup( groupDistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.AddToGroup(group.DistinguishedName, groupDistinguishedName, "group"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
         }
@@ -146,7 +146,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             UserPrincipal up = Utility.CreateUser( workspaceName );
 
             Console.WriteLine( $"Removing User [{up.DistinguishedName}] From Group [{groupDistinguishedName}] Which Should Not Exist." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( up.DistinguishedName, groupDistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(groupDistinguishedName, up.DistinguishedName, "user"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -163,7 +163,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             GroupPrincipal gp = Utility.CreateGroup( workspaceName );
 
             Console.WriteLine( $"Removing Group [{gp.DistinguishedName}] From Group [{groupDistinguishedName}] Which Should Not Exist." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( gp.DistinguishedName, groupDistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(groupDistinguishedName, gp.DistinguishedName, "group"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -178,7 +178,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String userDistinguishedName = $"OU={userName},{workspaceName}";
 
             Console.WriteLine( $"Removing User [{userDistinguishedName}] Which Should Not Exist From Group [{group.DistinguishedName}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( userDistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(group.DistinguishedName, userDistinguishedName, "user"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -192,7 +192,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
             String groupDistinguishedName = $"OU={groupName},{workspaceName}";
 
             Console.WriteLine( $"Removing Group [{groupDistinguishedName}] Which Should Not Exist From Group [{group.DistinguishedName}]." );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( groupDistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(group.DistinguishedName, groupDistinguishedName, "group"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "cannot be found" ) );
 
@@ -202,7 +202,7 @@ namespace Synapse.ActiveDirectory.Tests.Core
         public void Core_RemoveUserFromGroupWhenNotMember()
         {
             UserPrincipal up = Utility.CreateUser( workspaceName );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveUserFromGroup( up.DistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(group.DistinguishedName, up.DistinguishedName, "user"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
             Assert.That( ex.Message, Contains.Substring( "does not exist in the group" ) );
             Utility.DeleteUser( up.DistinguishedName );
@@ -212,9 +212,9 @@ namespace Synapse.ActiveDirectory.Tests.Core
         public void Core_RemoveGroupFromGroupWhenNotMember()
         {
             GroupPrincipal gp = Utility.CreateGroup( workspaceName );
-            AdException ex = Assert.Throws<AdException>( () => DirectoryServices.RemoveGroupFromGroup( gp.DistinguishedName, group.DistinguishedName ) );
+            AdException ex = Assert.Throws<AdException>(() => DirectoryServices.RemoveFromGroup(group.DistinguishedName, gp.DistinguishedName, "group"));
             Console.WriteLine( $"Exception Message : {ex.Message}" );
-            Assert.That( ex.Message, Contains.Substring( "does not exist in the parent group" ) );
+            Assert.That( ex.Message, Contains.Substring( "does not exist in the group" ) );
             Utility.DeleteGroup( gp.DistinguishedName );
         }
 

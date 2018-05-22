@@ -75,58 +75,70 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessGet);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGet);
                         break;
                     case ActionType.Create:
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessCreate);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessCreate);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessCreate);
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessCreate);
                         break;
                     case ActionType.Modify:
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessModify);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessModify);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessModify);
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessModify);
                         break;
                     case ActionType.Delete:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessDelete);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessDelete);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessDelete);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessDelete);
                         break;
                     case ActionType.AddToGroup:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupAdd);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupAdd);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGroupAdd);
                         break;
                     case ActionType.RemoveFromGroup:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGroupRemove);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGroupRemove);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessGroupRemove);
                         break;
                     case ActionType.AddAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.RemoveAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.SetAccessRule:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.PurgeAccessRules:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessAccessRules);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessAccessRules);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessAccessRules);
                         break;
                     case ActionType.AddRole:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.RemoveRole:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessRoles);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessRoles);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessRoles);
                         break;
                     case ActionType.Search:
@@ -135,6 +147,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     case ActionType.Move:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessMove);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessMove);
+                        ProcessActiveDirectoryObjects(parameters.Computers, ProcessMove);
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessMove);
                         break;
                     default:
@@ -312,16 +325,28 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 return gpo;
             case AdObjectType.OrganizationalUnit:
                 AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                OrganizationalUnitObject ouo = null;
-                ouo = DirectoryServices.GetOrganizationalUnit( ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema );
+                DirectoryEntryObject ouo = null;
+                ouo = DirectoryServices.GetOrganizationalUnit(ou.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
 
                 // Group Might Have Been Renamed, Look Up By "Name" If Provided
                 if (ouo == null && !String.IsNullOrEmpty(ou.Name))
                     ouo = DirectoryServices.GetOrganizationalUnit(ou.Name, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
 
-                if ( ouo == null )
-                    throw new AdException( $"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist );
+                if (ouo == null)
+                    throw new AdException($"Organizational Unit [{ou.Identity}] Was Not Found.", AdStatusType.DoesNotExist);
                 return ouo;
+            case AdObjectType.Computer:
+                AdComputer computer = (AdComputer)obj;
+                DirectoryEntryObject co = null;
+                co = DirectoryServices.GetComputer(computer.Identity, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
+
+                // Group Might Have Been Renamed, Look Up By "Name" If Provided
+                if (co == null && !String.IsNullOrEmpty(computer.Name))
+                    co = DirectoryServices.GetComputer(computer.Name, config.ReturnAccessRules, config.ReturnObjectProperties, config.LoadSchema);
+
+                if (co == null)
+                    throw new AdException($"Computer [{computer.Identity}] Was Not Found.", AdStatusType.DoesNotExist);
+                return co;
             default:
                 throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
         }
@@ -375,7 +400,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveUser( up, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
-                    if ( user.Groups != null )
+                    if ( user.MemberOf != null )
                         AddToGroup( result, user, false );
                     break;
                 case AdObjectType.Group:
@@ -402,50 +427,94 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveGroup( gp, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
-                    if ( group.Groups != null )
+                    if ( group.MemberOf != null )
                         AddToGroup( result, group, false );
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
 
                     // Get DistinguishedName from User or Group Identity for ManagedBy Property
-                    if ( !String.IsNullOrWhiteSpace(ou.ManagedBy) )
+                    if (!String.IsNullOrWhiteSpace(ou.ManagedBy))
                     {
-                        if ( ou.Properties == null )
+                        if (ou.Properties == null)
                             ou.Properties = new Dictionary<string, List<string>>();
 
-                        if ( !ou.Properties.ContainsKey( "managedBy" ) )
+                        if (!ou.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName( ou.ManagedBy );
-                            if ( distinguishedName == null )
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(ou.ManagedBy);
+                            if (distinguishedName == null)
                                 distinguishedName = ou.ManagedBy;
 
                             List<String> values = new List<string>() { distinguishedName };
-                            ou.Properties.Add( "managedBy", values );
+                            ou.Properties.Add("managedBy", values);
                         }
                     }
 
-                    if ( config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
+                    if (config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
                     {
-                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(ou.Description))
+                            DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                        DirectoryServices.ModifyOrganizationUnit(ou.Identity, ou.Properties, isDryRun);
                         statusAction = "Modified";
                     }
-                    else if ( DirectoryServices.IsDistinguishedName( ou.Identity ) )
+                    else if (DirectoryServices.IsDistinguishedName(ou.Identity))
                     {
-                        String path = DirectoryServices.GetParentPath( obj.Identity );
-                        roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
-                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                        DirectoryServices.CreateOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
+                        String path = DirectoryServices.GetParentPath(obj.Identity);
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                        if (!String.IsNullOrWhiteSpace(ou.Description))
+                            DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                        DirectoryServices.CreateOrganizationUnit(ou.Identity, ou.Properties, isDryRun);
                     }
                     else
-                        throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
+                        throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
 
-                    OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    result.Statuses.Add( status );
+                    OnLogMessage("ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer comp = (AdComputer)obj;
+
+                    // Get DistinguishedName from User or Group Identity for ManagedBy Property
+                    if (!String.IsNullOrWhiteSpace(comp.ManagedBy))
+                    {
+                        if (comp.Properties == null)
+                            comp.Properties = new Dictionary<string, List<string>>();
+
+                        if (!comp.Properties.ContainsKey("managedBy"))
+                        {
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(comp.ManagedBy);
+                            if (distinguishedName == null)
+                                distinguishedName = comp.ManagedBy;
+
+                            List<String> values = new List<string>() { distinguishedName };
+                            comp.Properties.Add("managedBy", values);
+                        }
+                    }
+
+                    if (config.UseUpsert && DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
+                    {
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(comp.Description))
+                            DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                        DirectoryServices.ModifyComputer(comp.Identity, comp.Properties, isDryRun);
+                        statusAction = "Modified";
+                    }
+                    else if (DirectoryServices.IsDistinguishedName(comp.Identity))
+                    {
+                        String path = DirectoryServices.GetParentPath(obj.Identity);
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                        if (!String.IsNullOrWhiteSpace(comp.Description))
+                            DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                        DirectoryServices.CreateComputer(comp.Identity, comp.Properties, isDryRun);
+                    }
+                    else
+                        throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
+
+                    OnLogMessage("ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
+                    if (comp.MemberOf != null)
+                        AddToGroup(result, comp, false);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
@@ -528,9 +597,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveUser( up, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    if ( user.Groups != null )
-                        ProcessGroupAdd( user, false );
                     result.Statuses.Add( status );
+                    if (user.MemberOf != null)
+                        AddToGroup(result, user, false);
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
@@ -559,53 +628,100 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveGroup( gp, isDryRun );
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
                     result.Statuses.Add( status );
-                    if (group.Groups != null)
-                        ProcessGroupAdd(group, false);
+                    if (group.MemberOf != null)
+                        AddToGroup(result, group, false);
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
 
                     // Get DistinguishedName from User or Group Identity for ManagedBy Property
-                    if ( !String.IsNullOrWhiteSpace( ou.ManagedBy ) )
+                    if (!String.IsNullOrWhiteSpace(ou.ManagedBy))
                     {
-                        if ( ou.Properties == null )
+                        if (ou.Properties == null)
                             ou.Properties = new Dictionary<string, List<string>>();
 
-                        if ( !ou.Properties.ContainsKey( "managedBy" ) )
+                        if (!ou.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName( ou.ManagedBy );
-                            if ( distinguishedName == null )
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(ou.ManagedBy);
+                            if (distinguishedName == null)
                                 distinguishedName = ou.ManagedBy;
 
                             List<String> values = new List<string>() { distinguishedName };
-                            ou.Properties.Add( "managedBy", values );
+                            ou.Properties.Add("managedBy", values);
                         }
                     }
 
-                    if ( config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry( obj.Identity ) )
+                    if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
                     {
-                        if ( DirectoryServices.IsDistinguishedName( obj.Identity ) )
+                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
                         {
-                            String path = DirectoryServices.GetParentPath( obj.Identity );
-                            roleManager.CanPerformActionOrException( requestUser, ActionType.Create, path );
-                            if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                                DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                            DirectoryServices.CreateOrganizationUnit( obj.Identity, ou.Properties, isDryRun );
+                            String path = DirectoryServices.GetParentPath(obj.Identity);
+                            roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                            if (!String.IsNullOrWhiteSpace(ou.Description))
+                                DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                            DirectoryServices.CreateOrganizationUnit(obj.Identity, ou.Properties, isDryRun);
                             statusAction = "Created";
                         }
                         else
-                            throw new AdException( $"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput );
+                            throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
                     }
                     else
                     {
-                        roleManager.CanPerformActionOrException( requestUser, ActionType.Modify, obj.Identity );
-                        if ( !String.IsNullOrWhiteSpace( ou.Description ) )
-                            DirectoryServices.AddProperty( ou.Properties, "description", ou.Description );
-                        DirectoryServices.ModifyOrganizationUnit( ou.Identity, ou.Properties, isDryRun );
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(ou.Description))
+                            DirectoryServices.AddProperty(ou.Properties, "description", ou.Description);
+                        DirectoryServices.ModifyOrganizationUnit(ou.Identity, ou.Properties, isDryRun);
                     }
 
-                    OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
-                    result.Statuses.Add( status );
+                    OnLogMessage("ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer comp = (AdComputer)obj;
+
+                    // Get DistinguishedName from User or Group Identity for ManagedBy Property
+                    if (!String.IsNullOrWhiteSpace(comp.ManagedBy))
+                    {
+                        if (comp.Properties == null)
+                            comp.Properties = new Dictionary<string, List<string>>();
+
+                        if (!comp.Properties.ContainsKey("managedBy"))
+                        {
+                            String distinguishedName = DirectoryServices.GetDistinguishedName(comp.ManagedBy);
+                            if (distinguishedName == null)
+                                distinguishedName = comp.ManagedBy;
+
+                            List<String> values = new List<string>() { distinguishedName };
+                            comp.Properties.Add("managedBy", values);
+                        }
+                    }
+
+                    if (config.UseUpsert && !DirectoryServices.IsExistingDirectoryEntry(obj.Identity))
+                    {
+                        if (DirectoryServices.IsDistinguishedName(obj.Identity))
+                        {
+                            String path = DirectoryServices.GetParentPath(obj.Identity);
+                            roleManager.CanPerformActionOrException(requestUser, ActionType.Create, path);
+                            if (!String.IsNullOrWhiteSpace(comp.Description))
+                                DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                            DirectoryServices.CreateComputer(obj.Identity, comp.Properties, isDryRun);
+                            statusAction = "Created";
+                        }
+                        else
+                            throw new AdException($"Identity [{obj.Identity}] Must Be A Distinguished Name For Organizational Unit Creation.", AdStatusType.MissingInput);
+                    }
+                    else
+                    {
+                        roleManager.CanPerformActionOrException(requestUser, ActionType.Modify, obj.Identity);
+                        if (!String.IsNullOrWhiteSpace(comp.Description))
+                            DirectoryServices.AddProperty(comp.Properties, "description", comp.Description);
+                        DirectoryServices.ModifyComputer(comp.Identity, comp.Properties, isDryRun);
+                    }
+
+                    OnLogMessage("ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + ".");
+                    result.Statuses.Add(status);
+                    if (comp.MemberOf != null)
+                        AddToGroup(result, comp, false);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
@@ -613,7 +729,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
-                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, obj.Name);
+                String newName = null;
+                String newDomain = DirectoryServices.GetDomain(obj.Name, out newName);
+                DirectoryEntry de = DirectoryServices.Rename(obj.Identity, newName);
                 obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
 
@@ -669,8 +787,13 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.OrganizationalUnit:
                     AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                    DirectoryServices.DeleteOrganizationUnit( ou.Identity );
-                    result.Statuses.Add( status );
+                    DirectoryServices.DeleteOrganizationUnit(ou.Identity);
+                    result.Statuses.Add(status);
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer comp = (AdComputer)obj;
+                    DirectoryServices.DeleteComputer(comp.Identity);
+                    result.Statuses.Add(status);
                     break;
                 default:
                     throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
@@ -742,7 +865,13 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             }
             else
             {
-                de = DirectoryServices.GetDirectoryEntry( obj.Identity );
+                if (obj.Type == AdObjectType.OrganizationalUnit)
+                    de = DirectoryServices.GetDirectoryEntry( obj.Identity, "organizationalUnit");
+                else if (obj.Type == AdObjectType.Computer)
+                    de = DirectoryServices.GetDirectoryEntry(obj.Identity, "computer");
+                else
+                    de = DirectoryServices.GetDirectoryEntry(obj.Identity);
+
                 if ( de == null )
                     throw new AdException( $"DirectoryEntry [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );
             }
@@ -861,14 +990,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    if ( user.Groups != null )
+                    if ( user.MemberOf != null )
                     {
-                        foreach ( string userGroup in user.Groups )
+                        foreach ( string userGroup in user.MemberOf )
                         {
                             try
                             {
                                 roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, userGroup );
-                                DirectoryServices.AddUserToGroup( user.Identity, userGroup, isDryRun );
+                                DirectoryServices.AddToGroup(userGroup, user.Identity, "user", isDryRun);
                                 String userMessage = $"{obj.Type} [{user.Identity}] Added To Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupAdd", userMessage );
                                 status.Message = userMessage;
@@ -883,22 +1012,44 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( group.Groups != null )
+                    if (group.MemberOf != null)
                     {
-                        foreach ( string groupGroup in group.Groups )
+                        foreach (string groupGroup in group.MemberOf)
                         {
                             try
                             {
-                                roleManager.CanPerformActionOrException( requestUser, ActionType.AddToGroup, groupGroup );
-                                DirectoryServices.AddGroupToGroup( group.Identity, groupGroup, isDryRun );
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.AddToGroup, groupGroup);
+                                DirectoryServices.AddToGroup(groupGroup, group.Identity, "group", isDryRun);
                                 String groupMessage = $"{obj.Type} [{group.Identity}] Added To Group [{groupGroup}].";
-                                OnLogMessage( "ProcessGroupAdd", groupMessage );
+                                OnLogMessage("ProcessGroupAdd", groupMessage);
                                 status.Message = groupMessage;
-                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
                             }
-                            catch ( AdException ldeGroupEx )
+                            catch (AdException ldeGroupEx)
                             {
-                                ProcessActiveDirectoryException( result, ldeGroupEx, status.ActionId );
+                                ProcessActiveDirectoryException(result, ldeGroupEx, status.ActionId);
+                            }
+                        }
+                    }
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer computer = (AdComputer)obj;
+                    if (computer.MemberOf != null)
+                    {
+                        foreach (string targetGroup in computer.MemberOf)
+                        {
+                            try
+                            {
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.AddToGroup, targetGroup);
+                                DirectoryServices.AddToGroup(targetGroup, computer.Identity, "computer", isDryRun);
+                                String groupMessage = $"{obj.Type} [{computer.Identity}] Added To Group [{targetGroup}].";
+                                OnLogMessage("ProcessGroupAdd", groupMessage);
+                                status.Message = groupMessage;
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
+                            }
+                            catch (AdException ldeGroupEx)
+                            {
+                                ProcessActiveDirectoryException(result, ldeGroupEx, status.ActionId);
                             }
                         }
                     }
@@ -951,14 +1102,14 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             {
                 case AdObjectType.User:
                     AdUser user = (AdUser)obj;
-                    if ( user.Groups != null )
+                    if ( user.MemberOf != null )
                     {
-                        foreach ( string userGroup in user.Groups )
+                        foreach ( string userGroup in user.MemberOf )
                         {
                             try
                             {
                                 roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, userGroup );
-                                DirectoryServices.RemoveUserFromGroup( user.Identity, userGroup, isDryRun );
+                                DirectoryServices.RemoveFromGroup(userGroup, user.Identity, "user", isDryRun);
                                 String userMessage = $"{obj.Type} [{user.Identity}] Removed From Group [{userGroup}].";
                                 OnLogMessage( "ProcessGroupRemove", userMessage );
                                 status.Message = userMessage;
@@ -973,22 +1124,46 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     break;
                 case AdObjectType.Group:
                     AdGroup group = (AdGroup)obj;
-                    if ( group.Groups != null )
+                    if (group.MemberOf != null)
                     {
-                        foreach ( string groupGroup in group.Groups )
+                        foreach (string groupGroup in group.MemberOf)
                         {
                             try
                             {
-                                roleManager.CanPerformActionOrException( requestUser, ActionType.RemoveFromGroup, groupGroup );
-                                DirectoryServices.RemoveGroupFromGroup( group.Identity, groupGroup, isDryRun );
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.RemoveFromGroup, groupGroup);
+                                DirectoryServices.RemoveFromGroup(groupGroup, group.Identity, "group", isDryRun);
                                 String groupMessage = $"{obj.Type} [{group.Identity}] Removed From Group [{groupGroup}].";
-                                OnLogMessage( "ProcessGroupRemove", groupMessage );
+                                OnLogMessage("ProcessGroupRemove", groupMessage);
                                 status.Message = groupMessage;
-                                result.Statuses.Add( new ActiveDirectoryStatus( status ) );
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
                             }
-                            catch ( AdException ade )
+                            catch (AdException ade)
                             {
-                                ProcessActiveDirectoryException( result, ade, status.ActionId );
+                                ProcessActiveDirectoryException(result, ade, status.ActionId);
+                            }
+
+                        }
+                    }
+                    break;
+                case AdObjectType.Computer:
+                    AdComputer computer = (AdComputer)obj;
+                    if (computer.MemberOf != null)
+                    {
+                        foreach (string targetGroup in computer.MemberOf)
+                        {
+                            try
+                            {
+                                roleManager.CanPerformActionOrException(requestUser, ActionType.RemoveFromGroup, targetGroup);
+                                DirectoryServices.RemoveFromGroup(targetGroup, computer.Identity, "computer", isDryRun);
+                                String groupMessage = $"{obj.Type} [{computer.Identity}] Removed From Group [{targetGroup}].";
+                                OnLogMessage("ProcessGroupRemove", groupMessage);
+                                status.Message = groupMessage;
+                                result.Statuses.Add(new ActiveDirectoryStatus(status));
+                            }
+                            catch (AdException ade)
+
+                            {
+                                ProcessActiveDirectoryException(result, ade, status.ActionId);
                             }
 
                         }
@@ -1147,7 +1322,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         break;
                     case AdObjectType.OrganizationalUnit:
                         AdOrganizationalUnit ou = (AdOrganizationalUnit)obj;
-                        OrganizationalUnitObject ouo = new OrganizationalUnitObject();
+                        DirectoryEntryObject ouo = new DirectoryEntryObject();
                         ouo.Name = "DryRun Name";
                         ouo.DistinguishedName = $"ou=DryRunName,dc=sandbox,dc=local";
                         ouo.Guid = Guid.NewGuid();

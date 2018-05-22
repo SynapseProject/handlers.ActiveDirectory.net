@@ -1,21 +1,17 @@
-Name: AddUserToGroupApi
-Description: Add User To Ldap Group
+Name: MoveComputerApi
+Description: Move Ldap Computer
 IsActive: true
 Actions:
-- Name: AddUser
+- Name: MoveComputer
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: AddToGroup
+        Action: Move
         RunSequential: false
-        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
-        ReturnObjects: true
-        ReturnObjectProperties: true
-        ReturnAccessRules: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
@@ -29,12 +25,11 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Computers:
       - Identity: 
-        MemberOf:
-        - 
+        MoveTo:
     Dynamic:
     - Source: identity
-      Target: Users[0]:Identity
-    - Source: memberof
-      Target: Users[0]:MemberOf[0]:Value
+      Target: Computers[0]:Identity
+    - Source: moveto
+      Target: Computers[0]:MoveTo

@@ -23,8 +23,10 @@ namespace Synapse.Handlers.ActiveDirectory
         // Settable DirectoryEntry Properties
         public string ManagedBy { get; set; }
 
-        [XmlArrayItem(ElementName = "Group")]
-        public List<string> Groups { get; set; }
+        [XmlArrayItem(ElementName = "MemberOf")]
+        public List<string> MemberOf { get; set; }
+        [XmlArrayItem(ElementName = "Members")]
+        public List<string> Members { get; set; }
 
         public override AdObjectType GetADType()
         {

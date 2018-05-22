@@ -1,8 +1,8 @@
-Name: AddUserToGroupApi
-Description: Add User To Ldap Group
+Name: AddComputerToGroupApi
+Description: Add Computer To Ldap Group
 IsActive: true
 Actions:
-- Name: AddUser
+- Name: AddComputerToGroup
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
@@ -29,12 +29,12 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Computers:
       - Identity: 
         MemberOf:
         - 
     Dynamic:
     - Source: identity
-      Target: Users[0]:Identity
+      Target: Computers[0]:Identity
     - Source: memberof
-      Target: Users[0]:MemberOf[0]:Value
+      Target: Computers[0]:MemberOf[0]:Value

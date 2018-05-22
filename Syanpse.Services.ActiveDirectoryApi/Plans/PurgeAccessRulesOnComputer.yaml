@@ -1,14 +1,14 @@
-Name: AddUserToGroupApi
-Description: Add User To Ldap Group
+Name: PurgeAccessRulesOnComputer
+Description: Purge Access Rules On A Computer
 IsActive: true
 Actions:
-- Name: AddUser
+- Name: PurgeAccessRulesOnComputer
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: AddToGroup
+        Action: PurgeAccessRules
         RunSequential: false
         ReturnGroupMembership: false
         OutputType: Json
@@ -29,12 +29,12 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Computers:
       - Identity: 
-        MemberOf:
-        - 
+        AccessRules:
+        - Identity: 
     Dynamic:
     - Source: identity
-      Target: Users[0]:Identity
-    - Source: memberof
-      Target: Users[0]:MemberOf[0]:Value
+      Target: Computers[0]:Identity
+    - Source: ruleidentity
+      Target: Computers[0]:AccessRules[0]:Identity
