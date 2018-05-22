@@ -1,0 +1,40 @@
+Name: PurgeAccessRulesOnComputer
+Description: Purge Access Rules On A Computer
+IsActive: true
+Actions:
+- Name: PurgeAccessRulesOnComputer
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: PurgeAccessRules
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Computers:
+      - Identity: 
+        AccessRules:
+        - Identity: 
+    Dynamic:
+    - Source: identity
+      Target: Computers[0]:Identity
+    - Source: ruleidentity
+      Target: Computers[0]:AccessRules[0]:Identity

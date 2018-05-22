@@ -1,0 +1,43 @@
+Name: AddRoleToComputer
+Description: Add A Role To A Computer
+IsActive: true
+Actions:
+- Name: AddRole
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: AddRole
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Computers:
+      - Identity: 
+        Roles:
+        - Name: 
+          Principal: 
+    Dynamic:
+    - Source: identity
+      Target: Computers[0]:Identity
+    - Source: role
+      Target: Computers[0]:Roles[0]:Name
+    - Source: principal
+      Target: Computers[0]:Roles[0]:Principal
