@@ -31,10 +31,10 @@ Actions:
     Values:
       Groups:
       - Identity: 
-        Groups:
+        MemberOf:
         - 
     Dynamic:
     - Source: identity
       Target: Groups[0]:Identity
-    - Source: groupidentity
-      Target: Groups[0]:Groups[0]:Value
+    - Source: memberof
+      Target: Groups[0]:MemberOf[0]:Value

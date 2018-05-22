@@ -194,11 +194,11 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     // Add/Remove User or Group to a Group
-    private StartPlanEnvelope GetPlanEnvelope(string identity, string groupidentity)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, string memberof)
     {
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        if ( groupidentity != null )
-            pe.DynamicParameters.Add( nameof( groupidentity ), groupidentity );
+        if (memberof != null )
+            pe.DynamicParameters.Add( nameof(memberof), memberof);
 
         return pe;
     }
@@ -221,17 +221,35 @@ public partial class ActiveDirectoryApiController : ApiController
     // Create and Modify Organizational Unit By DistinguishedName
     private StartPlanEnvelope GetPlanEnvelope(string identity, AdOrganizationalUnit ou)
     {
-        StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        if ( ou != null )
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        if (ou != null)
         {
             if (!string.IsNullOrWhiteSpace(ou.Name))
                 pe.DynamicParameters.Add(@"name", ou.Name);
             if (!string.IsNullOrWhiteSpace(ou.Description))
                 pe.DynamicParameters.Add(@"description", ou.Description);
-            if ( ou.ManagedBy != null )
-                pe.DynamicParameters.Add( @"managedby", ou.ManagedBy );
+            if (ou.ManagedBy != null)
+                pe.DynamicParameters.Add(@"managedby", ou.ManagedBy);
 
-            AddPropertiesToPlan( pe, ou.Properties );
+            AddPropertiesToPlan(pe, ou.Properties);
+        }
+        return pe;
+    }
+
+    // Create and Modify Organizational Unit By DistinguishedName
+    private StartPlanEnvelope GetPlanEnvelope(string identity, AdComputer computer)
+    {
+        StartPlanEnvelope pe = GetPlanEnvelope(identity);
+        if (computer != null)
+        {
+            if (!string.IsNullOrWhiteSpace(computer.Name))
+                pe.DynamicParameters.Add(@"name", computer.Name);
+            if (!string.IsNullOrWhiteSpace(computer.Description))
+                pe.DynamicParameters.Add(@"description", computer.Description);
+            if (computer.ManagedBy != null)
+                pe.DynamicParameters.Add(@"managedby", computer.ManagedBy);
+
+            AddPropertiesToPlan(pe, computer.Properties);
         }
         return pe;
     }

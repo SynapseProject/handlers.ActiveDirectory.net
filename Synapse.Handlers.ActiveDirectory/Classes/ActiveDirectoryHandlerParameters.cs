@@ -14,8 +14,10 @@ namespace Synapse.Handlers.ActiveDirectory
         public List<AdUser> Users { get; set; }
         [XmlArrayItem(ElementName = "Group")]
         public List<AdGroup> Groups { get; set; }
-        [XmlArrayItem( ElementName = "OrganizationalUnit" )]
+        [XmlArrayItem(ElementName = "OrganizationalUnit")]
         public List<AdOrganizationalUnit> OrganizationalUnits { get; set; }
+        [XmlArrayItem(ElementName = "Computer")]
+        public List<AdComputer> Computers { get; set; }
         [XmlArrayItem( ElementName = "SearchRequest" )]
         public List<AdSearchRequest> SearchRequests { get; set; }
     }

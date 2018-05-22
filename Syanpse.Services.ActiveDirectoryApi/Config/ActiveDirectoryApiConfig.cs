@@ -81,6 +81,20 @@ public class ActiveDirectoryApiConfig
             config.Plans.OrganizationalUnit.AddRole = @"AddRoleToOrgUnit";
             config.Plans.OrganizationalUnit.RemoveRole = @"RemoveRoleFromOrgUnit";
 
+            config.Plans.Computer.Get = @"GetComputer";
+            config.Plans.Computer.Create = @"CreateComputer";
+            config.Plans.Computer.Delete = @"DeleteComputer";
+            config.Plans.Computer.Move = @"MoveComputer";
+            config.Plans.Computer.Modify = @"ModifyComputer";
+            config.Plans.Computer.AddToGroup = @"AddComputerToGroup";
+            config.Plans.Computer.RemoveFromGroup = @"RemoveComputerFromGroup";
+            config.Plans.Computer.AddAccessRule = @"AddAccessRuleToComputer";
+            config.Plans.Computer.RemoveAccessRule = @"RemoveAccessRuleFromComputer";
+            config.Plans.Computer.SetAccessRule = @"SetAccessRuleOnComputer";
+            config.Plans.Computer.PurgeAccessRules = @"PurgeAccessRulesOnComputer";
+            config.Plans.Computer.AddRole = @"AddRoleToComputer";
+            config.Plans.Computer.RemoveRole = @"RemoveRoleFromComputer";
+
             config.Plans.Search = @"Search";
 
             config.Serialize();
@@ -99,6 +113,7 @@ public class PlanConfig
     public UserPlans User { get; set; } = new UserPlans();
     public GroupPlans Group { get; set; } = new GroupPlans();
     public OrgUnitPlans OrganizationalUnit { get; set; } = new OrgUnitPlans();
+    public ComputerPlans Computer { get; set; } = new ComputerPlans();
     public string Search { get; set; }
 }
 
@@ -131,6 +146,12 @@ public class GroupPlans : AllPlans
 
 public class OrgUnitPlans : AllPlans
 {
+}
+
+public class ComputerPlans : AllPlans
+{
+    public string AddToGroup { get; set; }
+    public string RemoveFromGroup { get; set; }
 }
 
 

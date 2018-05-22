@@ -44,7 +44,7 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlIgnore]
         [JsonIgnore]
         [YamlIgnore]
-        public OrganizationalUnitObject OrganizationalUnit { get { return GetObjectAs<OrganizationalUnitObject>(); } }
+        public DirectoryEntryObject OrganizationalUnit { get { return GetObjectAs<DirectoryEntryObject>(); } }
 
         [YamlIgnore]
         [JsonIgnore]

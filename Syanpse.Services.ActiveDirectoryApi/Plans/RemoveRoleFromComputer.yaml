@@ -1,14 +1,14 @@
-Name: AddUserToGroupApi
-Description: Add User To Ldap Group
+Name: RemoveRoleFromComputer
+Description: Remove A Role From A Computer
 IsActive: true
 Actions:
-- Name: AddUser
+- Name: RemoveRole
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: AddToGroup
+        Action: RemoveRole
         RunSequential: false
         ReturnGroupMembership: false
         OutputType: Json
@@ -29,12 +29,15 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      Users:
+      Computers:
       - Identity: 
-        MemberOf:
-        - 
+        Roles:
+        - Name: 
+          Principal: 
     Dynamic:
     - Source: identity
-      Target: Users[0]:Identity
-    - Source: memberof
-      Target: Users[0]:MemberOf[0]:Value
+      Target: Computers[0]:Identity
+    - Source: role
+      Target: Computers[0]:Roles[0]:Name
+    - Source: principal
+      Target: Computers[0]:Roles[0]:Principal

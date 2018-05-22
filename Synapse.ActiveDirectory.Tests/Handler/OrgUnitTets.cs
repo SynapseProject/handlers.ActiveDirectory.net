@@ -210,7 +210,7 @@ namespace Synapse.ActiveDirectory.Tests.Handler
         public void Handler_ModifyOrgUnitBadProperty()
         {
             DirectoryServices.CreateOrganizationUnit( $"ou=OuDoesNotExist,{workspaceName}", null );
-            OrganizationalUnitObject ouo = DirectoryServices.GetOrganizationalUnit( $"ou=OuDoesNotExist,{workspaceName}", false, true, false );
+            DirectoryEntryObject ouo = DirectoryServices.GetOrganizationalUnit( $"ou=OuDoesNotExist,{workspaceName}", false, true, false );
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
             Console.WriteLine( $"Modifying OrgUnit [{ouo.DistinguishedName}] With A Bad Property." );
