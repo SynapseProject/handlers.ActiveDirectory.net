@@ -1,14 +1,14 @@
-Name: CreateComputerApi
-Description: Create Ldap Computer
+Name: ModifyComputerApi
+Description: Modify Ldap Computer
 IsActive: true
 Actions:
-- Name: CreateComputer
+- Name: ModifyComputer
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: Create
+        Action: Modify
         RunSequential: false
         ReturnGroupMembership: false
         OutputType: Json

@@ -1,0 +1,35 @@
+Name: MoveComputerApi
+Description: Move Ldap Computer
+IsActive: true
+Actions:
+- Name: MoveComputer
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Move
+        RunSequential: false
+        OutputType: Json
+        PrettyPrint: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Computers:
+      - Identity: 
+        MoveTo:
+    Dynamic:
+    - Source: identity
+      Target: Computers[0]:Identity
+    - Source: moveto
+      Target: Computers[0]:MoveTo
