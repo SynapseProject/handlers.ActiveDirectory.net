@@ -86,8 +86,8 @@ public class ActiveDirectoryApiConfig
             config.Plans.Computer.Delete = @"DeleteComputer";
             config.Plans.Computer.Move = @"MoveComputer";
             config.Plans.Computer.Modify = @"ModifyComputer";
-            config.Plans.Computer.AddToGroup = @"AddGroupToComputer";
-            config.Plans.Computer.RemoveFromGroup = @"RemoveGroupFromComputer";
+            config.Plans.Computer.AddToGroup = @"AddComputerToGroup";
+            config.Plans.Computer.RemoveFromGroup = @"RemoveComputerFromGroup";
             config.Plans.Computer.AddAccessRule = @"AddAccessRuleToComputer";
             config.Plans.Computer.RemoveAccessRule = @"RemoveAccessRuleFromComputer";
             config.Plans.Computer.SetAccessRule = @"SetAccessRuleOnComputer";

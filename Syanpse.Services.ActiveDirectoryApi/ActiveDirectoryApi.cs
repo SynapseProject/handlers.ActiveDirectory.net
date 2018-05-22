@@ -194,11 +194,11 @@ public partial class ActiveDirectoryApiController : ApiController
     }
 
     // Add/Remove User or Group to a Group
-    private StartPlanEnvelope GetPlanEnvelope(string identity, string groupidentity)
+    private StartPlanEnvelope GetPlanEnvelope(string identity, string memberof)
     {
         StartPlanEnvelope pe = GetPlanEnvelope( identity );
-        if ( groupidentity != null )
-            pe.DynamicParameters.Add( nameof( groupidentity ), groupidentity );
+        if (memberof != null )
+            pe.DynamicParameters.Add( nameof(memberof), memberof);
 
         return pe;
     }

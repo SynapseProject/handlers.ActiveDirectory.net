@@ -1,0 +1,40 @@
+Name: AddComputerToGroupApi
+Description: Add Computer To Ldap Group
+IsActive: true
+Actions:
+- Name: AddComputerToGroup
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: AddToGroup
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Computers:
+      - Identity: 
+        MemberOf:
+        - 
+    Dynamic:
+    - Source: identity
+      Target: Computers[0]:Identity
+    - Source: memberof
+      Target: Computers[0]:MemberOf[0]:Value
