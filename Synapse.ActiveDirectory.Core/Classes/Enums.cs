@@ -40,7 +40,7 @@ namespace Synapse.ActiveDirectory.Core
         Create = 2,
         Modify = 4,
         Delete = 8,
-        Rename = 16,    // Rename was added to "Modify".  Can re-use this action if needed.
+        Unused = 16,    // Rename was added to "Modify".  Can re-use this action if needed.
         Move = 32,
         AddToGroup = 64,
         RemoveFromGroup = 128,

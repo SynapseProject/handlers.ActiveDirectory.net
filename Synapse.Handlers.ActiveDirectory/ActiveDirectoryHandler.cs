@@ -74,8 +74,8 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     case ActionType.Get:
                         ProcessActiveDirectoryObjects(parameters.Users, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.Groups, ProcessGet);
-                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessGet);
                         ProcessActiveDirectoryObjects(parameters.Computers, ProcessGet);
+                        ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessGet);
                         break;
                     case ActionType.Create:
                         ProcessActiveDirectoryObjects(parameters.OrganizationalUnits, ProcessCreate);
