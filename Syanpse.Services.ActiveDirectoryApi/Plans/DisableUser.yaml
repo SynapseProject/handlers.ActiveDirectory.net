@@ -1,0 +1,38 @@
+Name: DisableUserApi
+Description: Disable Ldap User
+IsActive: true
+Actions:
+- Name: DisableUser
+  Handler:
+    Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
+    Config:
+      Type: Yaml
+      Values:
+        Action: Modify
+        RunSequential: false
+        ReturnGroupMembership: false
+        OutputType: Json
+        PrettyPrint: true
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        UseUpsert: false
+        SuppressOutput: false
+      Dynamic:
+      - Source: returngroupmembership
+        Target: ReturnGroupMembership
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: returnobjectproperties
+        Target: ReturnObjectProperties
+      - Source: returnaccessrules
+        Target: ReturnAccessRules
+  Parameters:
+    Type: Yaml
+    Values:
+      Users:
+      - Identity: 
+        Enabled: false
+    Dynamic:
+    - Source: url
+      Target: Users[0]:Identity

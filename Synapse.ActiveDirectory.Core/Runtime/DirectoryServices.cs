@@ -58,6 +58,11 @@ namespace Synapse.ActiveDirectory.Core
                 domain = identity.Substring(0, identity.IndexOf('\\'));
                 idOnly = identity.Substring(identity.IndexOf('\\') + 1);
             }
+            else if (identity.Contains(@"/"))
+            {
+                domain = identity.Substring(0, identity.IndexOf('/'));
+                idOnly = identity.Substring(identity.IndexOf('/') + 1);
+            }
 
             identityOnly = idOnly;
             return domain;
