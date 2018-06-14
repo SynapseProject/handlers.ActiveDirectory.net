@@ -65,21 +65,27 @@ public partial class ActiveDirectoryApiController : ApiController
         string user = this.User?.Identity?.Name;
         string requestUri = this.Request.RequestUri.ToString();
 
-        pe.DynamicParameters.Add("url", url);
+        if (url != null)
+        {
+            pe.DynamicParameters.Add("url", url);
+
+            // Split URL into Individual Parts, Pass Into Plan as "url_#"
+            string[] parts = url.Split('\\', '/');
+            for (int i = 0; i < parts.Length; i++)
+                pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
+        }
+
         if (body != null)
             pe.DynamicParameters.Add("body", body);
+
         pe.DynamicParameters.Add("method", this.Request.Method.ToString());
         pe.DynamicParameters.Add("requesturi", requestUri);
+
         int queryIndex = requestUri.IndexOf('?');
         if (queryIndex > 0)
             pe.DynamicParameters.Add("query", requestUri.Substring(queryIndex + 1));
         if (user != null)
             pe.DynamicParameters.Add("user", user);
-
-        // Split URL into Individual Parts, Pass Into Plan as "url_#"
-        string[] parts = url.Split('\\', '/');
-        for (int i = 0; i < parts.Length; i++)
-            pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
 
         // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
@@ -95,7 +101,7 @@ public partial class ActiveDirectoryApiController : ApiController
         }
 
         IExecuteController ec = GetExecuteControllerInstance();
-        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true);
+        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true, timeoutSeconds:3600);
     }
 
     IExecuteController GetExecuteControllerInstance()

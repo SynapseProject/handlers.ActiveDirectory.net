@@ -263,6 +263,7 @@ namespace Synapse.ActiveDirectory.Core
             {
                 searcher.Filter = filter;
                 searcher.SearchScope = SearchScope.Subtree;
+                searcher.PageSize = 1000;
                 if ( returnProperties != null )
                 {
                     foreach ( string property in returnProperties )

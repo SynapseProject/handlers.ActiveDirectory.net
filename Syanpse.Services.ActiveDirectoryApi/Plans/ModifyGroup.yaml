@@ -16,7 +16,7 @@ Actions:
         ReturnObjects: true
         ReturnObjectProperties: true
         ReturnAccessRules: false
-        UseUpsert: true
+        UseUpsert: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
@@ -27,6 +27,8 @@ Actions:
         Target: ReturnObjectProperties
       - Source: returnaccessrules
         Target: ReturnAccessRules
+      - Source: upsert
+        Target: UseUpsert
   Parameters:
     Type: Yaml
     Values:

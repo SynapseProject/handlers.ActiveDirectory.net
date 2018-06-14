@@ -12,7 +12,7 @@ Actions:
         RunSequential: false
         ReturnGroupMembership: false
         OutputType: Json
-        PrettyPrint: true
+        PrettyPrint: false
         ReturnObjects: true
         ReturnObjectProperties: true
         ReturnAccessRules: false
