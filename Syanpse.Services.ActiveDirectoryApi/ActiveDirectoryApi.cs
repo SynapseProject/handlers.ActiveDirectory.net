@@ -282,8 +282,11 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( @"filter", request.Filter );
 
-        if ( request.SearchBase != null )
-            pe.DynamicParameters.Add( @"searchbase", request.SearchBase );
+        if (request.SearchBase != null)
+            pe.DynamicParameters.Add(@"searchbase", request.SearchBase);
+
+        if (request.ResultsFile != null)
+            pe.DynamicParameters.Add(@"resultsfile", request.ResultsFile);
 
         string attributes = YamlHelpers.Serialize( request.ReturnAttributes, true, false );
         if (attributes != null)

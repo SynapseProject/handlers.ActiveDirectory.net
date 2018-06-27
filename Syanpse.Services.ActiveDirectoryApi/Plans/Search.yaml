@@ -14,12 +14,20 @@ Actions:
         OutputType: Yaml
         PrettyPrint: true
         SuppressOutput: false
+      Dynamic:
+      - Source: returnobjects
+        Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
+      - Source: prettyprint
+        Target: PrettyPrint
   Parameters:
     Type: Yaml
     Values:
       SearchRequests:
       - Filter: xxxxxxxx
         SearchBase: 
+        ResultsFile:
         ReturnAttributes:
         - distinguishedName
         - objectGUID
@@ -28,6 +36,8 @@ Actions:
       Target: SearchRequests[0]:Filter
     - Source: searchbase
       Target: SearchRequests[0]:SearchBase
+    - Source: resultsfile
+      Target: SearchRequests[0]:ResultsFile
     - Source: attributes
       Target: SearchRequests[0]:ReturnAttributes
       Parse: true

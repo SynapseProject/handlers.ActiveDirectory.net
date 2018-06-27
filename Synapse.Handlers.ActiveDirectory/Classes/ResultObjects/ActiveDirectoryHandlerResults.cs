@@ -12,6 +12,7 @@ using Synapse.ActiveDirectory.Core;
 
 namespace Synapse.Handlers.ActiveDirectory
 {
+    [XmlRoot]
     public class ActiveDirectoryHandlerResults
     {
         [XmlArrayItem( ElementName = "Result" )]

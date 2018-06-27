@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System.DirectoryServices;
 using System.DirectoryServices.AccountManagement;
 using System.Text.RegularExpressions;
+using System.IO;
 
 using Synapse.Core;
 using Synapse.Core.Utilities;
@@ -155,7 +156,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                 }
             }
         }
-        //something wnet wrong: hand-back the Exception and mark the execution as Failed
+        //something went wrong: hand-back the Exception and mark the execution as Failed
         catch ( Exception ex )
         {
             exc = ex;
@@ -1250,7 +1251,26 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!dryRun)
             {
                 SearchResultsObject searchResults = DirectoryServices.Search(searchBase, filter, request.ReturnAttributes?.ToArray());
-                result.Object = searchResults;
+                int recordsFound = searchResults.Results.Count;
+                OnLogMessage("ProcessSearchRequest", $"Total Records Found : [{recordsFound}]");
+                if (config.ReturnObjects)
+                    result.Object = searchResults;
+
+                if (!String.IsNullOrWhiteSpace(request.ResultsFile))
+                {
+                    if (config.OutputType == SerializationFormat.Json)
+                        YamlHelpers.SerializeFile(request.ResultsFile, searchResults, true, config.PrettyPrint);
+                    else if (config.OutputType == SerializationFormat.Yaml)
+                        YamlHelpers.SerializeFile(request.ResultsFile, searchResults, false);
+                    else
+                        // TODO : Serialize as XML To File -- Create Method
+                        // For Now, Just Serialize as Json
+                        YamlHelpers.SerializeFile(request.ResultsFile, searchResults, true, config.PrettyPrint);
+
+                    status.Message = $"[{recordsFound}] Records Written To File [{request.ResultsFile}].";
+                }
+                else
+                    status.Message = $"[{recordsFound}] Records Found.";
             }
             result.Statuses.Add( status );
         } 

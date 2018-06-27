@@ -13,6 +13,10 @@ using YamlDotNet.Serialization;
 
 namespace Synapse.Handlers.ActiveDirectory
 {
+    [XmlInclude(typeof(SearchResultsObject))]
+    [XmlInclude(typeof(UserPrincipalObject))]
+    [XmlInclude(typeof(GroupPrincipalObject))]
+    [XmlInclude(typeof(DirectoryEntryObject))]
     public class ActiveDirectoryObjectResult
     {
         [XmlArrayItem( ElementName = "Status" )]
