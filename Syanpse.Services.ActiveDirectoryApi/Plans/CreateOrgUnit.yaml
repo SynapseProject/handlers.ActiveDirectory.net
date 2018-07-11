@@ -23,6 +23,8 @@ Actions:
         Target: ReturnGroupMembership
       - Source: returnobjects
         Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
       - Source: returnobjectproperties
         Target: ReturnObjectProperties
       - Source: returnaccessrules
@@ -38,13 +40,7 @@ Actions:
         Description: 
         ManagedBy:
         Properties:
-          c:
-          l:
-          st:
-          street:
-          postalCode:
-          co:
-          countryCode:
+          dummyvalue:
     Dynamic:
     - Source: identity
       Target: OrganizationalUnits[0]:Identity
@@ -54,24 +50,6 @@ Actions:
       Target: OrganizationalUnits[0]:Description
     - Source: managedby
       Target: OrganizationalUnits[0]:ManagedBy
-    - Source: c
-      Target: OrganizationalUnits[0]:Properties:c
-      Parse: true
-    - Source: l
-      Target: OrganizationalUnits[0]:Properties:l
-      Parse: true
-    - Source: st
-      Target: OrganizationalUnits[0]:Properties:st
-      Parse: true
-    - Source: street
-      Target: OrganizationalUnits[0]:Properties:street
-      Parse: true
-    - Source: postalcode
-      Target: OrganizationalUnits[0]:Properties:postalCode
-      Parse: true
-    - Source: co
-      Target: OrganizationalUnits[0]:Properties:co
-      Parse: true
-    - Source: countrycode
-      Target: OrganizationalUnits[0]:Properties:countryCode
+    - Source: properties
+      Target: OrganizationalUnits[0]:Properties
       Parse: true

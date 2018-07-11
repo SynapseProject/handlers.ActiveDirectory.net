@@ -23,6 +23,8 @@ Actions:
         Target: ReturnGroupMembership
       - Source: returnobjects
         Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
       - Source: returnobjectproperties
         Target: ReturnObjectProperties
       - Source: returnaccessrules
@@ -38,18 +40,7 @@ Actions:
         Description: 
         ManagedBy:
         Properties:
-          dnsHostName:
-          displayName:
-          location:
-          userAccountControl:
-          sAMAccountName:
-          operatingSystem:
-          operatingSystemVersion:
-          operatingSystemHotFix:
-          operatingSystemServicePack:
-          userPrincipalName:
-          wWWHomePage:
-          accountExpires:
+          dummyvalue:
     Dynamic:
     - Source: identity
       Target: Computers[0]:Identity
@@ -59,39 +50,6 @@ Actions:
       Target: Computers[0]:Description
     - Source: managedby
       Target: Computers[0]:ManagedBy
-    - Source: dnsHostName
-      Target: Computers[0]:Properties:dnsHostName
-      Parse: true
-    - Source: displayName
-      Target: Computers[0]:Properties:displayName
-      Parse: true
-    - Source: location
-      Target: Computers[0]:Properties:location
-      Parse: true
-    - Source: userAccountControl
-      Target: Computers[0]:Properties:userAccountControl
-      Parse: true
-    - Source: sAMAccountName
-      Target: Computers[0]:Properties:sAMAccountName
-      Parse: true
-    - Source: operatingSystem
-      Target: Computers[0]:Properties:operatingSystem
-      Parse: true
-    - Source: operatingSystemVersion
-      Target: Computers[0]:Properties:operatingSystemVersion
-      Parse: true
-    - Source: operatingSystemHotFix
-      Target: Computers[0]:Properties:operatingSystemHotFix
-      Parse: true
-    - Source: operatingSystemServicePack
-      Target: Computers[0]:Properties:operatingSystemServicePack
-      Parse: true
-    - Source: userPrincipalName
-      Target: Computers[0]:Properties:userPrincipalName
-      Parse: true
-    - Source: wWWHomePage
-      Target: Computers[0]:Properties:wWWHomePage
-      Parse: true
-    - Source: accountExpires
-      Target: Computers[0]:Properties:accountExpires
+    - Source: properties
+      Target: Computers[0]:Properties
       Parse: true
