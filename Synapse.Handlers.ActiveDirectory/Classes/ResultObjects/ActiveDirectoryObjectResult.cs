@@ -22,7 +22,9 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlArrayItem( ElementName = "Status" )]
         public List<ActiveDirectoryStatus> Statuses { get; set; } = new List<ActiveDirectoryStatus>();
 
-        [XmlElement]
+        [XmlIgnore]
+        [YamlIgnore]
+        [JsonIgnore]
         public AdObjectType TypeId { get; set; } = AdObjectType.None;
         [XmlElement]
         public string Type { get { return TypeId.ToString(); } }

@@ -8,17 +8,24 @@ using System.Xml;
 using Synapse.Core.Utilities;
 using Synapse.ActiveDirectory.Core;
 
+using Newtonsoft.Json;
+using YamlDotNet.Serialization;
+
 namespace Synapse.Handlers.ActiveDirectory
 {
     public class ActiveDirectoryStatus
     {
-        [XmlElement]
+        [XmlIgnore]
+        [YamlIgnore]
+        [JsonIgnore]
         public AdStatusType StatusId { get; set; } = AdStatusType.Success;
         [XmlElement]
         public string Status { get { return StatusId.ToString(); } }
         [XmlElement]
         public string Message { get; set; } = "Success";
-        [XmlElement]
+        [XmlIgnore]
+        [YamlIgnore]
+        [JsonIgnore]
         public ActionType ActionId { get; set; }
         [XmlElement]
         public string Action { get { return ActionId.ToString(); } }
