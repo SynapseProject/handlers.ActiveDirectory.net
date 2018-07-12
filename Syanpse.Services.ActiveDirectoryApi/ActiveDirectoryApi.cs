@@ -389,6 +389,8 @@ public partial class ActiveDirectoryApiController : ApiController
                 if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace( property.Key )) )
                 {
                     String pName = property.Key.ToLower();
+                    if (pe.DynamicParameters.ContainsKey(pName))
+                        continue;
                     string values = YamlHelpers.Serialize( property.Value, true, false );
                     String pValue = values;
                     pe.DynamicParameters.Add( pName, pValue );
