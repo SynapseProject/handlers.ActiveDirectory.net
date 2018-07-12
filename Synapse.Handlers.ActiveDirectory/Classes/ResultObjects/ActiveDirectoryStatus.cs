@@ -18,17 +18,17 @@ namespace Synapse.Handlers.ActiveDirectory
         [XmlIgnore]
         [YamlIgnore]
         [JsonIgnore]
-        public AdStatusType StatusId { get; set; } = AdStatusType.Success;
+        public AdStatusType StatusId { get { return (AdStatusType)Enum.Parse(typeof(AdStatusType), Status); } set { Status = value.ToString(); } } 
         [XmlElement]
-        public string Status { get { return StatusId.ToString(); } }
+        public string Status { get; set; } = "Success";
         [XmlElement]
         public string Message { get; set; } = "Success";
         [XmlIgnore]
         [YamlIgnore]
         [JsonIgnore]
-        public ActionType ActionId { get; set; }
+        public ActionType ActionId { get { return (ActionType)Enum.Parse(typeof(ActionType), Action); } set { Action = value.ToString(); } }
         [XmlElement]
-        public string Action { get { return ActionId.ToString(); } }
+        public string Action { get; set; } = "None";
 
         public ActiveDirectoryStatus() { }
 

@@ -326,28 +326,7 @@ public partial class ActiveDirectoryApiController : ApiController
         object reply = ec.StartPlanSync(pe, planName, setContentType: false);
         ActiveDirectoryHandlerResults result = null;
         Type replyType = reply.GetType();
-        if ( replyType == typeof(string) )
-        {
-            try
-            {
-                result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( (string)reply );
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    // Reply was not Json or Yaml.  See if Xml
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml( (string)reply );
-                    result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
-                }
-                catch (Exception)
-                {
-                    throw e;
-                }
-            }
-        }
-        else if ( replyType == typeof(Dictionary<object,object>) )
+        if ( replyType == typeof(Dictionary<object,object>) )
         {
             String str = YamlHelpers.Serialize( reply );
             result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( str );
@@ -356,6 +335,39 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             XmlDocument doc = (XmlDocument)reply;
             result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
+        }
+        else
+        {
+            try
+            {
+                result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>(reply.ToString());
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    // Reply was not Json or Yaml.  See if Xml
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(reply.ToString());
+                    result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>(doc.InnerXml);
+                }
+                catch (Exception)
+                {
+                    // Reply was of unknown type.  Put Raw Output In Return Object
+                    result = new ActiveDirectoryHandlerResults();
+                    ActiveDirectoryObjectResult error = new ActiveDirectoryObjectResult();
+                    ActiveDirectoryStatus status = new ActiveDirectoryStatus();
+
+                    status.StatusId = AdStatusType.NotSupported;
+                    status.Message = $"Unable To Parse ObjectType [{replyType}].";
+                    status.ActionId = ActionType.None;
+                    error.Statuses.Add(status);
+
+                    error.TypeId = AdObjectType.None;
+                    error.Object = reply;
+                    result.Add(error);
+                }
+            }
         }
 
         return result;
