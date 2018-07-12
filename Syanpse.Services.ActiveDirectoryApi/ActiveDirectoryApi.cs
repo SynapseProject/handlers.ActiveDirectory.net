@@ -76,7 +76,19 @@ public partial class ActiveDirectoryApiController : ApiController
         }
 
         if (body != null)
+        {
             pe.DynamicParameters.Add("body", body);
+            try
+            {
+                Dictionary<string, string> bodyDictionary = YamlHelpers.Deserialize<Dictionary<string, string>>(body);
+                foreach (KeyValuePair<string, string> kvp in bodyDictionary)
+                {
+                    if (!(pe.DynamicParameters.ContainsKey(kvp.Key)))
+                        pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+                }
+            }
+            catch { }
+        }
 
         pe.DynamicParameters.Add("method", this.Request.Method.ToString());
         pe.DynamicParameters.Add("requesturi", requestUri);
