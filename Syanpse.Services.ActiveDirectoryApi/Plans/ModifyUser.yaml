@@ -64,6 +64,7 @@ Actions:
         EmployeeId: 
 #       Other Fields and Properties
         Password: 
+        Manager: 
         Properties:
           dummyvalue:
     Dynamic:
@@ -121,6 +122,8 @@ Actions:
 #   Other Fields
     - Source: password
       Target: Users[0]:Password
+    - Source: manager
+      Target: Users[0]:Manager
     - Source: properties
       Target: Users[0]:Properties
       Parse: true

@@ -42,6 +42,7 @@ namespace Synapse.Handlers.ActiveDirectory
 
         // Other User Fields
         public string Password { get; set; }
+        public string Manager { get; set; }
         [XmlArrayItem(ElementName = "MemberOf")]
         public List<string> MemberOf { get; set; }
 
@@ -119,6 +120,14 @@ namespace Synapse.Handlers.ActiveDirectory
 
             if ( this.Password != null )
                 user.SetPassword( Password );
+
+            if ( this.Manager != null && user.GetUnderlyingObjectType() == typeof(DirectoryEntry))
+            {
+                String distinguishedName = DirectoryServices.GetDistinguishedName(this.Manager);
+                if (distinguishedName == null)
+                    distinguishedName = this.Manager;     // Cant' Find As User Or Group, Pass Raw Value (Might Be ~null~)
+                DirectoryServices.SetProperty((DirectoryEntry)user.GetUnderlyingObject(), "manager", distinguishedName);
+            }
 
             if (this.Properties?.Count > 0)
                 if ( user.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )

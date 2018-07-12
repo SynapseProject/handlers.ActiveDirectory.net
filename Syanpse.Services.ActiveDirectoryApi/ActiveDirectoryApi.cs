@@ -164,8 +164,10 @@ public partial class ActiveDirectoryApiController : ApiController
                 pe.DynamicParameters.Add( @"emailaddress", user.EmailAddress );
             if ( !string.IsNullOrWhiteSpace( user.VoiceTelephoneNumber ) )
                 pe.DynamicParameters.Add( @"voicetelephonenumber", user.VoiceTelephoneNumber );
-            if ( !string.IsNullOrWhiteSpace( user.EmployeeId ) )
-                pe.DynamicParameters.Add( @"employeeid", user.EmployeeId );
+            if (!string.IsNullOrWhiteSpace(user.EmployeeId))
+                pe.DynamicParameters.Add(@"employeeid", user.EmployeeId);
+            if (!string.IsNullOrWhiteSpace(user.Manager))
+                pe.DynamicParameters.Add(@"manager", user.Manager);
 
             AddPropertiesToPlan( pe, user.Properties );
         }
