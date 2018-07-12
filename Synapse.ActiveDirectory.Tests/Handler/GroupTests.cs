@@ -58,9 +58,11 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "samaccountname", groupName.Substring( 0, 19 ) );
             parameters.Add( "managedby", managedBy.Name );
 
-            parameters.Add( "displayName", $"[ \"Test Group {groupName}\" ]" );
-            parameters.Add( "mail", $"[ \"{groupName}@company.com\" ]" );
-            parameters.Add( "info", $"[ \"Random Notes Here.\" ]" );
+            Dictionary<string, string[]> properties = new Dictionary<string, string[]>();
+            properties.Add("displayName", new string[] { groupName } );
+            properties.Add( "mail", new string[] { $"{groupName}@company.com" } );
+            properties.Add( "info", new string[] { $"Random Notes Here." } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -134,7 +136,11 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", groupDistinguishedName );
             parameters.Add( "managedby", $"~null~" );
             parameters.Add( "scope", "Global" );
-            parameters.Add( "info", $"[ \"Hello World\" ]" );
+
+            properties.Clear();
+            properties.Add( "info", new string[] { $"Hello World" } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
+
             result = Utility.CallPlan( "ModifyGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].Group.Properties.ContainsKey( "managedBy" ), Is.False );
@@ -215,41 +221,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateGroup", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.MissingInput ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
-        }
-
-        [Test, Category( "Handler" ), Category( "Group" )]
-        public void Handler_CreateGroupBadProperty()
-        {
-            String groupName = $"testgroup_{Utility.GenerateToken( 8 )}";
-            String groupDistinguishedName = $"CN={groupName},{workspaceName}";
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Creating Group [{groupDistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", groupDistinguishedName );
-            parameters.Add( "mail", "badformat@company.com" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateGroup", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-        }
-
-        [Test, Category( "Handler" ), Category( "Group" )]
-        public void Handler_ModifyGroupBadProperty()
-        {
-            GroupPrincipal gp = Utility.CreateGroup( workspaceName );
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Modifying Group [{gp.DistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", gp.DistinguishedName );
-            parameters.Add( "mail", "badformat@company.com" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyGroup", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-
-            Utility.DeleteGroup( gp.DistinguishedName );
         }
 
         [Test, Category( "Handler" ), Category( "Group" )]

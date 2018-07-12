@@ -37,76 +37,79 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             Utility.DeleteWorkspace( workspaceName );
         }
 
-        [Test, Category("Handler"), Category( "User" )]
+        [Test, Category("Handler"), Category("User")]
         public void Handler_UserTestsSuccess()
         {
-            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
+            String userName = $"testuser_{Utility.GenerateToken(8)}";
             String userDistinguishedName = $"CN={userName},{workspaceName}";
 
             Dictionary<string, string> parameters = new Dictionary<string, string>();
 
             // Create User
-            Console.WriteLine( $"Creating User : [{userDistinguishedName}]" );
+            Console.WriteLine($"Creating User : [{userDistinguishedName}]");
             parameters.Clear();
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
+            parameters.Add("returngroupmembership", "true");
+            parameters.Add("returnaccessrules", "true");
 
-            parameters.Add( "identity", userDistinguishedName );
-            parameters.Add( "userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}" );
-            parameters.Add( "samaccountname", userName.Substring( 0, 19 ) );
-            parameters.Add( "displayName", $"Test User {userName}" );
-            parameters.Add( "description", $"Test User {userName} Description" );
-            parameters.Add( "password", "bi@02LL49_VWQ{b" );
-            parameters.Add( "enabled", "true" );
-            parameters.Add( "accountexpirationdate", DateTime.Now.AddDays( 30 ).ToString() );
-            parameters.Add( "smartcardlogonrequired", "true" );
-            parameters.Add( "delegationpermitted", "true" );
-            parameters.Add( "homedirectory", "Temp" );
-            parameters.Add( "scriptpath", "D:\\Temp\\Scripts\\startup.bat" );
-            parameters.Add( "passwordnotrequired", "false" );
-            parameters.Add( "passwordneverexpires", "true" );
-            parameters.Add( "usercannotchangepassword", "false" );
-            parameters.Add( "allowreversiblepasswordencryption", "true" );
-            parameters.Add( "homedrive", "D" );
-            parameters.Add( "givenname", "Test" );
-            parameters.Add( "middlename", "Bartholomew" );
-            parameters.Add( "surname", "User" );
-            parameters.Add( "emailaddress", "test.b.user@company.com" );
-            parameters.Add( "voicetelephonenumber", "713-555-1212" );
-            parameters.Add( "employeeid", "42" );
+            parameters.Add("identity", userDistinguishedName);
+            parameters.Add("userprincipalname", $"{userName}1@{DirectoryServices.GetDomain(userDistinguishedName)}");
+            parameters.Add("samaccountname", userName.Substring(0, 19));
+            parameters.Add("displayName", $"Test User {userName}");
+            parameters.Add("description", $"Test User {userName} Description");
+            parameters.Add("password", "bi@02LL49_VWQ{b");
+            parameters.Add("enabled", "true");
+            parameters.Add("accountexpirationdate", DateTime.Now.AddDays(30).ToString());
+            parameters.Add("smartcardlogonrequired", "true");
+            parameters.Add("delegationpermitted", "true");
+            parameters.Add("homedirectory", "Temp");
+            parameters.Add("scriptpath", "D:\\Temp\\Scripts\\startup.bat");
+            parameters.Add("passwordnotrequired", "false");
+            parameters.Add("passwordneverexpires", "true");
+            parameters.Add("usercannotchangepassword", "false");
+            parameters.Add("allowreversiblepasswordencryption", "true");
+            parameters.Add("homedrive", "D");
+            parameters.Add("givenname", "Test");
+            parameters.Add("middlename", "Bartholomew");
+            parameters.Add("surname", "User");
+            parameters.Add("emailaddress", "test.b.user@company.com");
+            parameters.Add("voicetelephonenumber", "713-555-1212");
+            parameters.Add("employeeid", "42");
+
             // Add Properties
-            parameters.Add( "initials", @"[ ""TBU"" ]" );
-            parameters.Add( "physicaldeliveryofficename", @"[ ""Company Plaza 2"" ]" );
-            parameters.Add( "othertelephone", @"[ ""713-555-1313"", ""7135551414"", ""713-555-1515"" ]" );
-            parameters.Add( "wwwhomepage", @"[ ""http://www.google.com"" ]" );
-            parameters.Add( "url", @"[ ""http://www.bing.com"", ""http://www.altavista.com"", ""http://www.cnn.com"", ""http://www.fakenews.fox.com"" ]" );
-            parameters.Add( "logonworkstation", @"[ ""Workstation001"" ]" );
-            parameters.Add( "userworkstations",  @"[ ""Workstation002"" ]" );
-            parameters.Add( "c", @"[ ""US"" ]" );
-            parameters.Add( "l", @"[ ""Translyvania"" ]" );
-            parameters.Add( "st", @"[ ""Louisiana"" ]" );
-            parameters.Add( "streetaddress", @"[ ""13119 US-65"" ]" );
-            parameters.Add( "postofficebox", @"[ ""666"" ]" );
-            parameters.Add( "postalcode", @"[ ""71286"" ]" );
-            parameters.Add( "co", @"[ ""United States"" ]" );
-            parameters.Add( "countrycode", @"[ ""840"" ]" );
-            parameters.Add( "title", @"[ ""Laboratory Assistant"" ]" );
-            parameters.Add( "department", @"[ ""Vampire Studies"" ]" );
-            parameters.Add( "company", @"[ ""True Blood Inc."" ]" );
-            parameters.Add( "manager", $"[ \"{manager.DistinguishedName}\" ]" );
-            parameters.Add( "profilepath", @"[ ""D:\\Temp\\ProfilePath"" ]" );
-            parameters.Add( "homephone", @"[ ""832-555-1212"" ]" );
-            parameters.Add( "otherhomephone", @"[ ""832-555-1313"", ""832-555-1414"" ]" );
-            parameters.Add( "pager", @"[ ""281-555-1212"" ]" );
-            parameters.Add( "otherpager", @"[ ""281-555-1313"", ""281-555-1414"", ""281-555-1515"" ]" );
-            parameters.Add( "mobile", @"[ ""346-555-1212"" ]" );
-            parameters.Add( "othermobile", @"[ ""346-555-1313"" ]" );
-            parameters.Add( "facsimiletelephonenumber", @"[ ""318-555-1111"" ]" );
-            parameters.Add( "otherfacsimiletelephonenumber", @"[ ""318-555-2222"", ""318-555-3333"", ""318-555-4444"" ]" );
-            parameters.Add( "ipphone", @"[ ""504-555-1111"" ]" );
-            parameters.Add( "otheripphone", @"[ ""504-555-2222"", ""504-555-3333"" ]" );
-            parameters.Add( "info", @"[ ""Keep Out Of Direct Sunlight"" ]" );
-            parameters.Add( "lockouttime", $"[ \"0\" ]" );
+            Dictionary<string, string[]> properties = new Dictionary<string, string[]>();
+            properties.Add("initials", new string[] { "TBU" });
+            properties.Add("physicaldeliveryofficename", new string[] { "Company Plaza 2" });
+            properties.Add("othertelephone", new string[] { "713-555-1313", "713-555-1414", "713-555-1515" });
+            properties.Add("wwwhomepage", new string[] { "http://www.google.com" });
+            properties.Add("url", new string[] { "http://www.bing.com", "http://www.altavista.com", "http://www.cnn.com", "http://www.fakenews.fox.com" });
+            properties.Add("logonworkstation", new string[] { "Workstation001" });
+            properties.Add("userworkstations", new string[] { "Workstation002" });
+            properties.Add("c", new string[] { "US" });
+            properties.Add("l", new string[] { "Translyvania" });
+            properties.Add("st", new string[] { "Louisiana" });
+            properties.Add("streetaddress", new string[] { "13119 US-65" });
+            properties.Add("postofficebox", new string[] { "666" });
+            properties.Add("postalcode", new string[] { "71286" });
+            properties.Add("co", new string[] { "United States" });
+            properties.Add("countrycode", new string[] { "840" });
+            properties.Add("title", new string[] { "Laboratory Assistant" });
+            properties.Add("department", new string[] { "Vampire Studies" });
+            properties.Add("company", new string[] { "True Blood Inc." });
+            properties.Add("manager", new string[] { $"{manager.DistinguishedName}" });
+            properties.Add("profilepath", new string[] { "D:\\Temp\\ProfilePath" });
+            properties.Add("homephone", new string[] { "832-555-1212" });
+            properties.Add("otherhomephone", new string[] { "832-555-1313", "832-555-1414" });
+            properties.Add("pager", new string[] { "281-555-1212" });
+            properties.Add("otherpager", new string[] { "281-555-1313", "281-555-1414", "281-555-1515" });
+            properties.Add("mobile", new string[] { "346-555-1212" });
+            properties.Add("othermobile", new string[] { "346-555-1313" });
+            properties.Add("facsimiletelephonenumber", new string[] { "318-555-1111" });
+            properties.Add("otherfacsimiletelephonenumber", new string[] { "318-555-2222", "318-555-3333", "318-555-4444" });
+            properties.Add("ipphone", new string[] { "504-555-1111" });
+            properties.Add("otheripphone", new string[] { "504-555-2222", "504-555-3333" } );
+            properties.Add( "info", new string[] { "Keep Out Of Direct Sunlight" } );
+            properties.Add( "lockouttime", new string[] { "0" } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -196,8 +199,12 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "returnaccessrules", "true" );
             parameters.Add( "identity", userDistinguishedName );
             parameters.Add( "employeeid", "84" );
-            parameters.Add( "manager", $"[ \"~null~\" ]" );
-            parameters.Add( "otheripphone", @"[ ""504-555-7777"", ""~null~"", ""504-555-8888"" ]" );
+
+            properties.Clear();
+            properties.Add( "manager", new string[] { "~null~" } );
+            properties.Add( "otheripphone", new string[] { "504-555-7777", "~null~", "504-555-8888" } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
+
             result = Utility.CallPlan( "ModifyUser", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].User.EmployeeId, Is.EqualTo( "84" ) );
@@ -297,41 +304,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateUser", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Unknown ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "The password does not meet the password policy requirements" ) );
-        }
-
-        [Test, Category( "Handler" ), Category( "User" )]
-        public void Handler_CreateUserBadProperty()
-        {
-            String userName = $"testuser_{Utility.GenerateToken( 8 )}";
-            String userDistinguishedName = $"CN={userName},{workspaceName}";
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Creating User [{userDistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", userDistinguishedName );
-            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateUser", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-        }
-
-        [Test, Category( "Handler" ), Category( "User" )]
-        public void Handler_ModifyUserBadProperty()
-        {
-            UserPrincipal up = Utility.CreateUser( workspaceName );
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Modifying User [{up.DistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", up.DistinguishedName );
-            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyUser", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-
-            Utility.DeleteUser( up.DistinguishedName );
         }
 
         [Test, Category( "Handler" ), Category( "User" )]

@@ -53,13 +53,17 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Add( "identity", ouDistinguishedName );
             parameters.Add( "description", $"Test OrgUnit {ouName} Description" );
             parameters.Add( "managedby", managedBy.Name );
-            parameters.Add( "c", @"[ ""US"" ]" );
-            parameters.Add( "l", @"[ ""Translyvania"" ]" );
-            parameters.Add( "st", @"[ ""Louisiana"" ]" );
-            parameters.Add( "street", @"[ ""13119 US-65"" ]" );
-            parameters.Add( "postalcode", @"[ ""71286"" ]" );
-            parameters.Add( "co", @"[ ""United States"" ]" );
-            parameters.Add( "countrycode", @"[ ""840"" ]" );
+
+            // Add Properties
+            Dictionary<string, string[]> properties = new Dictionary<string, string[]>();
+            properties.Add( "c", new string[] { "US" } );
+            properties.Add( "l", new string[] { "Translyvania" } );
+            properties.Add( "st", new string[] { "Louisiana" } );
+            properties.Add( "street", new string[] { "13119 US-65" } );
+            properties.Add( "postalcode", new string[] { "71286" } );
+            properties.Add( "co", new string[] { "United States" } );
+            properties.Add( "countrycode", new string[] { "840" } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
 
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateOrgUnit", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
@@ -110,7 +114,11 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             parameters.Clear();
             parameters.Add( "identity", ouDistinguishedName );
             parameters.Add( "managedby", $"~null~" );
-            parameters.Add( "postalcode", $"[ \"90210\" ]" );
+
+            properties.Clear();
+            properties.Add( "postalcode", new string[] { "90210" } );
+            parameters.Add("properties", YamlHelpers.Serialize(properties, true, false));
+
             result = Utility.CallPlan( "ModifyOrgUnit", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.Success ) );
             Assert.That( result.Results[0].OrganizationalUnit.Properties.ContainsKey( "managedBy" ), Is.False );
@@ -187,42 +195,6 @@ namespace Synapse.ActiveDirectory.Tests.Handler
             ActiveDirectoryHandlerResults result = Utility.CallPlan( "CreateOrgUnit", parameters );
             Assert.That( result.Results[0].Statuses[0].StatusId, Is.EqualTo( AdStatusType.MissingInput ) );
             Assert.That( result.Results[0].Statuses[0].Message, Contains.Substring( "Must Be A Distinguished Name" ) );
-        }
-
-        [Test, Category( "Handler" ), Category( "OrgUnit" )]
-        public void Handler_CreateOrgUnitBadProperty()
-        {
-            String ouName = $"testou_{Utility.GenerateToken( 8 )}";
-            String ouDistinguishedName = $"OU={ouName},{workspaceName}";
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Creating OrgUnit [{ouDistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", ouDistinguishedName );
-            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "CreateOrgUnit", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-        }
-
-        [Test, Category( "Handler" ), Category( "OrgUnit" )]
-        public void Handler_ModifyOrgUnitBadProperty()
-        {
-            DirectoryServices.CreateOrganizationUnit( $"ou=OuDoesNotExist,{workspaceName}", null );
-            DirectoryEntryObject ouo = DirectoryServices.GetOrganizationalUnit( $"ou=OuDoesNotExist,{workspaceName}", false, true, false );
-            Dictionary<string, string> parameters = new Dictionary<string, string>();
-
-            Console.WriteLine( $"Modifying OrgUnit [{ouo.DistinguishedName}] With A Bad Property." );
-            parameters.Add( "returngroupmembership", "true" );
-            parameters.Add( "returnaccessrules", "true" );
-            parameters.Add( "identity", ouo.DistinguishedName );
-            parameters.Add( "st", "Louisiana" );   // Properties Should Be An Array Of Values
-
-            YamlDotNet.Core.SyntaxErrorException e = Assert.Throws<YamlDotNet.Core.SyntaxErrorException>( () => Utility.CallPlan( "ModifyOrgUnit", parameters ) );
-            Console.WriteLine( $"Exception Message : {e.Message}" );
-
-            DirectoryServices.DeleteOrganizationUnit( ouo.DistinguishedName );
         }
 
         [Test, Category( "Handler" ), Category( "OrgUnit" )]
