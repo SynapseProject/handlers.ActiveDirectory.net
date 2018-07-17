@@ -58,6 +58,11 @@ namespace Synapse.ActiveDirectory.Core
                 domain = identity.Substring(0, identity.IndexOf('\\'));
                 idOnly = identity.Substring(identity.IndexOf('\\') + 1);
             }
+            else if (identity.Contains(@"/"))
+            {
+                domain = identity.Substring(0, identity.IndexOf('/'));
+                idOnly = identity.Substring(identity.IndexOf('/') + 1);
+            }
 
             identityOnly = idOnly;
             return domain;
@@ -201,37 +206,39 @@ namespace Synapse.ActiveDirectory.Core
 
             try
             {
-                SearchResultCollection results = DoSearch( filter, returnProperties, searchBase );
-                searchResults.Results = new List<SearchResultRow>();
-
-                foreach ( SearchResult result in results )
+                using (SearchResultCollection results = DoSearch(filter, returnProperties, searchBase))
                 {
-                    SearchResultRow row = new SearchResultRow()
-                    {
-                        Path = result.Path
-                    };
+                    searchResults.Results = new List<SearchResultRow>();
 
-                    if ( returnProperties != null )
+                    foreach (SearchResult result in results)
                     {
-                        row.Properties = new SerializableDictionary<string, List<string>>();
-                        foreach ( string key in returnProperties )
+                        SearchResultRow row = new SearchResultRow()
                         {
-                            List<string> values = new List<string>();
-                            if ( result.Properties.Contains( key ) )
-                            {
-                                foreach ( object value in result.Properties[key] )
-                                {
-                                    string valueStr = GetPropertyValueString( value );
-                                    values.Add( valueStr );
-                                }
-                                row.Properties.Add( key, values );
-                            }
-                            else
-                                row.Properties.Add( key, null );
-                        }
-                    }
+                            Path = result.Path
+                        };
 
-                    searchResults.Results.Add( row );
+                        if (returnProperties != null)
+                        {
+                            row.Properties = new SerializableDictionary<string, List<string>>();
+                            foreach (string key in returnProperties)
+                            {
+                                List<string> values = new List<string>();
+                                if (result.Properties.Contains(key))
+                                {
+                                    foreach (object value in result.Properties[key])
+                                    {
+                                        string valueStr = GetPropertyValueString(value);
+                                        values.Add(valueStr);
+                                    }
+                                    row.Properties.Add(key, values);
+                                }
+                                else
+                                    row.Properties.Add(key, null);
+                            }
+                        }
+
+                        searchResults.Results.Add(row);
+                    }
                 }
             }
             catch (ArgumentException argEx)
@@ -258,6 +265,7 @@ namespace Synapse.ActiveDirectory.Core
             {
                 searcher.Filter = filter;
                 searcher.SearchScope = SearchScope.Subtree;
+                searcher.PageSize = 1000;
                 if ( returnProperties != null )
                 {
                     foreach ( string property in returnProperties )

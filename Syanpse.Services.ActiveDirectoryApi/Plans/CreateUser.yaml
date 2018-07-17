@@ -16,17 +16,21 @@ Actions:
         ReturnObjects: true
         ReturnObjectProperties: true
         ReturnAccessRules: false
-        UseUpsert: true
+        UseUpsert: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
         Target: ReturnGroupMembership
       - Source: returnobjects
         Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
       - Source: returnobjectproperties
         Target: ReturnObjectProperties
       - Source: returnaccessrules
         Target: ReturnAccessRules
+      - Source: upsert
+        Target: UseUpsert
   Parameters:
     Type: Yaml
     Values:
@@ -60,39 +64,9 @@ Actions:
         EmployeeId: 
 #       Other Fields and Properties
         Password: 
+        Manager: 
         Properties:
-          initials:
-          physicalDeliveryOfficeName:
-          otherTelephone:
-          wWWHomePage:
-          url:
-          logonWorkstation:
-          userWorkstations:
-          c:
-          l:
-          st:
-          streetAddress:
-          postOfficeBox:
-          postalCode:
-          co:
-          countryCode:
-          title:
-          department:
-          company:
-          manager:
-          profileTarget:
-          homePhone:
-          otherHomePhone:
-          pager:
-          otherPager:
-          mobile:
-          otherMobile:
-          facsimileTelephoneNumber:
-          otherFacsimileTelephoneNumber:
-          ipPhone:
-          otherIpPhone:
-          info:
-          lockoutTime:
+          dummyvalue:
     Dynamic:
 #   Principal Fields
     - Source: identity
@@ -148,100 +122,9 @@ Actions:
 #   Other Fields
     - Source: password
       Target: Users[0]:Password
-#   Properties
-    - Source: initials
-      Target: Users[0]:Properties:initials
-      Parse: true
-    - Source: physicaldeliveryofficename
-      Target: Users[0]:Properties:physicalDeliveryOfficeName
-      Parse: true
-    - Source: othertelephone
-      Target: Users[0]:Properties:otherTelephone
-      Parse: true
-    - Source: wwwhomepage
-      Target: Users[0]:Properties:wWWHomePage
-      Parse: true
-    - Source: url
-      Target: Users[0]:Properties:url
-      Parse: true
-    - Source: logonworkstation
-      Target: Users[0]:Properties:logonWorkstation
-      Parse: true
-    - Source: userworkstations
-      Target: Users[0]:Properties:userWorkstations
-      Parse: true
-    - Source: c
-      Target: Users[0]:Properties:c
-      Parse: true
-    - Source: l
-      Target: Users[0]:Properties:l
-      Parse: true
-    - Source: st
-      Target: Users[0]:Properties:st
-      Parse: true
-    - Source: streetaddress
-      Target: Users[0]:Properties:streetAddress
-      Parse: true
-    - Source: postofficebox
-      Target: Users[0]:Properties:postOfficeBox
-      Parse: true
-    - Source: postalcode
-      Target: Users[0]:Properties:postalCode
-      Parse: true
-    - Source: co
-      Target: Users[0]:Properties:co
-      Parse: true
-    - Source: countrycode
-      Target: Users[0]:Properties:countryCode
-      Parse: true
-    - Source: title
-      Target: Users[0]:Properties:title
-      Parse: true
-    - Source: department
-      Target: Users[0]:Properties:department
-      Parse: true
-    - Source: company
-      Target: Users[0]:Properties:company
-      Parse: true
     - Source: manager
-      Target: Users[0]:Properties:manager
-      Parse: true
-    - Source: profileTarget
-      Target: Users[0]:Properties:profileTarget
-      Parse: true
-    - Source: homephone
-      Target: Users[0]:Properties:homePhone
-      Parse: true
-    - Source: otherhomephone
-      Target: Users[0]:Properties:otherHomePhone
-      Parse: true
-    - Source: pager
-      Target: Users[0]:Properties:pager
-      Parse: true
-    - Source: otherpager
-      Target: Users[0]:Properties:otherPager
-      Parse: true
-    - Source: mobile
-      Target: Users[0]:Properties:mobile
-      Parse: true
-    - Source: othermobile
-      Target: Users[0]:Properties:otherMobile
-      Parse: true
-    - Source: facsimiletelephonenumber
-      Target: Users[0]:Properties:facsimileTelephoneNumber
-      Parse: true
-    - Source: otherfacsimiletelephonenumber
-      Target: Users[0]:Properties:otherFacsimileTelephoneNumber
-      Parse: true
-    - Source: ipphone
-      Target: Users[0]:Properties:ipPhone
-      Parse: true
-    - Source: otheripphone
-      Target: Users[0]:Properties:otherIpPhone
-      Parse: true
-    - Source: info
-      Target: Users[0]:Properties:info
-      Parse: true
-    - Source: lockouttime
-      Target: Users[0]:Properties:lockoutTime
+      Target: Users[0]:Manager
+#   Properties
+    - Source: properties
+      Target: Users[0]:Properties
       Parse: true

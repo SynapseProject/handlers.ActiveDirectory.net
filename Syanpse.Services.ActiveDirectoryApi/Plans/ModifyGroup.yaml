@@ -1,8 +1,8 @@
-Name: CreateGroupApi
-Description: Create Ldap Group
+Name: ModifyGroupApi
+Description: Modify Ldap Group
 IsActive: true
 Actions:
-- Name: CreateGroup
+- Name: ModifyGroup
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
@@ -16,17 +16,21 @@ Actions:
         ReturnObjects: true
         ReturnObjectProperties: true
         ReturnAccessRules: false
-        UseUpsert: true
+        UseUpsert: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
         Target: ReturnGroupMembership
       - Source: returnobjects
         Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
       - Source: returnobjectproperties
         Target: ReturnObjectProperties
       - Source: returnaccessrules
         Target: ReturnAccessRules
+      - Source: upsert
+        Target: UseUpsert
   Parameters:
     Type: Yaml
     Values:
@@ -39,9 +43,7 @@ Actions:
         SamAccountName: 
         ManagedBy:
         Properties:
-          displayName:
-          mail:
-          info:
+          dummuvalue:
     Dynamic:
     - Source: identity
       Target: Groups[0]:Identity
@@ -58,12 +60,6 @@ Actions:
     - Source: managedby
       Target: Groups[0]:ManagedBy
     # Properties
-    - Source: displayname
-      Target: Groups[0]:Properties:displayName
-      Parse: true
-    - Source: mail
-      Target: Groups[0]:Properties:mail
-      Parse: true
-    - Source: info
-      Target: Groups[0]:Properties:info
+    - Source: properties
+      Target: Groups[0]:Properties
       Parse: true

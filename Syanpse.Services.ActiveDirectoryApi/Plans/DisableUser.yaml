@@ -1,17 +1,22 @@
-Name: DeleteOrgUnitApi
-Description: Delete Ldap OrgUnit
+Name: DisableUserApi
+Description: Disable Ldap User
 IsActive: true
 Actions:
-- Name: DeleteOrgUnit
+- Name: DisableUser
   Handler:
     Type: Synapse.Handlers.ActiveDirectory:ActiveDirectoryHandler
     Config:
       Type: Yaml
       Values:
-        Action: Delete
+        Action: Modify
         RunSequential: false
+        ReturnGroupMembership: false
         OutputType: Json
         PrettyPrint: false
+        ReturnObjects: true
+        ReturnObjectProperties: true
+        ReturnAccessRules: false
+        UseUpsert: false
         SuppressOutput: false
       Dynamic:
       - Source: returngroupmembership
@@ -27,8 +32,9 @@ Actions:
   Parameters:
     Type: Yaml
     Values:
-      OrganizationalUnits:
+      Users:
       - Identity: 
+        Enabled: false
     Dynamic:
-    - Source: identity
-      Target: OrganizationalUnits[0]:Identity
+    - Source: url
+      Target: Users[0]:Identity

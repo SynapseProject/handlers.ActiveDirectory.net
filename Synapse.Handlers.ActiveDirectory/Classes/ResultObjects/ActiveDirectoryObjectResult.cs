@@ -13,15 +13,21 @@ using YamlDotNet.Serialization;
 
 namespace Synapse.Handlers.ActiveDirectory
 {
+    [XmlInclude(typeof(SearchResultsObject))]
+    [XmlInclude(typeof(UserPrincipalObject))]
+    [XmlInclude(typeof(GroupPrincipalObject))]
+    [XmlInclude(typeof(DirectoryEntryObject))]
     public class ActiveDirectoryObjectResult
     {
         [XmlArrayItem( ElementName = "Status" )]
         public List<ActiveDirectoryStatus> Statuses { get; set; } = new List<ActiveDirectoryStatus>();
 
+        [XmlIgnore]
+        [YamlIgnore]
+        [JsonIgnore]
+        public AdObjectType TypeId { get { return (AdObjectType)Enum.Parse(typeof(AdObjectType), Type); } set { Type = value.ToString(); } }
         [XmlElement]
-        public AdObjectType TypeId { get; set; } = AdObjectType.None;
-        [XmlElement]
-        public string Type { get { return TypeId.ToString(); } }
+        public string Type { get; set; } = "None";
         [XmlElement]
         public string Identity { get; set; }
 

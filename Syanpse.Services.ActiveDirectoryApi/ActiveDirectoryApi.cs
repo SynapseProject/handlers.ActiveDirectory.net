@@ -65,21 +65,39 @@ public partial class ActiveDirectoryApiController : ApiController
         string user = this.User?.Identity?.Name;
         string requestUri = this.Request.RequestUri.ToString();
 
-        pe.DynamicParameters.Add("url", url);
+        if (url != null)
+        {
+            pe.DynamicParameters.Add("url", url);
+
+            // Split URL into Individual Parts, Pass Into Plan as "url_#"
+            string[] parts = url.Split('\\', '/');
+            for (int i = 0; i < parts.Length; i++)
+                pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
+        }
+
         if (body != null)
+        {
             pe.DynamicParameters.Add("body", body);
+            try
+            {
+                Dictionary<string, string> bodyDictionary = YamlHelpers.Deserialize<Dictionary<string, string>>(body);
+                foreach (KeyValuePair<string, string> kvp in bodyDictionary)
+                {
+                    if (!(pe.DynamicParameters.ContainsKey(kvp.Key)))
+                        pe.DynamicParameters.Add(kvp.Key, kvp.Value);
+                }
+            }
+            catch { }
+        }
+
         pe.DynamicParameters.Add("method", this.Request.Method.ToString());
         pe.DynamicParameters.Add("requesturi", requestUri);
+
         int queryIndex = requestUri.IndexOf('?');
         if (queryIndex > 0)
             pe.DynamicParameters.Add("query", requestUri.Substring(queryIndex + 1));
         if (user != null)
             pe.DynamicParameters.Add("user", user);
-
-        // Split URL into Individual Parts, Pass Into Plan as "url_#"
-        string[] parts = url.Split('\\', '/');
-        for (int i = 0; i < parts.Length; i++)
-            pe.DynamicParameters.Add($"url_{i + 1}", parts[i]);
 
         // Add Query String values into Plan Envelope Exactly As Provided
         IEnumerable<KeyValuePair<string, string>> queryKvp = this.Request.GetQueryNameValuePairs();
@@ -95,7 +113,7 @@ public partial class ActiveDirectoryApiController : ApiController
         }
 
         IExecuteController ec = GetExecuteControllerInstance();
-        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true);
+        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true, timeoutSeconds:3600);
     }
 
     IExecuteController GetExecuteControllerInstance()
@@ -158,8 +176,10 @@ public partial class ActiveDirectoryApiController : ApiController
                 pe.DynamicParameters.Add( @"emailaddress", user.EmailAddress );
             if ( !string.IsNullOrWhiteSpace( user.VoiceTelephoneNumber ) )
                 pe.DynamicParameters.Add( @"voicetelephonenumber", user.VoiceTelephoneNumber );
-            if ( !string.IsNullOrWhiteSpace( user.EmployeeId ) )
-                pe.DynamicParameters.Add( @"employeeid", user.EmployeeId );
+            if (!string.IsNullOrWhiteSpace(user.EmployeeId))
+                pe.DynamicParameters.Add(@"employeeid", user.EmployeeId);
+            if (!string.IsNullOrWhiteSpace(user.Manager))
+                pe.DynamicParameters.Add(@"manager", user.Manager);
 
             AddPropertiesToPlan( pe, user.Properties );
         }
@@ -276,8 +296,11 @@ public partial class ActiveDirectoryApiController : ApiController
         StartPlanEnvelope pe = new StartPlanEnvelope() { DynamicParameters = new Dictionary<string, string>() };
         pe.DynamicParameters.Add( @"filter", request.Filter );
 
-        if ( request.SearchBase != null )
-            pe.DynamicParameters.Add( @"searchbase", request.SearchBase );
+        if (request.SearchBase != null)
+            pe.DynamicParameters.Add(@"searchbase", request.SearchBase);
+
+        if (request.ResultsFile != null)
+            pe.DynamicParameters.Add(@"resultsfile", request.ResultsFile);
 
         string attributes = YamlHelpers.Serialize( request.ReturnAttributes, true, false );
         if (attributes != null)
@@ -317,28 +340,7 @@ public partial class ActiveDirectoryApiController : ApiController
         object reply = ec.StartPlanSync(pe, planName, setContentType: false);
         ActiveDirectoryHandlerResults result = null;
         Type replyType = reply.GetType();
-        if ( replyType == typeof(string) )
-        {
-            try
-            {
-                result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( (string)reply );
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    // Reply was not Json or Yaml.  See if Xml
-                    XmlDocument doc = new XmlDocument();
-                    doc.LoadXml( (string)reply );
-                    result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
-                }
-                catch (Exception)
-                {
-                    throw e;
-                }
-            }
-        }
-        else if ( replyType == typeof(Dictionary<object,object>) )
+        if ( replyType == typeof(Dictionary<object,object>) )
         {
             String str = YamlHelpers.Serialize( reply );
             result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>( str );
@@ -347,6 +349,39 @@ public partial class ActiveDirectoryApiController : ApiController
         {
             XmlDocument doc = (XmlDocument)reply;
             result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>( doc.InnerXml );
+        }
+        else
+        {
+            try
+            {
+                result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>(reply.ToString());
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    // Reply was not Json or Yaml.  See if Xml
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(reply.ToString());
+                    result = XmlHelpers.Deserialize<ActiveDirectoryHandlerResults>(doc.InnerXml);
+                }
+                catch (Exception)
+                {
+                    // Reply was of unknown type.  Put Raw Output In Return Object
+                    result = new ActiveDirectoryHandlerResults();
+                    ActiveDirectoryObjectResult error = new ActiveDirectoryObjectResult();
+                    ActiveDirectoryStatus status = new ActiveDirectoryStatus();
+
+                    status.StatusId = AdStatusType.NotSupported;
+                    status.Message = $"Unable To Parse ObjectType [{replyType}].";
+                    status.ActionId = ActionType.None;
+                    error.Statuses.Add(status);
+
+                    error.TypeId = AdObjectType.None;
+                    error.Object = reply;
+                    result.Add(error);
+                }
+            }
         }
 
         return result;
@@ -366,6 +401,8 @@ public partial class ActiveDirectoryApiController : ApiController
                 if ( property.Value?.Count > 0 && !(String.IsNullOrWhiteSpace( property.Key )) )
                 {
                     String pName = property.Key.ToLower();
+                    if (pe.DynamicParameters.ContainsKey(pName))
+                        continue;
                     string values = YamlHelpers.Serialize( property.Value, true, false );
                     String pValue = values;
                     pe.DynamicParameters.Add( pName, pValue );

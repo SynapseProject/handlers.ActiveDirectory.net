@@ -13,6 +13,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public string Filter { get; set; }
         public List<RegexParameters> Parameters {get; set;}
         public List<string> ReturnAttributes { get; set; }
+        public string ResultsFile { get; set; }
     }
 
     public class RegexParameters

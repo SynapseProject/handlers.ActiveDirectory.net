@@ -22,6 +22,8 @@ Actions:
         Target: ReturnGroupMembership
       - Source: returnobjects
         Target: ReturnObjects
+      - Source: outputtype
+        Target: OutputType
       - Source: returnobjectproperties
         Target: ReturnObjectProperties
       - Source: returnaccessrules
