@@ -271,7 +271,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             ActionId = config.Action,
             StatusId = AdStatusType.Success,
-            Message = "Success",
+            Message = $"{obj.Type} [{obj.Identity}] Has Been Found.",
         };
 
         try
@@ -365,7 +365,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             ActionId = config.Action,
             StatusId = AdStatusType.Success,
-            Message = "Success",
+            Message = $"{obj.Type} [{obj.Identity}] Has Been Created.",
         };
 
         try
@@ -400,6 +400,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                     DirectoryServices.SaveUser( up, isDryRun );
                     OnLogMessage( "ProcessCreate", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
+                    status.Message = $"{obj.Type} [{obj.Identity}] Has Been {statusAction}.";
                     result.Statuses.Add( status );
                     if ( user.MemberOf != null )
                         AddToGroup( result, user, false );
@@ -559,7 +560,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             ActionId = config.Action,
             StatusId = AdStatusType.Success,
-            Message = "Success",
+            Message = $"{obj.Type} [{obj.Identity}] Has Been Modified.",
         };
 
         try
@@ -598,6 +599,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                     DirectoryServices.SaveUser( up, isDryRun );
 
                     OnLogMessage( "ProcessModify", obj.Type + " [" + obj.Identity + "] " + statusAction + "." );
+                    status.Message = $"{obj.Type} [{obj.Identity}] Has Been {statusAction}.";
                     result.Statuses.Add( status );
                     if (user.MemberOf != null)
                         AddToGroup(result, user, false);
@@ -768,7 +770,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             ActionId = config.Action,
             StatusId = AdStatusType.Success,
-            Message = "Success",
+            Message = $"{obj.Type} [{obj.Identity}] Has Been Deleted.",
         };
 
         try
@@ -903,8 +905,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         throw new AdException( "Action [" + config.Action + "] Not Implemented For Type [" + obj.Type + "]", AdStatusType.NotSupported );
                 }
 
+                OnLogMessage("ProcessAccessRules", message);
+                status.Message = message;
                 result.Statuses.Add( status );
-                OnLogMessage( "ProcessAccessRules", message );
             }
 
             if ( returnObject )
@@ -959,8 +962,9 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
                         break;
                 }
 
+                OnLogMessage("ProcessAccessRules", message);
+                status.Message = message;
                 result.Statuses.Add( status );
-                OnLogMessage( "ProcessAccessRules", message );
             }
 
             if ( returnObject )
@@ -1377,13 +1381,13 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
         {
             ActionId = config.Action,
             StatusId = AdStatusType.Success,
-            Message = "Success",
+            Message = $"{ obj.Type } [{ obj.Identity }] Moved To[{ obj.MoveTo }].",
         };
 
         try
         {
             DirectoryEntry de = DirectoryServices.Move(obj.Identity, obj.MoveTo);
-            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{obj.MoveTo}]");
+            OnLogMessage("ProcessMove", $"{obj.Type} [{obj.Identity}] Moved To [{obj.MoveTo}].");
 
             if (returnObject)
             {
