@@ -56,7 +56,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [HttpDelete]
     [HttpPatch]
     [Route("{planname}/{*url}")]
-    public object ExecutePlan(string planname, string url)
+    public string ExecutePlan(string planname, string url)
     {
         string planName = planname;
         StartPlanEnvelope pe = GetPlanEnvelope();
@@ -113,7 +113,8 @@ public partial class ActiveDirectoryApiController : ApiController
         }
 
         IExecuteController ec = GetExecuteControllerInstance();
-        return ec.StartPlanSync(pe, planName, serializationType: SerializationType.Unspecified, setContentType: true, timeoutSeconds:3600);
+        object result = ec.StartPlanSync(pe, planName, setContentType: false);
+        return result.ToString();
     }
 
     IExecuteController GetExecuteControllerInstance()
@@ -356,7 +357,7 @@ public partial class ActiveDirectoryApiController : ApiController
             {
                 result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>(reply.ToString());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 try
                 {
