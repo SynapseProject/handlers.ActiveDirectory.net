@@ -125,7 +125,12 @@ namespace Synapse.Handlers.ActiveDirectory
             {
                 String distinguishedName = DirectoryServices.GetDistinguishedName(this.Manager);
                 if (distinguishedName == null)
-                    distinguishedName = this.Manager;     // Cant' Find As User Or Group, Pass Raw Value (Might Be ~null~)
+                {
+                    if (this.Manager == "~null~")
+                        distinguishedName = this.Manager;
+                    else
+                        throw new AdException($"User [{this.Manager}] Does Not Exist.", AdStatusType.DoesNotExist);
+                }
                 DirectoryServices.SetProperty((DirectoryEntry)user.GetUnderlyingObject(), "manager", distinguishedName);
             }
 
