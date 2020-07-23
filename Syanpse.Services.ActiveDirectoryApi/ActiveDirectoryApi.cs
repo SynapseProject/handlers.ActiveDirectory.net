@@ -356,7 +356,7 @@ public partial class ActiveDirectoryApiController : ApiController
             {
                 result = YamlHelpers.Deserialize<ActiveDirectoryHandlerResults>(reply.ToString());
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 try
                 {
