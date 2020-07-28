@@ -12,16 +12,22 @@ namespace Synapse.ActiveDirectory.Core
 {
     public partial class DirectoryServices
     {
+        public static Config config = new Config(Config.GetDefaultConfigFile());
+
         private static PrincipalContext GetPrincipalContext(string ouPath = "", string domainName = null)
         {
-            if ( String.IsNullOrWhiteSpace( domainName ) )
-            {
-                // If null, principal context defaults to a domain controller for the domain of the user principal
-                // under which the thread is running.
-                domainName = null;
-            }
+            DomainConfig domain = DirectoryServices.config.GetDomain(domainName);
+            ContextOptions opts = ContextOptions.Negotiate | ContextOptions.SecureSocketLayer;
 
-            PrincipalContext principalContext = !String.IsNullOrWhiteSpace( ouPath ) ? new PrincipalContext( ContextType.Domain, domainName, ouPath ) : new PrincipalContext( ContextType.Domain, domainName );
+            Console.WriteLine(">> Getting PrincipalContext For Domain " + domain);
+            PrincipalContext principalContext = null;
+            if (domain.UseSSL)
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, opts) : new PrincipalContext(ContextType.Domain, domain.Name, null, opts);
+            else
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath) : new PrincipalContext(ContextType.Domain, domain.Name);
+
+            Console.WriteLine($">> Got PrincipalContext : {principalContext.Name}, {principalContext.UserName}");
+
             return principalContext;
         }
 
@@ -194,8 +200,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static string GetDistinguishedName(string identity)
         {
-            String idOnly = null;
-            String domain = GetDomain(identity, out idOnly);
+            String domain = GetDomain(identity, out string idOnly);
             Principal principal = DirectoryServices.GetPrincipal( idOnly, domain );
             return principal?.DistinguishedName;
         }

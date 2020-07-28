@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Classes\AccessRuleObject.cs" />
     <Compile Include="Classes\AdException.cs" />
+    <Compile Include="Classes\Config.cs" />
     <Compile Include="Classes\DefaultRoleManager.cs" />
     <Compile Include="Classes\DirectoryEntryObject.cs" />
     <Compile Include="Classes\GroupPrincipalObject.cs" />

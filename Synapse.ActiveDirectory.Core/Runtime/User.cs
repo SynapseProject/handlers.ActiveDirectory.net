@@ -40,8 +40,7 @@ namespace Synapse.ActiveDirectory.Core
             if ( String.IsNullOrWhiteSpace( identity ) )
                 return null;
 
-            PrincipalContext principalContext = GetPrincipalContext( "", domainName );
-
+            PrincipalContext principalContext = GetPrincipalContext("", domainName);
             UserPrincipal userPrincipal = UserPrincipal.FindByIdentity( principalContext, identity );
             return userPrincipal;
         }

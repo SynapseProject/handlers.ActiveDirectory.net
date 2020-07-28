@@ -161,8 +161,9 @@ namespace Synapse.ActiveDirectory.Core
 
             Path = de.Path;
             SchemaClassName = de.SchemaClassName;
-            if (loadSchema)
-                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false, false, false );
+            // TODO : Load Schema Broken for OU's.  Find Out Why
+//            if (loadSchema)
+//                SchemaEntry = new DirectoryEntryObject( de.SchemaEntry, false, false, false, false );
             UsePropertyCache = de.UsePropertyCache;
             Username = de.Username;
 

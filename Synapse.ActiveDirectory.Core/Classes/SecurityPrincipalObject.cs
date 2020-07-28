@@ -250,6 +250,9 @@ namespace Synapse.ActiveDirectory.Core
         //     Gets or sets a Boolean value that specifies whether the user can change the password
         //     for this account. Do not use this with a System.DirecoryServices.AccountManagement.ComputerPrincipal.
         //
+        //     Note:    There are observed performance issues retrieving this flag cross-domain.  This was made an optionally
+        //              returned value (false by default).  See Synapse.ActiveDirectory.Core.Config for options.
+        //
         // Returns:
         //     true if the user is not permitted to change the password; otherwise false.
         //
@@ -259,7 +262,7 @@ namespace Synapse.ActiveDirectory.Core
         //
         //   T:System.NotSupportedException:
         //     This principal object is not a user.
-        public bool UserCannotChangePassword { get; set; }
+        public bool? UserCannotChangePassword { get; set; }
         #endregion
 
 
@@ -288,7 +291,9 @@ namespace Synapse.ActiveDirectory.Core
             PermittedLogonTimes = ap.PermittedLogonTimes;
             ScriptPath = ap.ScriptPath;
             SmartcardLogonRequired = ap.SmartcardLogonRequired;
-            UserCannotChangePassword = ap.UserCannotChangePassword;
+            // Performance issues noticed returning this flag.  Set "config" option to have flag returned.
+            if (DirectoryServices.config.ReturnUserCannotChangePasswordFlag)
+                UserCannotChangePassword = ap.UserCannotChangePassword;
             BadLogonCount = ap.BadLogonCount;
             AccountLockoutTime = ap.AccountLockoutTime;
         }
