@@ -198,7 +198,6 @@ namespace Synapse.ActiveDirectory.Core
                 domainName = DirectoryServices.GetDomain(searchBase);
 
             DomainConfig domainConfig = DirectoryServices.config.GetDomain(domainName);
-            AuthenticationTypes auth = DirectoryServices.GetAuthenticationTypes(domainConfig);
 
             string ldapPath = $"LDAP://{domainConfig.Name}:{domainConfig.Port}";
             if (!String.IsNullOrWhiteSpace(searchBase))
@@ -208,9 +207,9 @@ namespace Synapse.ActiveDirectory.Core
                 ldapPath += $"/{searchBase}";
             }
 
-            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {auth}");
+            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {domainConfig.AuthenticationTypesEnum}");
 
-            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, null, null, auth ) )
+            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, domainConfig.Username, domainConfig.DecryptedPassword, domainConfig.AuthenticationTypesEnum) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;

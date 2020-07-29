@@ -22,11 +22,11 @@ namespace Synapse.ActiveDirectory.Core
             Console.WriteLine(">> Getting PrincipalContext For Domain " + domain);
             PrincipalContext principalContext = null;
             if (domain.UseSSL)
-                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, opts) : new PrincipalContext(ContextType.Domain, domain.Name, null, opts);
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, opts, domain.Username, domain.DecryptedPassword) : new PrincipalContext(ContextType.Domain, domain.Name, null, opts, domain.Username, domain.DecryptedPassword);
             else
-                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath) : new PrincipalContext(ContextType.Domain, domain.Name);
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, domain.Username, domain.DecryptedPassword) : new PrincipalContext(ContextType.Domain, domain.Name, domain.Username, domain.DecryptedPassword);
 
-            Console.WriteLine($">> Got PrincipalContext : {principalContext.Name}, {principalContext.UserName}");
+            Console.WriteLine($">> Got PrincipalContext : {principalContext.Name} ({principalContext.ConnectedServer})");
 
             return principalContext;
         }
@@ -231,22 +231,6 @@ namespace Synapse.ActiveDirectory.Core
             return dn;
         }
 
-        public static AuthenticationTypes GetAuthenticationTypes(DomainConfig domainConfig)
-        {
-            if (domainConfig.UseSSL)
-                return AuthenticationTypes.Secure;
-            else
-                return AuthenticationTypes.None;
-        }
-
-        public static AuthenticationTypes GetAuthenticationTypes(string domain)
-        {
-            if (IsDistinguishedName(domain))
-                domain = GetDomain(domain);
-
-            return GetAuthenticationTypes(DirectoryServices.config.GetDomain(domain));
-        }
-
         public static string GetDistinguishedNameFromIdentity(string identity)
         {
             String domain = GetDomainFromIdentity(identity, out string idOnly);
@@ -314,7 +298,6 @@ namespace Synapse.ActiveDirectory.Core
                 domainName = DirectoryServices.GetDomain(searchBase);
 
             DomainConfig domainConfig = DirectoryServices.config.GetDomain(domainName);
-            AuthenticationTypes auth = DirectoryServices.GetAuthenticationTypes(domainConfig);
 
             string ldapPath = $"LDAP://{domainConfig.Name}:{domainConfig.Port}";
             if (!String.IsNullOrWhiteSpace(searchBase))
@@ -324,9 +307,9 @@ namespace Synapse.ActiveDirectory.Core
                 ldapPath += $"/{searchBase}";
             }
 
-            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {auth}");
+            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {domainConfig.AuthenticationTypesEnum}");
 
-            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, null, null, auth ) )
+            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, domainConfig.Username, domainConfig.DecryptedPassword, domainConfig.AuthenticationTypesEnum) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;

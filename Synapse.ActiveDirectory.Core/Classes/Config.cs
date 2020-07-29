@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.DirectoryServices.AccountManagement;
+using System.DirectoryServices;
 
 using Synapse.Core.Utilities;
 
@@ -87,6 +88,10 @@ namespace Synapse.ActiveDirectory.Core
         public int Port { get; set; } = 389;
         public bool UseSSL { get; set; } = false;
         public int ContextOptions { get; set; } = 1;
+        public int AuthenticationTypes { get; set; } = 1;
+        public string Username { get; set; } = null;
+        public string Password { get; set; } = null;
+        public string RSAKey { get; set; } = null;
         public bool IsDefault { get; set; } = false;
         public List<string> Aliases { get; set; } = new List<string>();
 
@@ -97,6 +102,26 @@ namespace Synapse.ActiveDirectory.Core
                 return (ContextOptions)this.ContextOptions;
             }
         }
+
+        public AuthenticationTypes AuthenticationTypesEnum
+        {
+            get
+            {
+                return (AuthenticationTypes)this.AuthenticationTypes;
+            }
+        }
+
+        public string DecryptedPassword
+        {
+            get
+            {
+                string pwd = Password;
+                if (!String.IsNullOrWhiteSpace(RSAKey))
+                    pwd = CryptoHelpers.Decrypt(filePath: RSAKey, value: pwd);
+                return pwd;
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

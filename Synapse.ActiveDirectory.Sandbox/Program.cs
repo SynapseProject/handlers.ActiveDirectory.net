@@ -18,7 +18,7 @@ namespace Synapse.ActiveDirectory.Core
         {
             string type = (args.Length > 0) ? args[0] : null;
             string identity = (args.Length > 1) ? args[1] : null;
-            string searchBase = (args.Length > 2) ? args[2] : null;
+            string arg2 = (args.Length > 2) ? args[2] : null;
 
             if (type.Equals("user", StringComparison.OrdinalIgnoreCase))
             {
@@ -46,9 +46,19 @@ namespace Synapse.ActiveDirectory.Core
             }
             else if (type.Equals("search", StringComparison.OrdinalIgnoreCase))
             {
-                SearchResultsObject results = DirectoryServices.Search(searchBase, identity, null);
+                SearchResultsObject results = DirectoryServices.Search(arg2, identity, null);
                 foreach (SearchResultRow row in results.Results)
                     Console.WriteLine(">> " + row.Path);
+            }
+            else if (type.Equals("encrypt", StringComparison.OrdinalIgnoreCase))
+            {
+                string pwd = CryptoHelpers.Encrypt(filePath: identity, value: arg2);
+                Console.WriteLine(pwd);
+            }
+            else if (type.Equals("decrypt", StringComparison.OrdinalIgnoreCase))
+            {
+                string pwd = CryptoHelpers.Decrypt(filePath: identity, value: arg2);
+                Console.WriteLine(pwd);
             }
 
             //Console.WriteLine( "Press <ENTER> To Continue..." );
