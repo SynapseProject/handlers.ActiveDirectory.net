@@ -54,7 +54,7 @@ namespace Synapse.Handlers.ActiveDirectory
         public UserPrincipal CreateUserPrincipal()
         {
             String name = this.Identity;
-            String domain = DirectoryServices.GetDomain(this.Identity, out name);
+            String domain = DirectoryServices.GetDomainFromIdentity(this.Identity, out name);
 
             UserPrincipal user = null;
 
@@ -123,7 +123,7 @@ namespace Synapse.Handlers.ActiveDirectory
 
             if ( this.Manager != null && user.GetUnderlyingObjectType() == typeof(DirectoryEntry))
             {
-                String distinguishedName = DirectoryServices.GetDistinguishedName(this.Manager);
+                String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity(this.Manager);
                 if (distinguishedName == null)
                 {
                     if (this.Manager == "~null~")

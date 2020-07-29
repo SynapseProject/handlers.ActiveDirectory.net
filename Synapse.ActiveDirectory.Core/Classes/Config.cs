@@ -71,6 +71,14 @@ namespace Synapse.ActiveDirectory.Core
                 domain = ValidDomains[domainName];
             return domain;
         }
+
+        public bool HasDomain(string domainName)
+        {
+            if (!String.IsNullOrWhiteSpace(domainName) && ValidDomains.ContainsKey(domainName))
+                return true;
+            else
+                return false;
+        }
     }
 
     public class DomainConfig
