@@ -117,6 +117,98 @@ public partial class ActiveDirectoryApiController : ApiController
         return result.ToString();
     }
 
+    public ActiveDirectoryHandlerResults GetAdObject(AdObjectType type, string identity)
+    {
+        ActiveDirectoryHandlerResults results = new ActiveDirectoryHandlerResults();
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            ActionId = ActionType.Get,
+            StatusId = AdStatusType.Success,
+            Message = $"{type} [{identity}] Has Been Found.",
+        };
+
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult();
+
+        try
+        {
+            object obj = null;
+            QueryFlags flags = QueryFlags.GetFromRequest(this.Request);
+            if (type == AdObjectType.User)
+                obj = DirectoryServices.GetUser(identity, flags.ReturnGroupMembership, flags.ReturnAccessRules, flags.ReturnObjectProperties);
+            else if (type == AdObjectType.Group)
+                obj = DirectoryServices.GetGroup(identity, flags.ReturnGroupMembership, flags.ReturnAccessRules, flags.ReturnObjectProperties);
+            else if (type == AdObjectType.OrganizationalUnit)
+                obj = DirectoryServices.GetOrganizationalUnit(identity, flags.ReturnAccessRules, flags.ReturnObjectProperties, false);
+            else if (type == AdObjectType.Computer)
+                obj = DirectoryServices.GetComputer(identity, flags.ReturnAccessRules, flags.ReturnObjectProperties, false);
+
+            if (flags.ReturnObjects)
+                result.Object = obj;
+            result.Identity = identity;
+            result.Type = type.ToString();
+
+            result.Statuses.Add(status);
+        }
+        catch (AdException ade)
+        {
+            status.StatusId = ade.Type;
+            status.Message = ade.Message;
+        }
+
+        results.Add(result);
+
+        return results;
+    }
+
+    public ActiveDirectoryHandlerResults DoSearch(AdSearchRequest request)
+    {
+        ActiveDirectoryHandlerResults results = new ActiveDirectoryHandlerResults();
+        ActiveDirectoryStatus status = new ActiveDirectoryStatus()
+        {
+            ActionId = ActionType.Search,
+            StatusId = AdStatusType.Success,
+            Message = "Success",
+        };
+
+
+        ActiveDirectoryObjectResult result = new ActiveDirectoryObjectResult()
+        {
+            TypeId = AdObjectType.SearchResults,
+        };
+
+        try
+        {
+            QueryFlags flags = QueryFlags.GetFromRequest(this.Request);
+
+            string searchBase = request.SearchBase;
+            if (String.IsNullOrWhiteSpace(request.SearchBase))
+                searchBase = DirectoryServices.GetDomainDistinguishedName();
+
+            String filter = request.Filter;
+            if (request.Parameters != null)
+                foreach (RegexParameters param in request.Parameters)
+                    filter = Regex.Replace(filter, param.Find, param.ReplaceWith);
+
+            SearchResultsObject searchResults = DirectoryServices.Search(searchBase, filter, request.ReturnAttributes?.ToArray());
+            int recordsFound = searchResults.Results.Count;
+            if (flags.ReturnObjects)
+                result.Object = searchResults;
+
+            status.Message = $"[{recordsFound}] Records Found.";
+            result.Statuses.Add(status);
+        }
+        catch (AdException ade)
+        {
+            status.StatusId = ade.Type;
+            status.Message = ade.Message;
+        }
+
+        results.Add(result);
+        return results;
+    }
+
+
+
     IExecuteController GetExecuteControllerInstance()
     {
         return ExtensibilityUtility.GetExecuteControllerInstance( Url, User, this.Request?.Headers?.Authorization );

@@ -69,6 +69,7 @@
     <Compile Include="Config\ActiveDirectoryApiConfig.cs" />
     <Compile Include="OrgUnit.cs" />
     <Compile Include="Group.cs" />
+    <Compile Include="QueryFlags.cs" />
     <Compile Include="Search.cs" />
     <Compile Include="User.cs" />
     <Compile Include="ActiveDirectoryApi.cs" />

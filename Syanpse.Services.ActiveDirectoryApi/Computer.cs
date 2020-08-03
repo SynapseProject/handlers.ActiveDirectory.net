@@ -6,6 +6,7 @@ using System.Net.Http;
 using Synapse.Core;
 using Synapse.Services;
 using Synapse.Core.Utilities;
+using Synapse.ActiveDirectory.Core;
 using Synapse.Handlers.ActiveDirectory;
 
 public partial class ActiveDirectoryApiController : ApiController
@@ -15,9 +16,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route("computer/{domain}/{identity}")]
     public ActiveDirectoryHandlerResults GetComputer(string identity, string domain = null)
     {
-        string planName = config.Plans.Computer.Get;
-        StartPlanEnvelope pe = GetPlanEnvelope(BuildIdentity(domain, identity));
-        return CallPlan(planName, pe);
+        return GetAdObject(AdObjectType.Computer, BuildIdentity(domain, identity));
     }
 
     [HttpDelete]

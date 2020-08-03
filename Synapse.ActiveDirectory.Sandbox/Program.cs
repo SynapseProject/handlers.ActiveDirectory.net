@@ -9,6 +9,7 @@ using System.Security.Principal;
 
 using Synapse.Core;
 using Synapse.Core.Utilities;
+using Synapse.Handlers.ActiveDirectory;
 
 namespace Synapse.ActiveDirectory.Core
 {
@@ -20,35 +21,43 @@ namespace Synapse.ActiveDirectory.Core
             string identity = (args.Length > 1) ? args[1] : null;
             string arg2 = (args.Length > 2) ? args[2] : null;
 
+            ActiveDirectoryApiController api = new ActiveDirectoryApiController();
             if (type.Equals("user", StringComparison.OrdinalIgnoreCase))
             {
-                UserPrincipalObject upo = DirectoryServices.GetUser(identity, false, false, true);
-                Console.WriteLine(">> DN   : " + upo?.DistinguishedName);
-                Console.WriteLine(">> GUID : " + upo?.Guid);
+                ActiveDirectoryHandlerResults results = api.GetUser(identity);
+                string resultStr = YamlHelpers.Serialize(results, true);
+                Console.WriteLine(resultStr);
             }
             else if (type.Equals("group", StringComparison.OrdinalIgnoreCase))
             {
-                GroupPrincipalObject gpo = DirectoryServices.GetGroup(identity, false, false, true);
-                Console.WriteLine(">> DN   : " + gpo?.DistinguishedName);
-                Console.WriteLine(">> GUID : " + gpo?.Guid);
+                ActiveDirectoryHandlerResults results = api.GetGroup(identity);
+                string resultStr = YamlHelpers.Serialize(results, true);
+                Console.WriteLine(resultStr);
             }
             else if (type.Equals("ou", StringComparison.OrdinalIgnoreCase))
             {
-                DirectoryEntryObject ou = DirectoryServices.GetOrganizationalUnit(identity, false, false, false);
-                Console.WriteLine(">> DN   : " + ou?.DistinguishedName);
-                Console.WriteLine(">> GUID : " + ou?.Guid);
+                ActiveDirectoryHandlerResults results = api.GetOrgUnit(identity);
+                string resultStr = YamlHelpers.Serialize(results, true);
+                Console.WriteLine(resultStr);
             }
             else if (type.Equals("computer", StringComparison.OrdinalIgnoreCase))
             {
-                DirectoryEntryObject computer = DirectoryServices.GetComputer(identity, false, false, true);
-                Console.WriteLine(">> DN   : " + computer?.DistinguishedName);
-                Console.WriteLine(">> GUID : " + computer?.Guid);
+                ActiveDirectoryHandlerResults results = api.GetComputer(identity);
+                string resultStr = YamlHelpers.Serialize(results, true);
+                Console.WriteLine(resultStr);
             }
             else if (type.Equals("search", StringComparison.OrdinalIgnoreCase))
             {
-                SearchResultsObject results = DirectoryServices.Search(arg2, identity, null);
-                foreach (SearchResultRow row in results.Results)
-                    Console.WriteLine(">> " + row.Path);
+                AdSearchRequest request = new AdSearchRequest();
+                request.Filter = identity;
+                request.SearchBase = arg2;
+                request.ReturnAttributes = new List<string>();
+                request.ReturnAttributes.Add("cn");
+                request.ReturnAttributes.Add("distinguishedName");
+
+                ActiveDirectoryHandlerResults results = api.DoSearch(request);
+                string resultStr = YamlHelpers.Serialize(results, true);
+                Console.WriteLine(resultStr);
             }
             else if (type.Equals("encrypt", StringComparison.OrdinalIgnoreCase))
             {

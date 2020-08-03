@@ -17,9 +17,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route( "search" )]
     public ActiveDirectoryHandlerResults Search(AdSearchRequest request)
     {
-        string planName = config.Plans.Search;
-        StartPlanEnvelope pe = GetPlanEnvelope( request );
-        return CallPlan( planName, pe );
+        return DoSearch(request);
     }
 
     [HttpPost]

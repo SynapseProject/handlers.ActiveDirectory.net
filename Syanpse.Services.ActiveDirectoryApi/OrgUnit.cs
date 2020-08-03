@@ -18,9 +18,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route("ou/{domain}/{identity}")]
     public ActiveDirectoryHandlerResults GetOrgUnit(string identity, string domain = null)
     {
-        string planName = config.Plans.OrganizationalUnit.Get;
-        StartPlanEnvelope pe = GetPlanEnvelope( BuildIdentity(domain, identity) );
-        return CallPlan( planName, pe );
+        return GetAdObject(AdObjectType.OrganizationalUnit, BuildIdentity(domain, identity));
     }
 
     [HttpDelete]

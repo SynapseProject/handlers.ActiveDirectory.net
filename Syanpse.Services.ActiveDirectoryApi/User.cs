@@ -8,6 +8,7 @@ using System.DirectoryServices;
 using Synapse.Core;
 using Synapse.Services;
 using Synapse.Core.Utilities;
+using Synapse.ActiveDirectory.Core;
 using Synapse.Handlers.ActiveDirectory;
 
 
@@ -18,9 +19,7 @@ public partial class ActiveDirectoryApiController : ApiController
     [Route("user/{domain}/{identity}")]
     public ActiveDirectoryHandlerResults GetUser(string identity, string domain = null)
     {
-        string planName = config.Plans.User.Get;
-        StartPlanEnvelope pe = GetPlanEnvelope( BuildIdentity(domain, identity) );
-        return CallPlan( planName, pe );
+        return GetAdObject(AdObjectType.User, BuildIdentity(domain, identity));
     }
 
     [HttpDelete]
