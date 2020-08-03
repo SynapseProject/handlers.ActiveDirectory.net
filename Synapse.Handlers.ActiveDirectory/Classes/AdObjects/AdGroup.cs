@@ -61,7 +61,7 @@ namespace Synapse.Handlers.ActiveDirectory
             // Get DistinguishedName from User or Group Identity for ManagedBy Property
             if ( this.ManagedBy != null && group.GetUnderlyingObjectType() == typeof( DirectoryEntry ) )
             {
-                String distinguishedName = DirectoryServices.GetDistinguishedName( this.ManagedBy );
+                String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity( this.ManagedBy );
                 if (distinguishedName == null)
                 {
                     if (this.ManagedBy == "~null~")

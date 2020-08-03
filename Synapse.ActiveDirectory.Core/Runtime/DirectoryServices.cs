@@ -22,11 +22,11 @@ namespace Synapse.ActiveDirectory.Core
             Console.WriteLine(">> Getting PrincipalContext For Domain " + domain);
             PrincipalContext principalContext = null;
             if (domain.UseSSL)
-                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, opts) : new PrincipalContext(ContextType.Domain, domain.Name, null, opts);
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, opts, domain.Username, domain.DecryptedPassword) : new PrincipalContext(ContextType.Domain, domain.Name, null, opts, domain.Username, domain.DecryptedPassword);
             else
-                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath) : new PrincipalContext(ContextType.Domain, domain.Name);
+                principalContext = !String.IsNullOrWhiteSpace(ouPath) ? new PrincipalContext(ContextType.Domain, domain.Name, ouPath, domain.Username, domain.DecryptedPassword) : new PrincipalContext(ContextType.Domain, domain.Name, domain.Username, domain.DecryptedPassword);
 
-            Console.WriteLine($">> Got PrincipalContext : {principalContext.Name}, {principalContext.UserName}");
+            Console.WriteLine($">> Got PrincipalContext : {principalContext.Name} ({principalContext.ConnectedServer})");
 
             return principalContext;
         }
@@ -42,7 +42,7 @@ namespace Synapse.ActiveDirectory.Core
             return principal;
         }
 
-        public static string GetDomain(string identity, out string identityOnly)
+        public static string GetDomainFromIdentity(string identity, out string identityOnly)
         {
             String domain = null;
             String idOnly = identity;
@@ -63,11 +63,22 @@ namespace Synapse.ActiveDirectory.Core
             {
                 domain = identity.Substring(0, identity.IndexOf('\\'));
                 idOnly = identity.Substring(identity.IndexOf('\\') + 1);
+                if (DirectoryServices.config.HasDomain(domain))
+                {
+                    DomainConfig config = DirectoryServices.config.GetDomain(domain);
+                    domain = config.Name;
+                }
+
             }
             else if (identity.Contains(@"/"))
             {
                 domain = identity.Substring(0, identity.IndexOf('/'));
                 idOnly = identity.Substring(identity.IndexOf('/') + 1);
+                if (DirectoryServices.config.HasDomain(domain))
+                {
+                    DomainConfig config = DirectoryServices.config.GetDomain(domain);
+                    domain = config.Name;
+                }
             }
 
             identityOnly = idOnly;
@@ -76,12 +87,7 @@ namespace Synapse.ActiveDirectory.Core
 
         public static string GetDomainDistinguishedName()
         {
-            // connect to "RootDSE" to find default naming context.
-            // "RootDSE" is not a container.
-            DirectoryEntry rootDSE = new DirectoryEntry( "LDAP://RootDSE" );
-
-            // Return the distinguished name for the domain of which this directory server is a member.
-            return rootDSE.Properties["defaultNamingContext"][0].ToString();
+            return DirectoryServices.GetDistinguishedName(DirectoryServices.config.DefaultDomain.Name);
         }
 
         public static bool IsDistinguishedName(String identity)
@@ -198,9 +204,36 @@ namespace Synapse.ActiveDirectory.Core
             return domain;
         }
 
-        public static string GetDistinguishedName(string identity)
+        public static String GetDistinguishedName(String domain, bool addSearchPrefix = false, bool addPort = false)
         {
-            String domain = GetDomain(identity, out string idOnly);
+            string dn = domain;
+            bool isRootDSE = domain.Equals("RootDSE", StringComparison.OrdinalIgnoreCase);
+            if (!IsDistinguishedName(dn) && !isRootDSE)
+            {
+                string[] parts = dn.Split('.');
+                for (int i = 0; i < parts.Length; i++)
+                    parts[i] = $"DC={parts[i]}";
+                dn = String.Join(",", parts);
+            }
+
+            if (addSearchPrefix)
+            {
+                DomainConfig domainConfig = DirectoryServices.config.GetDomain(domain);
+                string portStr = null;
+                if (addPort && !isRootDSE)
+                    portStr = $":{domainConfig.Port}";
+                if (domainConfig.UseSSL)
+                    dn = $"LDAPS://{dn}{portStr}";
+                else
+                    dn = $"LDAP://{dn}{portStr}";
+            }
+
+            return dn;
+        }
+
+        public static string GetDistinguishedNameFromIdentity(string identity)
+        {
+            String domain = GetDomainFromIdentity(identity, out string idOnly);
             Principal principal = DirectoryServices.GetPrincipal( idOnly, domain );
             return principal?.DistinguishedName;
         }
@@ -260,12 +293,23 @@ namespace Synapse.ActiveDirectory.Core
 
         private static SearchResultCollection DoSearch(string filter, string[] returnProperties = null, string searchBase = null)
         {
-            if ( String.IsNullOrWhiteSpace( searchBase ) )
-                searchBase = GetDomainDistinguishedName();
-            if ( !searchBase.StartsWith( "LDAP://" ) )
-                searchBase = "LDAP://" + searchBase;
+            string domainName = DirectoryServices.config.DefaultDomain.Name;
+            if (!String.IsNullOrWhiteSpace(searchBase))
+                domainName = DirectoryServices.GetDomain(searchBase);
 
-            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
+            DomainConfig domainConfig = DirectoryServices.config.GetDomain(domainName);
+
+            string ldapPath = $"LDAP://{domainConfig.Name}:{domainConfig.Port}";
+            if (!String.IsNullOrWhiteSpace(searchBase))
+            {
+                if (!DirectoryServices.IsDistinguishedName(searchBase))
+                    searchBase = DirectoryServices.GetDistinguishedName(searchBase);
+                ldapPath += $"/{searchBase}";
+            }
+
+            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {domainConfig.AuthenticationTypesEnum}");
+
+            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, domainConfig.Username, domainConfig.DecryptedPassword, domainConfig.AuthenticationTypesEnum) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;

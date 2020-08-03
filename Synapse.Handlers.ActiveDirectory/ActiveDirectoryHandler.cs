@@ -373,7 +373,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             string statusAction = "Created";
 
             String idOnly = null;
-            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+            String domain = DirectoryServices.GetDomainFromIdentity(obj.Identity, out idOnly);
 
             switch ( obj.Type )
             {
@@ -443,7 +443,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                         if (!ou.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName(ou.ManagedBy);
+                            String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity(ou.ManagedBy);
                             if (distinguishedName == null)
                                 distinguishedName = ou.ManagedBy;
 
@@ -485,7 +485,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                         if (!comp.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName(comp.ManagedBy);
+                            String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity(comp.ManagedBy);
                             if (distinguishedName == null)
                                 distinguishedName = comp.ManagedBy;
 
@@ -568,7 +568,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             string statusAction = "Modified";
 
             String idOnly = null;
-            String domain = DirectoryServices.GetDomain(obj.Identity, out idOnly);
+            String domain = DirectoryServices.GetDomainFromIdentity(obj.Identity, out idOnly);
 
             switch ( obj.Type )
             {
@@ -645,7 +645,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                         if (!ou.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName(ou.ManagedBy);
+                            String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity(ou.ManagedBy);
                             if (distinguishedName == null)
                                 distinguishedName = ou.ManagedBy;
 
@@ -690,7 +690,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
 
                         if (!comp.Properties.ContainsKey("managedBy"))
                         {
-                            String distinguishedName = DirectoryServices.GetDistinguishedName(comp.ManagedBy);
+                            String distinguishedName = DirectoryServices.GetDistinguishedNameFromIdentity(comp.ManagedBy);
                             if (distinguishedName == null)
                                 distinguishedName = comp.ManagedBy;
 
@@ -733,7 +733,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if (!String.IsNullOrWhiteSpace(obj.Name))
             {
                 String newName = null;
-                String newDomain = DirectoryServices.GetDomain(obj.Name, out newName);
+                String newDomain = DirectoryServices.GetDomainFromIdentity(obj.Name, out newName);
                 DirectoryEntry de = DirectoryServices.Rename(obj.Identity, newName);
                 obj.Identity = de.Properties["distinguishedName"].Value.ToString().Replace("LDAP://", "");
             }
@@ -857,7 +857,7 @@ public class ActiveDirectoryHandler : HandlerRuntimeBase
             if ( obj.Type == AdObjectType.User || obj.Type == AdObjectType.Group )
             {
                 String id = null;
-                String domain = DirectoryServices.GetDomain(obj.Identity, out id);
+                String domain = DirectoryServices.GetDomainFromIdentity(obj.Identity, out id);
                 Principal principal = DirectoryServices.GetPrincipal( id, domain );
                 if ( principal == null )
                     throw new AdException( $"Principal [{obj.Identity}] Can Not Be Found.", AdStatusType.DoesNotExist );

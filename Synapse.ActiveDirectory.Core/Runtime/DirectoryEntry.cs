@@ -163,7 +163,7 @@ namespace Synapse.ActiveDirectory.Core
             identity = identity.Replace( "LDAP://", "" );
 
             String id = null;
-            String domain = DirectoryServices.GetDomain(identity, out id);
+            String domain = DirectoryServices.GetDomainFromIdentity(identity, out id);
 
             if ( IsDistinguishedName( id ) )
                 searchString = $"(distinguishedName={id})";
@@ -192,12 +192,24 @@ namespace Synapse.ActiveDirectory.Core
         public static List<DirectoryEntry> GetDirectoryEntries(string filter, string searchBase = null)
         {
             List<DirectoryEntry> entries = new List<DirectoryEntry>();
-            if ( String.IsNullOrWhiteSpace( searchBase ) )
-                searchBase = GetDomainDistinguishedName();
-            if ( !searchBase.StartsWith( "LDAP://" ) )
-                searchBase = "LDAP://" + searchBase;
 
-            using ( DirectoryEntry root = new DirectoryEntry( searchBase ) )
+            string domainName = DirectoryServices.config.DefaultDomain.Name;
+            if (!String.IsNullOrWhiteSpace(searchBase))
+                domainName = DirectoryServices.GetDomain(searchBase);
+
+            DomainConfig domainConfig = DirectoryServices.config.GetDomain(domainName);
+
+            string ldapPath = $"LDAP://{domainConfig.Name}:{domainConfig.Port}";
+            if (!String.IsNullOrWhiteSpace(searchBase))
+            {
+                if (!DirectoryServices.IsDistinguishedName(searchBase))
+                    searchBase = DirectoryServices.GetDistinguishedName(searchBase);
+                ldapPath += $"/{searchBase}";
+            }
+
+            Console.WriteLine($">> DirectoryEntry : {ldapPath} - {domainConfig.AuthenticationTypesEnum}");
+
+            using ( DirectoryEntry root = new DirectoryEntry( ldapPath, domainConfig.Username, domainConfig.DecryptedPassword, domainConfig.AuthenticationTypesEnum) )
             using ( DirectorySearcher searcher = new DirectorySearcher( root ) )
             {
                 searcher.Filter = filter;
