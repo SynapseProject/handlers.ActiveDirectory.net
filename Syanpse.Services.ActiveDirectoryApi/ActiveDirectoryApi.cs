@@ -10,6 +10,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.DirectoryServices;
 using System.Security.AccessControl;
+using System.Reflection;
 
 using Synapse.Core;
 using Synapse.Services;
@@ -24,8 +25,18 @@ public partial class ActiveDirectoryApiController : ApiController
     ActiveDirectoryApiConfig config = ActiveDirectoryApiConfig.DeserializeOrNew();
 
     [HttpGet]
-    [Route( "hello" )]
-    public string Hello() { return "Hello from ActiveDirectoryApiController, World!"; }
+    [Route("hello")]
+    public string Hello() { return $"Hello from ActiveDirectoryApiController, World!"; }
+
+    [HttpGet]
+    [Route("version")]
+    public string Version()
+    {
+        System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        System.Diagnostics.FileVersionInfo fvi = System.Diagnostics.FileVersionInfo.GetVersionInfo(assembly.Location);
+        string version = fvi.FileVersion;
+        return $"{assembly.FullName}, FileVersion={version}";
+    }
 
     [HttpGet]
     [Route( "synapse" )]

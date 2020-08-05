@@ -67,9 +67,14 @@ namespace Synapse.ActiveDirectory.Core
 
         public DomainConfig GetDomain(string domainName)
         {
-            DomainConfig domain = DefaultDomain;
-            if (!String.IsNullOrWhiteSpace(domainName) && ValidDomains.ContainsKey(domainName))
+            DomainConfig domain = new DomainConfig();
+            if (String.IsNullOrWhiteSpace(domainName))
+                domain = DefaultDomain;
+            else if (ValidDomains.ContainsKey(domainName))
                 domain = ValidDomains[domainName];
+            else
+                domain.Name = domainName;
+
             return domain;
         }
 

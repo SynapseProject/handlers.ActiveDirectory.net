@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>Synapse.ActiveDirectory.Sandbox</RootNamespace>
     <AssemblyName>Synapse.ActiveDirectory.Sandbox</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFrameworkProfile />
@@ -33,25 +33,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Synapse.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=a6de1cc56b73f982, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Core.Signed.1.0.19092\lib\net461\Synapse.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Synapse.Server.Extensibility, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Synapse.Server.Extensibility.1.0.19011\lib\net461\Synapse.Server.Extensibility.dll</HintPath>
+      <HintPath>..\packages\Synapse.Core.Signed.1.0.18258.1\lib\net45\Synapse.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.DirectoryServices.AccountManagement" />
-    <Reference Include="System.Net.Http.Formatting, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.7\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Threading.Tasks" />
-    <Reference Include="System.Web.Http, Version=5.2.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.7\lib\net45\System.Web.Http.dll</HintPath>
+    <Reference Include="System.Web.Http, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.3\lib\net45\System.Web.Http.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -59,8 +56,8 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="YamlDotNet, Version=6.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
-      <HintPath>..\packages\YamlDotNet.6.0.0\lib\net45\YamlDotNet.dll</HintPath>
+    <Reference Include="YamlDotNet, Version=4.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e, processorArchitecture=MSIL">
+      <HintPath>..\packages\YamlDotNet.Signed.4.0.0\lib\net35\YamlDotNet.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -75,18 +72,6 @@
     <ProjectReference Include="..\Syanpse.Services.ActiveDirectoryApi\Synapse.Services.ActiveDirectoryApi.csproj">
       <Project>{e35e65f1-a918-47f9-b7e7-dd1e950e7c11}</Project>
       <Name>Synapse.Services.ActiveDirectoryApi</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Synapse.ActiveDirectory.Core\Synapse.ActiveDirectory.Core.csproj">
-      <Project>{e27a474d-c3cc-4dd6-a9b4-5d815ea14aa0}</Project>
-      <Name>Synapse.ActiveDirectory.Core</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Synapse.ActiveDirectory.DaclRoleManager\Synapse.ActiveDirectory.DaclRoleManager.csproj">
-      <Project>{638d97b0-74fc-49e4-b523-db9e661c04d9}</Project>
-      <Name>Synapse.ActiveDirectory.DaclRoleManager</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Synapse.ActiveDirectory.Tests\Synapse.ActiveDirectory.Tests.csproj">
-      <Project>{dcc30523-9f8d-4843-b5ef-b18fbc958b6c}</Project>
-      <Name>Synapse.ActiveDirectory.Tests</Name>
     </ProjectReference>
     <ProjectReference Include="..\Synapse.Handlers.ActiveDirectory\Synapse.Handlers.ActiveDirectory.csproj">
       <Project>{b1468ed1-cdb3-473b-b8e9-50808cf1e948}</Project>
